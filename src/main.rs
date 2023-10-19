@@ -11,8 +11,9 @@ mod onnx_proto3;
 
 pub trait Compute {
     type Item;
+    type Input;
 
-    fn compute(&mut self, inputs: Vec<&Self::Item>) -> Self::Item;
+    fn compute(&mut self, inputs: Self::Input) -> Self::Item;
 }
 
 fn main() {
@@ -51,10 +52,8 @@ fn main() {
 
     //EXAMPLE CONV NODE USAGE
     let mut conv_node = Conv::new(None, None, None, None, None, None, Array4::from_elem((64,3,256,256), 1.3));
-    let mut inputs = Vec::<&Array4<f32>>::new();
     let first_input = Array4::from_elem((64,3,256,256), 1.3);
-    inputs.push(&first_input);
-    println!("{}", conv_node.compute(inputs))
+    println!("{}", conv_node.compute(first_input))
 
 
 }

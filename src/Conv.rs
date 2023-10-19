@@ -41,8 +41,9 @@ impl Conv{
 
 impl Compute for Conv{
     type Item = Array4<f32>;
+    type Input = Array4<f32>;
 
-    fn compute(&mut self, inputs: Vec<&Self::Item>) -> Self::Item {
+    fn compute(&mut self, inputs: Self::Input) -> Self::Item {
         //TODO Implementation of the convolution
         return Array4::from_elem((64,3,256,256), 1.5);
     }

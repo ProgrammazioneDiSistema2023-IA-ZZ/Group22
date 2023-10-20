@@ -87,7 +87,12 @@ fn main() {
         }
         nodes.insert(id.to_string(), node);
     }
-    let mut dep_graph = DepGraph::new(&nodes);
+    let mut dep_graph = DepGraph::new(nodes);
+    let final_result = match dep_graph.run().unwrap() {
+        Output::Tensor32(vec) => vec
+    };
+    println!("{}", final_result);
+
     /*for (key, deps) in dep_graph.deps.read().unwrap().iter(){
         println!("Node: {}", key.clone());
         print!("Deps:   ");
@@ -96,20 +101,17 @@ fn main() {
         }
         println!();
     }*/
-    for key in ["Start", "A", "B", "C", "D"]{
+    /*for key in ["Start", "A", "B", "C", "D"]{
         let mut current = nodes.remove(key).unwrap();
         println!("Iterating on: {}", current.id().clone());
         current.compute_operation(&nodes);
         nodes.insert(key.to_string(), current);
-        dep_graph.ready_nodes = graph::remove_node_id(key.to_string(),
+        let next_nodes = graph::remove_node_id(key.to_string(),
                                                       &dep_graph.deps,
                                                       &dep_graph.rdeps).unwrap();
-        println!("Ready nodes");
-        for el in dep_graph.ready_nodes.iter(){
-            println!("Node: {}", el.clone())
-        }
+        next_nodes.into_iter().for_each(|node| dep_graph.ready_nodes.push(node));
     }
-    /*let out = match nodes.remove("D").unwrap().output.unwrap(){
+    let out = match nodes.remove("D").unwrap().output.unwrap(){
         Output::Tensor32(vec) => vec
     };
     print!("{}", out);*/

@@ -1,11 +1,14 @@
-
+use crossbeam::channel::{unbounded, Sender, Receiver};
 use std::collections::{HashMap, HashSet};
-use std::error;
+use std::{error, mem, thread};
 use std::fmt;
 use std::fmt::{Debug, Display, Formatter};
 use std::hash::Hash;
 use std::sync::{Arc, RwLock};
+use std::sync::mpsc::channel;
+use ndarray::Array4;
 use crate::node::{Node, SimpleNode};
+use crate::operations::Output;
 
 
 pub enum Error {
@@ -35,18 +38,22 @@ pub struct DepGraph
     pub ready_nodes: Vec<String>,
     pub deps: DependencyMap,
     pub rdeps: DependencyMap,
+    pub nodes: Arc<HashMap<String, Arc<RwLock<Node>>>>
 }
 
 impl DepGraph
 {
     /// Create a new DepGraph based on a vector of edges.
-    pub fn new(nodes: &HashMap<String, Node>) -> Self {
-        let (deps, rdeps, ready_nodes) = DepGraph::parse_nodes(nodes);
-
+    pub fn new(nodes: HashMap<String, Node>) -> Self {
+        let (deps, rdeps, ready_nodes) = DepGraph::parse_nodes(&nodes);
+        let nodes_safe = Arc::new(nodes
+            .into_iter()
+            .map( |(key, val)| (key, Arc::new(RwLock::new(val)))).collect());
         DepGraph {
             ready_nodes,
             deps,
             rdeps,
+            nodes: nodes_safe
         }
     }
 
@@ -83,6 +90,48 @@ impl DepGraph
             ready_nodes,
         )
     }
+
+    pub fn run(&mut self) -> Option<Output> {
+        //Main thread works as dispatcher
+        let mut threads = Vec::new();
+        let (tx_input, rx_input): (crossbeam::channel::Sender<String>, crossbeam::channel::Receiver<String>) = unbounded();
+        let (tx_output, rx_output): (crossbeam::channel::Sender<String>, crossbeam::channel::Receiver<String>)= unbounded();
+        for _ in 0..4 {
+            let rx = rx_input.clone();
+            let tx = tx_output.clone();
+            let node_map = self.nodes.clone();
+            let thread = thread::spawn(move | | {
+                    while let Ok(node) = rx.recv() {
+                        let mut node_to_process = node_map.get(&node).unwrap();
+                        node_to_process.write().unwrap().compute_operation(&node_map);
+                        tx.send(node).unwrap();
+                    }
+            });
+            threads.push(thread);
+        }
+        let mut last_node = None;
+        while let Ok(node_to_add) = rx_output.recv() {
+            self.ready_nodes.append(&mut remove_node_id(node_to_add.clone(), &self.deps, &self.rdeps).unwrap());
+            //No more nodes leave
+            if self.deps.read().unwrap().is_empty() {
+                last_node = Some(node_to_add);
+                break;
+            }
+            while let Some(node_to_process) = self.ready_nodes.pop(){
+                tx_input.send(node_to_process).unwrap();
+            }
+        }
+
+        mem::drop(tx_input);
+        for handle in threads {handle.join().unwrap();}
+        if let Some(inference) = last_node {
+            return self.nodes.get(&inference).unwrap().read().unwrap().output.clone();
+        }else{
+            return None;
+        }
+    }
+
+
 }
 
 /// Remove all references to the node ID in the dependencies.

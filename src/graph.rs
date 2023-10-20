@@ -109,6 +109,11 @@ impl DepGraph
             });
             threads.push(thread);
         }
+        //Start Injection
+        while let Some(node_to_process) = self.ready_nodes.pop(){
+            tx_input.send(node_to_process).unwrap();
+        }
+        //Running
         let mut last_node = None;
         while let Ok(node_to_add) = rx_output.recv() {
             self.ready_nodes.append(&mut remove_node_id(node_to_add.clone(), &self.deps, &self.rdeps).unwrap());

@@ -68,7 +68,7 @@ fn main() {
     nodes.insert(start_node.id(), start_node);
     let x: u16 = 2;
 
-    for (id, costant) in [("A", x), ("B",3), ("C",2), ("D", 1)] {
+    for (id, costant) in [("A", x), ("B",3), ("C",2), ("D", 1), ("X", 2), ("Y", 6)] {
         //let mut conv_node = Conv::new(None, None, None,
                                       //None, None, None,
                                       //Array4::from_elem((64, 3, 256, 256), 1.3));
@@ -79,11 +79,18 @@ fn main() {
             "B" => "A",
             "C" => "A",
             "D" => "B",
+            "X" => "A",
+            "Y" => "X",
             _ => "Start"
         };
         node.add_dep(previous.to_string());
         if id == "D" {
             node.add_dep("C".to_string());
+            node.add_dep("Y".to_string());
+            node.add_dep("A".to_string());
+        }
+        if id == "X" {
+            node.add_dep("B".to_string());
         }
         nodes.insert(id.to_string(), node);
     }

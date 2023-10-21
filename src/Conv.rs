@@ -1,7 +1,8 @@
 use ndarray::{Array1, Array4, arr1, Shape, Dim};
-use crate::Compute;
+use crate::operations::{Compute, Input, Output};
 use crate::onnx_proto3::{AttributeProto, NodeProto};
 
+#[derive(Clone, Debug)]
 pub struct Conv{
     autopad: String,
     dilations: Array1<i32>,
@@ -9,7 +10,7 @@ pub struct Conv{
     kernel_shape: Shape<Dim<[usize; 2]>>,
     pads: Array1<i32>,
     strides: Array1<i32>,
-    w: Array4<f32>
+    w: Array4<f32>,
 }
 
 impl Conv{
@@ -27,7 +28,7 @@ impl Conv{
             kernel_shape: kernel_shape.unwrap_or(Shape::from(Dim([1, 1]))),
             pads: pads.unwrap_or(arr1(&[0, 0, 0, 0])),
             strides: strides.unwrap_or(arr1(&[1, 1])),
-            w,
+            w
         }
 
     }
@@ -39,12 +40,31 @@ impl Conv{
 
 }
 
-impl Compute for Conv{
-    type Item = Array4<f32>;
-    type Input = Array4<f32>;
 
-    fn compute(&mut self, inputs: Self::Input) -> Self::Item {
+impl Compute for Conv{
+
+    fn compute(&mut self, inputs: Input) -> Output {
         //TODO Implementation of the convolution
-        return Array4::from_elem((64,3,256,256), 1.5);
+        return Output::Tensor32(Array4::from_elem((64,3,256,256), 1.5));
+    }
+}
+
+pub struct Start {
+    data: Input
+}
+
+impl Start {
+    pub fn new(input: Array4<f32>) -> Self {
+        Start{data: Input::Tensor32(input)}
+    }
+}
+
+impl Compute for Start{
+
+    fn compute(&mut self, inputs: Input) -> Output {
+        return match self.data.clone() {
+            Input::Tensor32(vec) => Output::Tensor32(vec),
+            _ => panic!("Wrong starting input type")
+        }
     }
 }

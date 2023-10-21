@@ -25,7 +25,7 @@ fn main() {
         .expect("protoc");*/
 
     //Lettura onnx file
-    let mut input_onnx = File::open("src/mobilenetv2-10.onnx").unwrap();
+    let mut input_onnx = File::open("src/mnist-7.onnx").unwrap();
     //Onnx file into byte array
     let mut byte_array = Vec::<u8>::new();
     input_onnx.read_to_end(&mut byte_array).unwrap();
@@ -55,7 +55,5 @@ fn main() {
     let first_input = Array4::from_elem((64,3,256,256), 1.3);
     inputs.push(&first_input);
     println!("{}", conv_node.compute(inputs))
-
-
 }
 

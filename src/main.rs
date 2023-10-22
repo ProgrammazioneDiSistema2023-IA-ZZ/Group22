@@ -7,7 +7,7 @@ use crate::onnx_proto3::ModelProto;
 use protobuf::{Message};
 use crate::conv::{Conv, Start};
 use ndarray::Array4;
-use crate::add::Add;
+use crate::add::{Add, AddToTryGraph};
 use crate::graph::DepGraph;
 use crate::node::{Node, SimpleNode};
 use crate::operations::{Compute, Input, Output};
@@ -72,7 +72,7 @@ fn main() {
         //let mut conv_node = Conv::new(None, None, None,
                                       //None, None, None,
                                       //Array4::from_elem((64, 3, 256, 256), 1.3));
-        let mut add_node = Add::new(f32::from(costant));
+        let mut add_node = AddToTryGraph::new(f32::from(costant));
         let mut node = Node::new(id.to_string(), Box::new(add_node));
         let previous = match id {
             "A" => "Start",

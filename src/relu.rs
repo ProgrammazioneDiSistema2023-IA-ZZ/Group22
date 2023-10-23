@@ -20,19 +20,19 @@ impl Compute for Relu {
     fn compute(&mut self, inputs: Input) -> Output {
         match inputs {
             Input::Tensor1(array) => {
-                let result = array.mapv(|x| if x > 0.0 { x } else { 0.0 });
+                let result = array.par_mapv_inplace()()(|x| if x > 0.0 { x } else { 0.0 });
                 Output::Tensor1(result)
             }
             Input::Tensor2(array) => {
-                let result = array.mapv(|x| if x > 0.0 { x } else { 0.0 });
+                let result = array.par_mapv_inplace()()(|x| if x > 0.0 { x } else { 0.0 });
                 Output::Tensor2(result)
             }
             Input::Tensor3(array) => {
-                let result = array.mapv(|x| if x > 0.0 { x } else { 0.0 });
+                let result = array.par_mapv_inplace()(|x| if x > 0.0 { x } else { 0.0 });
                 Output::Tensor3(result)
             }
             Input::Tensor32(array) => {
-                let result = array.mapv(|x| if x > 0.0 { x } else { 0.0 });
+                let result = array.par_mapv_inplace()(|x| if x > 0.0 { x } else { 0.0 });
                 Output::Tensor32(result)
             }
             _ => panic!("Wrong input"),

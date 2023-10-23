@@ -22,6 +22,10 @@ mod add;
 mod operations;
 mod graph;
 mod reshape;
+mod relu;
+mod lrn;
+mod matmul;
+mod maxpool;
 
 fn main() {
     //Script per estrarre onnx_proto3.rs tramite protocol buffer

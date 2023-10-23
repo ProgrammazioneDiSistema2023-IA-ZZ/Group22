@@ -1,0 +1,41 @@
+use ndarray::{Array1, Array4, Array, arr1, Shape, Dim};
+use crate::operations::{Compute, Input, Output};
+use crate::onnx_proto3::{AttributeProto, NodeProto};
+
+#[derive(Clone, Debug)]
+pub struct Relu{
+}
+
+impl Relu{
+    pub fn new(constant: f32) -> Relu{
+        return Relu{}
+    }
+
+    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Relu{
+        return Relu{}
+    }
+}
+
+impl Compute for Relu {
+    fn compute(&mut self, inputs: Input) -> Output {
+        match inputs {
+            Input::Tensor1(array) => {
+                let result = array.mapv(|x| if x > 0.0 { x } else { 0.0 });
+                Output::Tensor1(result)
+            }
+            Input::Tensor2(array) => {
+                let result = array.mapv(|x| if x > 0.0 { x } else { 0.0 });
+                Output::Tensor2(result)
+            }
+            Input::Tensor3(array) => {
+                let result = array.mapv(|x| if x > 0.0 { x } else { 0.0 });
+                Output::Tensor3(result)
+            }
+            Input::Tensor32(array) => {
+                let result = array.mapv(|x| if x > 0.0 { x } else { 0.0 });
+                Output::Tensor32(result)
+            }
+            _ => panic!("Wrong input"),
+        }
+    }
+}

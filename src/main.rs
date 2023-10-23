@@ -8,11 +8,12 @@ use std::io::Read;
 use crate::onnx_proto3::{AttributeProto, ModelProto, NodeProto};
 use protobuf::{Message, ProtobufEnum};
 use crate::conv::{Conv, Start};
-use ndarray::{Array2, Array4};
+use ndarray::{Array, Array2, Array3, Array4};
 use crate::add::{Add, AddToTryGraph};
 use crate::graph::DepGraph;
 use crate::node::{Node, SimpleNode};
 use crate::operations::{Compute, Input, Output};
+use crate::relu::Relu;
 use crate::reshape::Reshape;
 
 mod conv;
@@ -149,8 +150,22 @@ fn main() {
         println!("GODO FUNZIONA, MICHELE SEI UNA MERDA");
         println!("{}", array);
     }
-    let reshape_node_parsed = Reshape::parse_from_proto_node(&reshape_node.unwrap().attribute);
+    let reshape_node_parsed = Reshape::parse_from_proto_node(&reshape_node.clone().unwrap().attribute);
     reshape_node_parsed.shape.into_iter().for_each(|val| print!("{} ", val));
+
+    //Testing ReLU
+    let source = vec![1.0, -2.0, 3.0, -4.0, 5.0, -6.0, 7.0, -8.0, 9.0, -10.0, 11.0,
+                      -12.0, 13.0, -14.0, 15.0, -16.0];
+    let result = vec![1.0, 0.0, 3.0, 0.0, 5.0, 0.0, 7.0, 0.0, 9.0, 0.0, 11.0,
+                      0.0, 13.0, 0.0, 15.0, 0.0];
+    let input_to_relu = Input::Tensor3(Array3::from_shape_vec((2, 8, 1), source).unwrap());
+    let relu_result = Array3::from_shape_vec((2, 8, 1), result).unwrap();
+    let mut relu_node = Relu::parse_from_proto_node(&reshape_node.unwrap().attribute);
+    let output = match relu_node.compute(input_to_relu) {
+        Output::Tensor3(array) => array,
+        _ => panic!("Shape error")
+    };
+    assert_eq!(output, relu_result);
 
 }
 

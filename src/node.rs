@@ -67,7 +67,8 @@ impl Node
             let elem = self.deps.iter().next().unwrap().clone();
             let only_dep = nodes.get(&elem).unwrap();
             let input = match only_dep.read().unwrap().output.clone().unwrap() {
-                Output::Tensor32(array) => Input::Tensor32(array)
+                Output::Tensor32(array) => Input::Tensor32(array),
+                _ => panic!("wrong output")
             };
             self.output = Some(self.operation.compute(input));
 
@@ -76,7 +77,8 @@ impl Node
             self.deps.iter().for_each(|dep| {
                 let elem = nodes.get(dep).unwrap();
                 let input = match elem.read().unwrap().output.clone().unwrap() {
-                    Output::Tensor32(array) => array
+                    Output::Tensor32(array) => array,
+                    _ => panic!("wrong output")
                 };
                 inputs.push(input);
             });

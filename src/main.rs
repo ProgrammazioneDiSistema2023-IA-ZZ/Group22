@@ -1,24 +1,27 @@
+extern crate core;
+
 use std::collections::{HashMap, HashSet};
 use std::collections::hash_map::DefaultHasher;
 use std::fs::File;
 use std::hash::Hash;
 use std::io::Read;
-use crate::onnx_proto3::ModelProto;
-use protobuf::{Message};
+use crate::onnx_proto3::{AttributeProto, ModelProto, NodeProto};
+use protobuf::{Message, ProtobufEnum};
 use crate::conv::{Conv, Start};
-use ndarray::Array4;
-//use crate::add::Add;
+use ndarray::{Array2, Array4};
+use crate::add::{Add, AddToTryGraph};
 use crate::graph::DepGraph;
 use crate::node::{Node, SimpleNode};
 use crate::operations::{Compute, Input, Output};
+use crate::reshape::Reshape;
+
 mod conv;
 mod onnx_proto3;
 mod node;
-//mod add;
+mod add;
 mod operations;
 mod graph;
 mod reshape;
-mod relu;
 
 fn main() {
     //Script per estrarre onnx_proto3.rs tramite protocol buffer
@@ -30,7 +33,7 @@ fn main() {
         .expect("protoc");*/
 
     //Lettura onnx file
-    let mut input_onnx = File::open("src/mnist-7.onnx").unwrap();
+    let mut input_onnx = File::open("src/mnist-1.onnx").unwrap();
     //Onnx file into byte array
     let mut byte_array = Vec::<u8>::new();
     input_onnx.read_to_end(&mut byte_array).unwrap();
@@ -48,7 +51,17 @@ fn main() {
     let nodes = graph.get_node();
     //Estrazione dei nomi delle operazioni con hash set per velocizzare sviluppo
     let mut class_map = HashSet::<String>::new();
+    let mut reshape_node: Option<NodeProto> = None;
     for node in nodes.iter(){
+        if node.op_type == "Reshape"{
+            reshape_node = Some(node.clone());
+           for attr in node.attribute.iter(){
+               print!("{} ", attr.name);
+               print!("{} ", attr.field_type.value());
+               attr.ints.iter().for_each(|val| print!("{} ", val));
+               println!();
+           }
+        }
         class_map.insert(node.op_type.clone());
     }
     //stampa degli op_type di ogni operazione
@@ -58,12 +71,12 @@ fn main() {
     let mut conv_node = Conv::new(None, None, None, None, None, None, Array4::from_elem((64,3,256,256), 1.3));
     let first_input = Array4::from_elem((64,3,256,256), 1.3);
     let output = match conv_node.compute(Input::Tensor32(first_input)) {
-        Output::Tensor32(vec) => vec
+        Output::Tensor32(vec) => vec,
+        _ => panic!("wrong output")
     };
     println!("{}", output);
 
     let mut nodes = HashMap::<String, Node>::new();
-    let mut nodes_vec = Vec::<Node>::new();
     let mut previous = "Start";
     let start_node = Node::new(previous.to_string(),
                                Box::new(Start::new(Array4::from_elem((64, 3, 256, 256), 1.5))));
@@ -71,11 +84,11 @@ fn main() {
     let x: u16 = 2;
 
     for (id, costant) in [("A", x), ("B",3), ("C",2), ("D", 1), ("X", 2), ("Y", 6)] {
-        let mut conv_node = Conv::new(None, None, None,
-                                      None, None, None,
-                                      Array4::from_elem((64, 3, 256, 256), 1.3));
-        //let mut add_node = Add::new(f32::from(costant));
-        let mut node = Node::new(id.to_string(), Box::new(conv_node));
+        //let mut conv_node = Conv::new(None, None, None,
+                                      //None, None, None,
+                                      //Array4::from_elem((64, 3, 256, 256), 1.3));
+        let mut add_node = AddToTryGraph::new(f32::from(costant));
+        let mut node = Node::new(id.to_string(), Box::new(add_node));
         let previous = match id {
             "A" => "Start",
             "B" => "A",
@@ -98,7 +111,8 @@ fn main() {
     }
     let mut dep_graph = DepGraph::new(nodes);
     let final_result = match dep_graph.run().unwrap() {
-        Output::Tensor32(vec) => vec
+        Output::Tensor32(vec) => vec,
+        _ => panic!("wrong output")
     };
     println!("{}", final_result);
 
@@ -124,7 +138,15 @@ fn main() {
         Output::Tensor32(vec) => vec
     };
     print!("{}", out);*/
-
+    let mut node_reshape = Reshape{shape: vec![3, 4, 1]};
+    let input = Input::Tensor2(Array2::from_elem((3, 4), 1.3));
+    let output = node_reshape.compute(input);
+    if let Output::Tensor3(array) = output {
+        println!("GODO FUNZIONA, MICHELE SEI UNA MERDA");
+        println!("{}", array);
+    }
+    let reshape_node_parsed = Reshape::parse_from_proto_node(&reshape_node.unwrap().attribute);
+    reshape_node_parsed.shape.into_iter().for_each(|val| print!("{} ", val));
 
 }
 

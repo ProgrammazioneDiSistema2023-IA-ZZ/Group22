@@ -1,8 +1,7 @@
 use std::fmt::Debug;
-use ndarray::{Array, Array4, ArrayBase};
-//use crate::add::Add;
+use ndarray::{Array, Array1, Array2, Array3, Array4, ArrayBase};
+use crate::add::Add;
 use crate::conv::Conv;
-use crate::reshape::Reshape;
 use crate::onnx_proto3::NodeProto;
 
 
@@ -40,12 +39,18 @@ impl Operation {
 #[derive(Clone, Debug)]
 pub enum Input {
     Tensor32(Array4<f32>),
+    Tensor1(Array1<f32>),
+    Tensor2(Array2<f32>),
+    Tensor3(Array3<f32>),
     Tensor32Vec(Vec<Array4<f32>>),
     Empty
 }
 
 #[derive(Clone, Debug)]
 pub enum Output {
-    Tensor32(Array4<f32>)
+    Tensor32(Array4<f32>),
+    Tensor1(Array1<f32>),
+    Tensor2(Array2<f32>),
+    Tensor3(Array3<f32>),
 }
 

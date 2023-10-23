@@ -7,16 +7,18 @@ use crate::onnx_proto3::ModelProto;
 use protobuf::{Message};
 use crate::conv::{Conv, Start};
 use ndarray::Array4;
-use crate::add::Add;
+//use crate::add::Add;
 use crate::graph::DepGraph;
 use crate::node::{Node, SimpleNode};
 use crate::operations::{Compute, Input, Output};
 mod conv;
 mod onnx_proto3;
 mod node;
-mod add;
+//mod add;
 mod operations;
 mod graph;
+mod reshape;
+mod relu;
 
 fn main() {
     //Script per estrarre onnx_proto3.rs tramite protocol buffer
@@ -28,7 +30,7 @@ fn main() {
         .expect("protoc");*/
 
     //Lettura onnx file
-    let mut input_onnx = File::open("src/mobilenetv2-10.onnx").unwrap();
+    let mut input_onnx = File::open("src/mnist-7.onnx").unwrap();
     //Onnx file into byte array
     let mut byte_array = Vec::<u8>::new();
     input_onnx.read_to_end(&mut byte_array).unwrap();
@@ -69,11 +71,11 @@ fn main() {
     let x: u16 = 2;
 
     for (id, costant) in [("A", x), ("B",3), ("C",2), ("D", 1), ("X", 2), ("Y", 6)] {
-        //let mut conv_node = Conv::new(None, None, None,
-                                      //None, None, None,
-                                      //Array4::from_elem((64, 3, 256, 256), 1.3));
-        let mut add_node = Add::new(f32::from(costant));
-        let mut node = Node::new(id.to_string(), Box::new(add_node));
+        let mut conv_node = Conv::new(None, None, None,
+                                      None, None, None,
+                                      Array4::from_elem((64, 3, 256, 256), 1.3));
+        //let mut add_node = Add::new(f32::from(costant));
+        let mut node = Node::new(id.to_string(), Box::new(conv_node));
         let previous = match id {
             "A" => "Start",
             "B" => "A",

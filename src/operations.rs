@@ -42,6 +42,7 @@ pub enum Input {
     Tensor1(Array1<f32>),
     Tensor2(Array2<f32>),
     Tensor3(Array3<f32>),
+    Tensor2Vec(Vec<Array2<f32>>),
     Tensor32Vec(Vec<Array4<f32>>),
     Empty
 }

@@ -1,5 +1,5 @@
 use std::fmt::Debug;
-use ndarray::{Array, Array1, Array2, Array3, Array4, ArrayBase};
+use ndarray::{Array, Array1, Array2, Array3, Array4, ArrayBase, ArrayD};
 use crate::add::Add;
 use crate::conv::Conv;
 use crate::onnx_proto3::NodeProto;
@@ -42,6 +42,8 @@ pub enum Input {
     Tensor1(Array1<f32>),
     Tensor2(Array2<f32>),
     Tensor3(Array3<f32>),
+    Tensor4(Array4<f32>),
+    TensorD(ArrayD<f32>), // Qui si accetta un ArrayD di f64
     Tensor32Vec(Vec<Array4<f32>>),
     Empty
 }
@@ -52,5 +54,6 @@ pub enum Output {
     Tensor1(Array1<f32>),
     Tensor2(Array2<f32>),
     Tensor3(Array3<f32>),
+    Tensor4(Array4<f32>)
 }
 

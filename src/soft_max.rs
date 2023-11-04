@@ -1,9 +1,8 @@
-
-use ndarray::{Array, array, Array1, Array2, ArrayD, Axis, Ix1, Ix2};
+use ndarray::{Array, array, Array1, Array2, ArrayD, Axis, Ix, Ix1, Ix2, IxDyn};
 use ndarray::Dim;
 use crate::operations::{Compute, Input, Output};
 use crate::onnx_proto3::{AttributeProto, NodeProto};
-use rayon::prelude::*;
+use crate::operations::Input::TensorD;
 
 #[derive(Clone, Debug)]
 pub struct SoftMax;
@@ -21,14 +20,12 @@ impl SoftMax {
 impl Compute for SoftMax {
     fn compute(&mut self, input: Input) -> Output {
 
-        let matrix: Array2<f32> = match input {
+        let mut matrix: Array2<f32> = match input {
             Input::TensorD(array) => array.into_dimensionality().unwrap(),
             _ => panic!("wrong input type")
         };
-
-
-        //let matrix = Array2::from_shape_vec((1, data.len()), data.to_vec()).unwrap();
-
+        /*
+        PREVIOUS VERSION
         let max_value = matrix.iter().cloned().fold(f32::NEG_INFINITY, f32::max);
         let subtracted = matrix - max_value;
 
@@ -37,6 +34,16 @@ impl Compute for SoftMax {
         let sum_exp = exp_values.sum();
 
         let softmax_values = exp_values / sum_exp;
+        */
+        let max_values = matrix.fold_axis(Axis(1),f32::NEG_INFINITY,
+                                          |a, b| a.max(b.clone()));
+        let len = max_values.len();
+        let subtracted = matrix - max_values.into_shape((len, 1)).unwrap();
+
+        let exp_values = subtracted.mapv(|x| x.exp());
+        let sum_exp = exp_values.fold_axis(Axis(1), 0.0, |a, b| a + b);
+        let len = sum_exp.len();
+        let softmax_values = exp_values / sum_exp.into_shape((len, 1)).unwrap();
 
         return match softmax_values.shape().len() {
             2 => Output::Tensor2(softmax_values.into_dimensionality::<Ix2>().unwrap()),
@@ -45,7 +52,6 @@ impl Compute for SoftMax {
 
     }
 }
-
 
 
 /*

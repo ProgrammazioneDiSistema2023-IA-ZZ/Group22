@@ -1,5 +1,4 @@
 extern crate core;
-
 use std::collections::{HashMap, HashSet};
 use std::collections::hash_map::DefaultHasher;
 use std::fs::File;
@@ -8,12 +7,13 @@ use std::io::Read;
 use crate::onnx_proto3::{AttributeProto, ModelProto, NodeProto};
 use protobuf::{Message, ProtobufEnum};
 use crate::conv::{Conv, Start};
-use ndarray::{Array2, Array4};
+use ndarray::{Array2, Array4, ArrayD, IxDyn};
 use crate::add::{Add, AddToTryGraph};
 use crate::graph::DepGraph;
 use crate::node::{Node, SimpleNode};
 use crate::operations::{Compute, Input, Output};
 use crate::reshape::Reshape;
+use crate::soft_max::SoftMax;
 
 mod conv;
 mod onnx_proto3;
@@ -22,7 +22,7 @@ mod add;
 mod operations;
 mod graph;
 mod reshape;
-mod SoftMax;
+mod soft_max;
 
 fn main() {
     //Script per estrarre onnx_proto3.rs tramite protocol buffer
@@ -148,6 +148,20 @@ fn main() {
     }
     let reshape_node_parsed = Reshape::parse_from_proto_node(&reshape_node.unwrap().attribute);
     reshape_node_parsed.shape.into_iter().for_each(|val| print!("{} ", val));
+
+    let input_vec:Vec<f32> = vec![0.0, 1.0, 2.0, 3.0, 10000.0, 10001.0, 10002.0, 10003.0];
+    let good_result: Vec<f32> = vec![0.032058604, 0.08714432,  0.23688284,  0.6439143,
+                                     0.032058604, 0.08714432,  0.23688284,  0.6439143  ];
+    let input_d = Input::TensorD(ArrayD::from_shape_vec(IxDyn(&[2, 4]), input_vec).unwrap());
+    let mut softmax_node = SoftMax::new();
+    let result = match softmax_node.compute(input_d) {
+        Output::Tensor2(arr) => arr.into_raw_vec(),
+        _ => panic!("Wrong result")
+    };
+    good_result.iter().for_each(|val| print!("{}", val));
+    println!();
+    result.iter().for_each(|val| print!("{}", val));
+    assert_eq!(good_result, result);
 
 }
 

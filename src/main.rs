@@ -22,6 +22,7 @@ mod add;
 mod operations;
 mod graph;
 mod reshape;
+mod SoftMax;
 
 fn main() {
     //Script per estrarre onnx_proto3.rs tramite protocol buffer

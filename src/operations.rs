@@ -54,6 +54,7 @@ pub enum Output {
     Tensor1(Array1<f32>),
     Tensor2(Array2<f32>),
     Tensor3(Array3<f32>),
-    Tensor4(Array4<f32>)
+    Tensor4(Array4<f32>),
+    TensorD(ArrayD<f32>)
 }
 

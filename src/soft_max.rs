@@ -43,12 +43,9 @@ impl Compute for SoftMax {
         let exp_values = subtracted.mapv(|x| x.exp());
         let sum_exp = exp_values.fold_axis(Axis(1), 0.0, |a, b| a + b);
         let len = sum_exp.len();
-        let softmax_values = exp_values / sum_exp.into_shape((len, 1)).unwrap();
-
-        return match softmax_values.shape().len() {
-            2 => Output::Tensor2(softmax_values.into_dimensionality::<Ix2>().unwrap()),
-            _ => panic!("Wrong shape dim reshape")
-        }
+        let softmax_values: Array2<f32> = exp_values / sum_exp.into_shape((len, 1)).unwrap();
+        let out_len  = Vec::from(softmax_values.shape());
+        return Output::TensorD(softmax_values.into_shape(IxDyn(&out_len)).unwrap());
 
     }
 }

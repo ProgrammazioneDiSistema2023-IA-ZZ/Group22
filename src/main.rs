@@ -7,7 +7,7 @@ use std::io::Read;
 use crate::onnx_proto3::{AttributeProto, ModelProto, NodeProto};
 use protobuf::{Message, ProtobufEnum};
 use crate::conv::{Conv, Start};
-use ndarray::{Array2, Array4, ArrayD, IxDyn};
+use ndarray::{Array2, Array4, ArrayD, Ix2, IxDyn};
 use crate::add::{Add, AddToTryGraph};
 use crate::graph::DepGraph;
 use crate::node::{Node, SimpleNode};
@@ -140,7 +140,7 @@ fn main() {
     };
     print!("{}", out);*/
     let mut node_reshape = Reshape{shape: vec![3, 4, 1]};
-    let input = Input::Tensor2(Array2::from_elem((3, 4), 1.3));
+    let input = Input::TensorD(Array2::from_elem((3, 4), 1.3).into_shape(IxDyn(&[3, 4])).unwrap());
     let output = node_reshape.compute(input);
     if let Output::Tensor3(array) = output {
         println!("GODO FUNZIONA, MICHELE SEI UNA MERDA");
@@ -155,7 +155,7 @@ fn main() {
     let input_d = Input::TensorD(ArrayD::from_shape_vec(IxDyn(&[2, 4]), input_vec).unwrap());
     let mut softmax_node = SoftMax::new();
     let result = match softmax_node.compute(input_d) {
-        Output::Tensor2(arr) => arr.into_raw_vec(),
+        Output::TensorD(arr) => arr.into_dimensionality::<Ix2>().unwrap().into_raw_vec(),
         _ => panic!("Wrong result")
     };
     good_result.iter().for_each(|val| print!("{}", val));

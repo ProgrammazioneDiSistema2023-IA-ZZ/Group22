@@ -1,4 +1,4 @@
-use ndarray::{Array1, Array4, arr1, Shape, Dim, Array2, Array3, Ix1, Ix2, Ix3, Ix4};
+use ndarray::{Array1, Array4, arr1, Shape, Dim, Array2, Array3, Ix1, Ix2, Ix3, Ix4, IxDyn};
 use crate::operations::{Compute, Input, Output};
 use crate::onnx_proto3::{AttributeProto, NodeProto};
 
@@ -26,6 +26,8 @@ impl Reshape{
 impl Compute for Reshape{
 
     fn compute(&mut self, inputs: Input) -> Output {
+        /*
+        OLD VERSION
         let reshaped =  match inputs {
             Input::Tensor32(array) => array.into_shape(self.shape.clone()).unwrap(),
             Input::Tensor1(array) => array.into_shape(self.shape.clone()).unwrap(),
@@ -41,6 +43,12 @@ impl Compute for Reshape{
             4 => Output::Tensor32(reshaped.into_dimensionality::<Ix4>().unwrap()),
             _ => panic!("Wrong shape dim reshape")
         }
+    */
+        let reshaped =  match inputs {
+            Input::TensorD(array) => array.into_shape(IxDyn(&self.shape)).unwrap(),
+            _ => panic!("Wrong input reshape")
+        };
+        return Output::TensorD(reshaped);
     }
 }
 

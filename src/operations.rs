@@ -45,6 +45,7 @@ pub enum Input {
     Tensor4(Array4<f32>),
     TensorD(ArrayD<f32>), // Qui si accetta un ArrayD di f64
     Tensor32Vec(Vec<Array4<f32>>),
+    Tensor4List(Vec<ArrayD<f32>>),
     Empty
 }
 

@@ -12,5 +12,7 @@ protoc-bin-vendored = "3.0.0"
 protoc-rust = "2.28.0"
 ndarray="0.15.6"
 crossbeam = "0.8"
+rayon = "1.5"
+rand = "0.8"
 
 

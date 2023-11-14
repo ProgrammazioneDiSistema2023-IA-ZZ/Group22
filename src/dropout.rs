@@ -10,14 +10,14 @@ pub struct Dropout{
 impl Dropout{
     pub fn new(
         seed: Option<i32>
-    ) -> Conv{
+    ) -> Dropout{
         return Dropout{
             seed: seed.unwrap_or(0)//i don't know what the default value is
         }
 
     }
 
-    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Option<Conv>{ //Change from Option to pure Conv
+    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Option<Dropout>{ //Change from Option to pure Conv
         //TODO Implement the method to parse from a vector of attributes
         return None;
     }
@@ -25,10 +25,13 @@ impl Dropout{
 }
 
 
-impl Compute for Conv{
+impl Compute for Dropout{
 
     fn compute(&mut self, inputs: Input) -> Output {
-        //TODO Implementation of the convolution
-        return Output::Tensor32(Array4::from_elem((64,3,256,256), 1.5));
+        let out = match inputs{
+            Input::TensorD(array) => array,
+            _ => panic!("Wrong input")
+        };
+        return Output::TensorD(out);
     }
 }

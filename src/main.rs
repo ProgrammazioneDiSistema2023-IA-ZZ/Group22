@@ -1,14 +1,17 @@
 extern crate core;
+
+use std::any::Any;
 use std::collections::{HashMap, HashSet};
 use std::collections::hash_map::DefaultHasher;
 use std::fs::File;
 use std::hash::Hash;
 use std::io::Read;
-use crate::onnx_proto3::{AttributeProto, ModelProto, NodeProto};
+use crate::onnx_proto3::{AttributeProto, ModelProto, NodeProto, TypeProto_oneof_value};
 use protobuf::{Message, ProtobufEnum};
 use crate::conv::{Conv, Start};
-use ndarray::{Array2, Array4, ArrayD, Ix2, IxDyn};
+use ndarray::{Array1, Array2, Array4, ArrayD, Ix2, IxDyn};
 use crate::add::{Add, AddToTryGraph};
+use crate::gemm::Gemm;
 use crate::graph::DepGraph;
 use crate::node::{Node, SimpleNode};
 use crate::operations::{Compute, Input, Output};
@@ -24,6 +27,8 @@ mod graph;
 mod reshape;
 mod soft_max;
 mod dropout;
+mod gemm;
+mod Concat;
 
 fn main() {
     //Script per estrarre onnx_proto3.rs tramite protocol buffer
@@ -35,7 +40,7 @@ fn main() {
         .expect("protoc");*/
 
     //Lettura onnx file
-    let mut input_onnx = File::open("src/mnist-1.onnx").unwrap();
+    let mut input_onnx = File::open("src/googlenet-3.onnx").unwrap();
     //Onnx file into byte array
     let mut byte_array = Vec::<u8>::new();
     input_onnx.read_to_end(&mut byte_array).unwrap();
@@ -49,25 +54,64 @@ fn main() {
     };
     //Estrazione grafo dal modello Proto
     let graph = model.get_graph();
+    //How to transform a TensorProto into  Vec<f32>
+    /*for val in graph.get_initializer().iter(){
+        if val.get_name() == "loss3/classifier_w_0" {
+            let mut raw = val.get_raw_data();
+            println!("{}", raw.len());
+            let floats: Vec<f32> = raw
+                .chunks_exact(4) // Split into chunks of 4 bytes (size of f32)
+                .map(|chunk| {
+                    let mut bytes_array = [0; 4];
+                    bytes_array.copy_from_slice(chunk);
+                    f32::from_bits(u32::from_le_bytes(bytes_array)) // Convert u8 to f32
+                })
+                .collect();
+            let mut i = 0;
+            for el in floats.into_iter(){
+                print!("{} ", el);
+                i += 1;
+                if i % 10 == 0 {println!()}
+                if i == 1000 {return;}
+            }
+        }
+    }
+    return;*/
     //Estrazione dei nodi dal protoGrafo
     let nodes = graph.get_node();
     //Estrazione dei nomi delle operazioni con hash set per velocizzare sviluppo
     let mut class_map = HashSet::<String>::new();
     let mut reshape_node: Option<NodeProto> = None;
     for node in nodes.iter(){
+        println!("{}", node.name.clone());
+        println!("{}", node.get_domain());
+        println!("{}", node.get_doc_string());
+        println!("{}", node.get_op_type());
         if node.op_type == "Reshape"{
-            reshape_node = Some(node.clone());
            for attr in node.attribute.iter(){
                print!("{} ", attr.name);
                print!("{} ", attr.field_type.value());
                attr.ints.iter().for_each(|val| print!("{} ", val));
                println!();
            }
+            node.get_input().iter().for_each(|s| println!("{}", s.clone()));
+        }
+        if node.op_type == "Reshape"{
+            reshape_node = Some(node.clone());
         }
         class_map.insert(node.op_type.clone());
     }
     //stampa degli op_type di ogni operazione
     class_map.into_iter().for_each(|el| {println!("{}", el)});
+
+    let mut gemm_node = Gemm::new(None, None, None, Some(1), Vec::from(["Prova".to_string()]));
+    let input_gemm = Array2::from_elem((1, 1024), 1.3).into_shape(IxDyn(&[1, 1024])).unwrap();
+    let b_vec = Array2::from_elem((1000, 1024), 3.0).into_shape(IxDyn(&[1000, 1024])).unwrap();
+    let c_vec = Array1::from_elem((1000), 2.0).into_shape(IxDyn(&[1000])).unwrap();
+    let inputs = Input::Tensor4List(Vec::from([input_gemm, b_vec, c_vec]));
+    let out = gemm_node.compute(inputs);
+
+    return;
 
     //EXAMPLE CONV NODE USAGE
     let mut conv_node = Conv::new(None, None, None, None, None, None, Array4::from_elem((64,3,256,256), 1.3));

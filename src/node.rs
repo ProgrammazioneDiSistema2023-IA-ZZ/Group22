@@ -14,7 +14,7 @@ use crate::operations::{Compute, Input, Output};
 pub struct Node
 {
     id: String,
-    deps: HashSet<String>,
+    deps: Vec<String>,
     operation: Box<dyn Compute + Send + Sync>,
     pub output: Option<Output>
 }
@@ -46,7 +46,7 @@ impl Node
     pub fn new(id: String, operation: Box<dyn Compute + Send + Sync>) -> Node {
         Node {
             id,
-            deps: HashSet::default(),
+            deps: Vec::default(),
             operation,
             output: None
         }
@@ -55,14 +55,16 @@ impl Node
     pub fn id(&self) -> String {
         self.id.clone()
     }
-    pub fn deps(&self) -> &HashSet<String> {
-        &self.deps
+    pub fn deps(&self) -> HashSet<String> {
+
+        HashSet::from_iter(self.deps.clone().into_iter())
     }
     pub fn add_dep(&mut self, dep: String) {
-        self.deps.insert(dep);
+        self.deps.push(dep);
     }
 
     pub fn compute_operation(&mut self, nodes: &HashMap<String, Arc<RwLock<Node>>>) -> () {
+        //TODO Remember to handle gemm node order of input
         if self.deps.len() == 1{
             let elem = self.deps.iter().next().unwrap().clone();
             let only_dep = nodes.get(&elem).unwrap();

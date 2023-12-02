@@ -26,7 +26,7 @@ impl MaxPool{
             autopad: ap.unwrap_or("NOT_SET".to_string()),
             ceil_mode: cm.unwrap_or(0),
             dilations: dil.unwrap_or(arr1(&[1, 1])),
-            kernel_shape,
+            kernel_shape: kernel_shape,
             pads: pads.unwrap_or(arr1(&[0, 0, 0, 0])),
             storage_order: st_or.unwrap_or(0),
             strides: strides.unwrap_or(arr1(&[1, 1]))

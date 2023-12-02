@@ -1,4 +1,4 @@
-use ndarray::{Array1, Array4, arr1, Shape, Dim};
+use ndarray::{Array1, Array4, arr1, Shape, Dim, Array2, Axis};
 use crate::operations::{Compute, Input, Output};
 use crate::onnx_proto3::{AttributeProto, NodeProto};
 

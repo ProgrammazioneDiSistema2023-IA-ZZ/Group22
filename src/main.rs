@@ -28,7 +28,7 @@ mod reshape;
 mod soft_max;
 mod dropout;
 mod gemm;
-mod Concat;
+mod concat;
 
 fn main() {
     //Script per estrarre onnx_proto3.rs tramite protocol buffer
@@ -40,7 +40,7 @@ fn main() {
         .expect("protoc");*/
 
     //Lettura onnx file
-    let mut input_onnx = File::open("src/googlenet-3.onnx").unwrap();
+    let mut input_onnx = File::open("src/mnist-7.onnx").unwrap();
     //Onnx file into byte array
     let mut byte_array = Vec::<u8>::new();
     input_onnx.read_to_end(&mut byte_array).unwrap();
@@ -111,7 +111,7 @@ fn main() {
     let inputs = Input::Tensor4List(Vec::from([input_gemm, b_vec, c_vec]));
     let out = gemm_node.compute(inputs);
 
-    return;
+    //return;
 
     //EXAMPLE CONV NODE USAGE
     let mut conv_node = Conv::new(None, None, None, None, None, None, Array4::from_elem((64,3,256,256), 1.3));

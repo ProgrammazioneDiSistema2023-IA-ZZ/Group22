@@ -149,6 +149,9 @@ impl Compute for Conv{
                         }
 
                         y[[ni as usize, mi as usize, hi as usize, wi as usize]] = sum;
+                        //the output tensor will have dimensions (n, m, oh, ow) where n is the number
+                        //of examples in the batch; m is the number of output channels; oh is the
+                        //output height; ow is the output width
                     }
                 }
             }

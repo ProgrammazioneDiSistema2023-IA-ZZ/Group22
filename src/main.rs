@@ -55,6 +55,8 @@ fn main() {
     //Estrazione grafo dal modello Proto
     let graph = model.get_graph();
     //How to transform a TensorProto into  Vec<f32>
+
+
     /*for val in graph.get_initializer().iter(){
         if val.get_name() == "loss3/classifier_w_0" {
             let mut raw = val.get_raw_data();
@@ -77,6 +79,9 @@ fn main() {
         }
     }
     return;*/
+
+
+
     //Estrazione dei nodi dal protoGrafo
     let nodes = graph.get_node();
     //Estrazione dei nomi delle operazioni con hash set per velocizzare sviluppo

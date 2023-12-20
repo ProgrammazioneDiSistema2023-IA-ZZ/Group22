@@ -55,13 +55,14 @@ impl Compute for Conv{
         let kernel_shape = self.kernel_shape;
         let pads = self.pads.clone();
         let strides = self.strides.clone();
-        let w1 = self.w.clone();
-        let b = self.b.clone();
 
-        let mut x = match inputs {
+        let mut vec = match inputs {
             Input::Tensor4List(vec_array) => vec_array,
             _ => panic!("Input is not a vector")
         };
+        let mut x = vec[0];
+        let mut w1 = vec[1];
+        let mut b = vec[2];
 
         // Retrieve input dimensions
         //let (n, c, h, w) = (x.shape()[0], x.shape()[1], x.shape()[2], x.shape()[3]);

@@ -12,8 +12,6 @@ pub struct Conv{
     kernel_shape: Shape<Dim<[usize; 2]>>,
     pads: Array1<i32>,
     strides: Array1<i32>,
-    w: Array4<f32>,
-    b: Option<Array1<f32>>,
 }
 
 impl Conv{
@@ -22,25 +20,30 @@ impl Conv{
                group: Option<u32>,
                kernel_shape: Option<Shape<Dim<[usize; 2]>>>,
                pads: Option<ndarray::Array1<i32>>,
-               strides: Option<ndarray::Array1<i32>>,
-               w: Array4<f32>,
-               b: Option<Array1<f32>>) -> Conv{
+               strides: Option<ndarray::Array1<i32>>, ) -> Conv{
         return Conv{
             autopad: ap.unwrap_or("NOT_SET".to_string()),
             dilations: dil.unwrap_or(arr1(&[1, 1])),
             group: group.unwrap_or(1),
             kernel_shape: kernel_shape.unwrap_or(Shape::from(Dim([1, 1]))),
             pads: pads.unwrap_or(arr1(&[0, 0, 0, 0])),
-            strides: strides.unwrap_or(arr1(&[1, 1])),
-            w,
-            b
+            strides: strides.unwrap_or(arr1(&[1, 1]))
         }
 
     }
 
-    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Option<Conv>{ //Change from Option to pure Conv
+    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Conv{ //Change from Option to pure Conv
         //TODO Implement the method to parse from a vector of attributes
-        return None;
+        let mut conv_tmp = Conv::new(None, None, None,
+                                     None, None, None);
+        for attr in attributes.iter(){
+            match attr.name{
+                "dilations" => {
+                    conv_tmp.dilations = Array1::from(attr.ints);
+                }
+            }
+        }
+        return conv_tmp;
     }
 
 }
@@ -210,3 +213,4 @@ and computing the element-wise multiplication between the values in the kernel a
 input values. The results are then summed up to produce a single value in the output feature map.
 This process is repeated for every position of the kernel window, resulting in the entire output feature map
  */
+

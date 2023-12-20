@@ -57,7 +57,7 @@ fn main() {
     //How to transform a TensorProto into  Vec<f32>
 
 
-    for val in graph.get_initializer().iter(){
+    /*for val in graph.get_initializer().iter(){
         if val.get_name() == "loss3/classifier_w_0" {
             let mut raw = val.get_raw_data();
             println!("{}", raw.len());
@@ -78,7 +78,7 @@ fn main() {
             }
         }
     }
-    return;
+    return;*/
 
 
 
@@ -87,12 +87,15 @@ fn main() {
     //Estrazione dei nomi delle operazioni con hash set per velocizzare sviluppo
     let mut class_map = HashSet::<String>::new();
     let mut reshape_node: Option<NodeProto> = None;
+
+    let try_attributes;
     for node in nodes.iter(){
         println!("{}", node.name.clone());
         println!("{}", node.get_domain());
         println!("{}", node.get_doc_string());
         println!("{}", node.get_op_type());
         if node.op_type == "Reshape"{
+            try_attributes = node.attribute.clone();
            for attr in node.attribute.iter(){
                print!("{} ", attr.name);
                print!("{} ", attr.field_type.value());
@@ -106,6 +109,8 @@ fn main() {
         }
         class_map.insert(node.op_type.clone());
     }
+
+
     //stampa degli op_type di ogni operazione
     class_map.into_iter().for_each(|el| {println!("{}", el)});
 

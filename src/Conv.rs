@@ -49,14 +49,14 @@ impl Conv{
 impl Compute for Conv{
 
     fn compute(&mut self, inputs: Input) -> Output {
-        let autopad = self.autopad;
-        let dilations = self.dilations;
+        let autopad = self.autopad.clone();
+        let dilations = self.dilations.clone();
         let group = self.group;
         let kernel_shape = self.kernel_shape;
-        let pads = self.pads;
-        let strides = self.strides;
-        let w1 = self.w;
-        let b = self.b;
+        let pads = self.pads.clone();
+        let strides = self.strides.clone();
+        let w1 = self.w.clone();
+        let b = self.b.clone();
 
         let mut x = match inputs {
             Input::Tensor4List(vec_array) => vec_array,

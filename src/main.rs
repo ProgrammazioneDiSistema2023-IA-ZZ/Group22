@@ -57,7 +57,7 @@ fn main() {
     //How to transform a TensorProto into  Vec<f32>
 
 
-    /*for val in graph.get_initializer().iter(){
+    for val in graph.get_initializer().iter(){
         if val.get_name() == "loss3/classifier_w_0" {
             let mut raw = val.get_raw_data();
             println!("{}", raw.len());
@@ -78,7 +78,7 @@ fn main() {
             }
         }
     }
-    return;*/
+    return;
 
 
 

@@ -14,14 +14,14 @@ pub struct Conv{
     strides: Array1<i32>,
 }
 
-impl Conv{
+impl Conv {
     pub fn new(ap: Option<String>,
                dil: Option<ndarray::Array1<i32>>,
                group: Option<u32>,
                kernel_shape: Option<Shape<Dim<[usize; 2]>>>,
                pads: Option<ndarray::Array1<i32>>,
-               strides: Option<ndarray::Array1<i32>>, ) -> Conv{
-        return Conv{
+               strides: Option<ndarray::Array1<i32>>, ) -> Conv {
+        return Conv {
             autopad: ap.unwrap_or("NOT_SET".to_string()),
             dilations: dil.unwrap_or(arr1(&[1, 1])),
             group: group.unwrap_or(1),
@@ -29,23 +29,66 @@ impl Conv{
             pads: pads.unwrap_or(arr1(&[0, 0, 0, 0])),
             strides: strides.unwrap_or(arr1(&[1, 1]))
         }
-
     }
 
-    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Conv{ //Change from Option to pure Conv
+    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Conv {//Option<Conv>{ return None;}//Change from Option to pure Conv
         //TODO Implement the method to parse from a vector of attributes
+
         let mut conv_tmp = Conv::new(None, None, None,
                                      None, None, None);
-        for attr in attributes.iter(){
-            match attr.name{
+        for attr in attributes.iter() {
+            match attr.name.as_str() {
+                "autopad" => {
+                    let string_result: Result<String, _> = String::from_utf8(attr.s.clone());
+
+                    // Check if the conversion was successful
+                    match string_result {
+                        Ok(string) => {
+                            conv_tmp.autopad = string;
+                        }
+                        Err(e) => {
+                            println!("Error decoding Vec<u8>: {:?}", e);
+                        }
+                    }
+                },
                 "dilations" => {
-                    conv_tmp.dilations = Array1::from(attr.ints);
-                }
+                    // Step 1: Convert each element from i64 to i32
+                    let converted_attr: Vec<i32> = attr.ints.clone().into_iter().map(|x| x as i32).collect();
+                    // Step 2: Create an Array1<i32> from the converted Vec<i32>
+                    let array_attr: Array1<i32> = arr1(&converted_attr);
+                    conv_tmp.dilations = array_attr;
+                },
+                "group" => {
+                    let converted_attr: u32 = attr.i.clone() as u32;
+                    conv_tmp.group = converted_attr;
+                },
+                "kernel_shape" => {
+                    //Convert from Vec<i64> to Shape<Dim<[usize; 2]>>
+                    let mut kernel_vec: [usize; 2] = [0; 2];
+                    let input = attr.ints.clone().into_iter().map(|val| val as usize).collect::<Vec<usize>>();
+                    kernel_vec.copy_from_slice(&input);
+                    conv_tmp.kernel_shape = Shape::from(Dim(kernel_vec));
+                },
+                "pads" => {
+                    // Step 1: Convert each element from i64 to i32
+                    let converted_attr: Vec<i32> = attr.ints.clone().into_iter().map(|x| x as i32).collect();
+                    // Step 2: Create an Array1<i32> from the converted Vec<i32>
+                    let array_attr: Array1<i32> = arr1(&converted_attr);
+                    conv_tmp.pads = array_attr;
+                },
+                "strides" => {
+                    // Step 1: Convert each element from i64 to i32
+                    let converted_attr: Vec<i32> = attr.ints.clone().into_iter().map(|x| x as i32).collect();
+                    // Step 2: Create an Array1<i32> from the converted Vec<i32>
+                    let array_attr: Array1<i32> = arr1(&converted_attr);
+                    conv_tmp.strides = array_attr;
+                },
+
+                _ => panic!("Attribute name not known")
             }
         }
         return conv_tmp;
     }
-
 }
 
 
@@ -54,8 +97,8 @@ impl Compute for Conv{
     fn compute(&mut self, inputs: Input) -> Output {
         let autopad = self.autopad.clone();
         let dilations = self.dilations.clone();
-        let group = self.group;
-        let kernel_shape = self.kernel_shape;
+        let group = self.group.clone();
+        let kernel_shape = self.kernel_shape.clone();
         let pads = self.pads.clone();
         let strides = self.strides.clone();
 
@@ -63,17 +106,19 @@ impl Compute for Conv{
             Input::Tensor4List(vec_array) => vec_array,
             _ => panic!("Input is not a vector")
         };
-        let mut x = vec[0];
-        let mut w1 = vec[1];
-        let mut b = vec[2];
+        // let mut x = vec[0].clone();
+        let mut x1 = &vec[0];
+        let mut x: Array4<f32> = x1.clone().into_dimensionality().unwrap();
+        let mut w1 = vec[1].clone();
+        let mut b = vec[2].clone();
 
         // Retrieve input dimensions
         //let (n, c, h, w) = (x.shape()[0], x.shape()[1], x.shape()[2], x.shape()[3]);
 
         let (mut n, mut c, mut h, mut w) = (0, 0, 0, 0);
-        for tensor in x.iter() {
+
             // Get the size of each dimension
-            let shape = tensor.shape();
+            let shape = x.shape();
             match shape.len() {
                 4 => {
                     n = shape[0].clone();
@@ -83,7 +128,7 @@ impl Compute for Conv{
                 },
                 _ => panic!("Unexpected number of dimensions in the tensor"),
             }
-        }
+
 
         // Retrieve weight dimensions
 

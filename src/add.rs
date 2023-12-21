@@ -21,8 +21,12 @@ impl Add{
 impl Compute for Add{
     fn compute(&mut self, inputs: Input) -> Output {
         return match inputs {
-            Input::Tensor32Vec(input) => {
+            Input::Tensor4List(input) => {
                 let output = input.into_iter()
+                    .map(|v| {
+                        let tmp: Array4<f32> = v.into_dimensionality().unwrap();
+                        return tmp;
+                    })
                     .reduce(move |v1, v2| (v1 + v2)).unwrap();
                 return Output::Tensor32(output.clone());
             },

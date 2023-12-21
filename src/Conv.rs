@@ -210,26 +210,6 @@ impl Compute for Conv{
     }
 }
 
-pub struct Start {
-    data: Input
-}
-
-impl Start {
-    pub fn new(input: Array4<f32>) -> Self {
-        Start{data: Input::Tensor32(input)}
-    }
-}
-
-impl Compute for Start{
-
-    fn compute(&mut self, inputs: Input) -> Output {
-        return match self.data.clone() {
-            Input::Tensor32(vec) => Output::Tensor32(vec),
-            _ => panic!("Wrong starting input type")
-        }
-    }
-}
-
 /*
 notes about the attributes:
 -auto_pad: ...When set to SAME_UPPER or SAME_LOWER, the input is padded to ensure that for each

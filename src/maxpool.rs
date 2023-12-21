@@ -1,0 +1,83 @@
+use ndarray::{Array1, Array4, arr1, Shape, Dim, Dimension, IxDyn};
+use crate::operations::{Compute, Input, Output};
+use crate::onnx_proto3::{AttributeProto, NodeProto};
+use std::cmp::max;
+use ndarray::ArrayD;
+
+#[derive(Clone, Debug)]
+pub struct MaxPool{
+    kernel_shape: Shape<Dim<[usize; 2]>>,
+    pads: Array1<i32>,
+    strides: Array1<i32>,
+}
+
+impl MaxPool{
+    pub fn new(
+               kernel_shape: Option<Shape<Dim<[usize; 2]>>>,
+               pads: Option<ndarray::Array1<i32>>,
+               strides: Option<ndarray::Array1<i32>>, ) -> MaxPool{
+        return MaxPool{
+            kernel_shape: kernel_shape.unwrap_or(Shape::from(Dim([1, 1]))),
+            pads: pads.unwrap_or(arr1(&[0, 0, 0, 0])),
+            strides: strides.unwrap_or(arr1(&[1, 1]))
+        }
+
+    }
+
+    /*pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> MaxPool{
+        //TODO Implement the method to parse from a vector of attributes
+    }*/
+
+}
+
+
+impl Compute for MaxPool {
+    fn compute(&mut self, inputs: Input) -> Output {
+        let out = match inputs{
+            Input::TensorD(array) => array,
+            _ => panic!("Wrong input")
+        };
+
+        let mut x: Array4<f32> = out.into_dimensionality().unwrap();
+
+        // Padding
+        let left_h = self.pads[0] as usize;
+        let left_w = self.pads[1] as usize;
+        let right_h = self.pads[2] as usize;
+        let right_w = self.pads[3] as usize;
+        let kernel_size = self.kernel_shape.raw_dim().last_elem();
+        let stride_h = self.strides[0] as usize;
+        let stride_w = self.strides[1] as usize;
+
+        let output_dims = [x.shape()[0],
+                                    x.shape()[1],
+            ((x.shape()[2] + kernel_size - left_h - right_h)/stride_h + 1),
+            ((x.shape()[3] + kernel_size - left_w - right_w)/stride_w + 1)];
+        let mut result: Array4<f32> = Array4::from_elem(output_dims.clone(), 0.0);
+
+        //Input dims
+        let (b, c, h, w) = (x.shape()[0], x.shape()[1], x.shape()[2], x.shape()[3]);
+
+        for batch in 0..b{
+            for channel in 0..c{
+                //outdim h
+                for i in 0..output_dims[2]{
+                    //outdim w
+                    for j in 0..output_dims[3]{
+                        //moving the kernel
+                        let mut max_num = x[[batch, channel, i * stride_w, j * stride_h]];
+                        for m in 0..kernel_size{
+                            for n in 0..kernel_size {
+                                max_num = f32::max(max_num, x[[batch, channel, (i * stride_w + m), (j * stride_h + n)]]);
+                            }
+                        }
+                        //after kernel assign the value
+                        result[[batch, channel, i, j]] = max_num;
+                    }
+                }
+            }
+        }
+
+        return Output::TensorD(result.into_shape(IxDyn(&output_dims)).unwrap());
+    }
+}

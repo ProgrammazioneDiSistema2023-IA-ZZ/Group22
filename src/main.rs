@@ -8,7 +8,6 @@ use std::hash::Hash;
 use std::io::Read;
 use crate::onnx_proto3::{AttributeProto, ModelProto, NodeProto, TypeProto_oneof_value};
 use protobuf::{Message, ProtobufEnum};
-use crate::conv::{Conv, Start};
 use ndarray::{Array1, Array2, Array4, ArrayD, Ix2, IxDyn};
 use crate::add::{Add, AddToTryGraph};
 use crate::gemm::Gemm;
@@ -17,8 +16,8 @@ use crate::node::{Node, SimpleNode};
 use crate::operations::{Compute, Input, Output};
 use crate::reshape::Reshape;
 use crate::soft_max::SoftMax;
+use crate::start::Start;
 
-mod conv;
 mod onnx_proto3;
 mod node;
 mod add;
@@ -29,6 +28,19 @@ mod soft_max;
 mod dropout;
 mod gemm;
 mod concat;
+mod maxpool;
+mod start;
+
+#[cfg(test)]
+mod tests {
+    use crate::maxpool::MaxPool;
+
+    #[test]
+    fn it_works() {
+        let result = 2 + 2;
+        assert_eq!(result, 4);
+    }
+}
 
 fn main() {
     //Script per estrarre onnx_proto3.rs tramite protocol buffer
@@ -88,14 +100,12 @@ fn main() {
     let mut class_map = HashSet::<String>::new();
     let mut reshape_node: Option<NodeProto> = None;
 
-    let try_attributes;
     for node in nodes.iter(){
         println!("{}", node.name.clone());
         println!("{}", node.get_domain());
         println!("{}", node.get_doc_string());
         println!("{}", node.get_op_type());
         if node.op_type == "Reshape"{
-            try_attributes = node.attribute.clone();
            for attr in node.attribute.iter(){
                print!("{} ", attr.name);
                print!("{} ", attr.field_type.value());
@@ -123,14 +133,14 @@ fn main() {
 
     //return;
 
-    //EXAMPLE CONV NODE USAGE
+    /*//EXAMPLE CONV NODE USAGE
     let mut conv_node = Conv::new(None, None, None, None, None, None, Array4::from_elem((64,3,256,256), 1.3));
     let first_input = Array4::from_elem((64,3,256,256), 1.3);
     let output = match conv_node.compute(Input::Tensor32(first_input)) {
         Output::Tensor32(vec) => vec,
         _ => panic!("wrong output")
     };
-    println!("{}", output);
+    println!("{}", output);*/
 
     let mut nodes = HashMap::<String, Node>::new();
     let mut previous = "Start";

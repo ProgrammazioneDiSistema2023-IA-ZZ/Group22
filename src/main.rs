@@ -8,10 +8,11 @@ use std::hash::Hash;
 use std::io::Read;
 use crate::onnx_proto3::{AttributeProto, ModelProto, NodeProto, TypeProto_oneof_value};
 use protobuf::{Message, ProtobufEnum};
-use ndarray::{Array1, Array2, Array4, ArrayD, Ix2, IxDyn};
+use ndarray::{arr1, Array1, Array2, Array4, ArrayD, Dim, Ix2, Ix4, IxDyn, Shape};
 use crate::add::{Add, AddToTryGraph};
 use crate::gemm::Gemm;
 use crate::graph::DepGraph;
+use crate::maxpool::MaxPool;
 use crate::node::{Node, SimpleNode};
 use crate::operations::{Compute, Input, Output};
 use crate::reshape::Reshape;
@@ -33,12 +34,65 @@ mod start;
 
 #[cfg(test)]
 mod tests {
+    use std::cmp::max;
+    use ndarray::{arr1, Dim, Ix4, Shape};
+    use ndarray::{Array1, Array2, Array4, ArrayD, Ix2, IxDyn};
     use crate::maxpool::MaxPool;
+    use crate::operations::{Compute, Input, Output};
 
     #[test]
     fn it_works() {
         let result = 2 + 2;
         assert_eq!(result, 4);
+    }
+
+    #[test]
+    fn test_max_pool_stride1(){
+        let mut max_pool_node = MaxPool::new(Some(Shape::from(Dim([7, 7]))),
+                                             Some(arr1(&[0,0,0,0])), Some(arr1(&[1,1])));
+        let mut prova = Array4::from_elem((1, 3, 9, 9), 0.0);
+        let mut comparison = Array4::from_elem((1, 3, 3, 3), 0.0);
+        for i in 0..3 {
+            prova[[0, i, 0, 0]] = 1.0;
+            prova[[0, i, 0, 8]] = 1.0;
+            prova[[0, i, 8, 0]] = 1.0;
+            prova[[0, i, 8, 8]] = 1.0;
+            comparison[[0, i, 0, 0]] = 1.0;
+            comparison[[0, i, 0, 2]] = 1.0;
+            comparison[[0, i, 2, 0]] = 1.0;
+            comparison[[0, i, 2, 2]] = 1.0;
+        }
+        let input_d = Input::TensorD(prova.into_shape(IxDyn(&[1, 3, 9, 9])).unwrap());
+        let result = match max_pool_node.compute(input_d) {
+            Output::TensorD(arr) => arr.into_dimensionality::<Ix4>().unwrap(),
+            _ => panic!("Wrong result")
+        };
+        assert_eq!(result, comparison);
+    }
+
+    #[test]
+    fn test_max_pool_stride2(){
+        let mut max_pool_node = MaxPool::new(Some(Shape::from(Dim([7, 7]))),
+                                             Some(arr1(&[0,0,0,0])), Some(arr1(&[2,2])));
+        let mut prova = Array4::from_elem((1, 3, 9, 9), 0.0);
+        let mut comparison = Array4::from_elem((1, 3, 2, 2), 0.0);
+        for i in 0..3 {
+            prova[[0, i, 0, 0]] = 1.0;
+            prova[[0, i, 0, 8]] = 2.0;
+            prova[[0, i, 8, 0]] = 1.5;
+            prova[[0, i, 8, 8]] = 3.0;
+            prova[[0, i, 4, 4]] = 0.5;
+            comparison[[0, i, 0, 0]] = 1.0;
+            comparison[[0, i, 0, 1]] = 2.0;
+            comparison[[0, i, 1, 0]] = 1.5;
+            comparison[[0, i, 1, 1]] = 3.0;
+        }
+        let input_d = Input::TensorD(prova.into_shape(IxDyn(&[1, 3, 9, 9])).unwrap());
+        let result = match max_pool_node.compute(input_d) {
+            Output::TensorD(arr) => arr.into_dimensionality::<Ix4>().unwrap(),
+            _ => panic!("Wrong result")
+        };
+        assert_eq!(result, comparison);
     }
 }
 

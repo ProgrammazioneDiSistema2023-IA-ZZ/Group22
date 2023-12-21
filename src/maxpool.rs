@@ -51,13 +51,14 @@ impl Compute for MaxPool {
 
         let output_dims = [x.shape()[0],
                                     x.shape()[1],
-            ((x.shape()[2] + kernel_size - left_h - right_h)/stride_h + 1),
-            ((x.shape()[3] + kernel_size - left_w - right_w)/stride_w + 1)];
+            ((x.shape()[2] - kernel_size + left_h + right_h)/stride_h + 1),
+            ((x.shape()[3] - kernel_size + left_w + right_w)/stride_w + 1)];
         let mut result: Array4<f32> = Array4::from_elem(output_dims.clone(), 0.0);
 
         //Input dims
         let (b, c, h, w) = (x.shape()[0], x.shape()[1], x.shape()[2], x.shape()[3]);
-
+        println!("{}", output_dims[2].clone());
+        println!("{}", output_dims[3].clone());
         for batch in 0..b{
             for channel in 0..c{
                 //outdim h

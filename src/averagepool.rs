@@ -5,18 +5,18 @@ use std::cmp::max;
 use ndarray::ArrayD;
 
 #[derive(Clone, Debug)]
-pub struct MaxPool{
+pub struct AveragePool{
     kernel_shape: Shape<Dim<[usize; 2]>>,
     pads: Array1<i32>,
     strides: Array1<i32>,
 }
 
-impl MaxPool{
+impl AveragePool{
     pub fn new(
-               kernel_shape: Option<Shape<Dim<[usize; 2]>>>,
-               pads: Option<ndarray::Array1<i32>>,
-               strides: Option<ndarray::Array1<i32>>, ) -> MaxPool{
-        return MaxPool{
+        kernel_shape: Option<Shape<Dim<[usize; 2]>>>,
+        pads: Option<ndarray::Array1<i32>>,
+        strides: Option<ndarray::Array1<i32>>, ) -> AveragePool{
+        return AveragePool{
             kernel_shape: kernel_shape.unwrap_or(Shape::from(Dim([1, 1]))),
             pads: pads.unwrap_or(arr1(&[1, 1, 1, 1])),
             strides: strides.unwrap_or(arr1(&[1, 1]))
@@ -31,7 +31,7 @@ impl MaxPool{
 }
 
 
-impl Compute for MaxPool {
+impl Compute for AveragePool {
     fn compute(&mut self, inputs: Input) -> Output {
         let out = match inputs{
             Input::TensorD(array) => array,
@@ -51,7 +51,7 @@ impl Compute for MaxPool {
 
 
         let output_dims = [x.shape()[0],
-                                    x.shape()[1],
+            x.shape()[1],
             ((x.shape()[2] - kernel_size + left_h + right_h)/stride_h + 1),
             ((x.shape()[3] - kernel_size + left_w + right_w)/stride_w + 1)];
         let mut result: Array4<f32> = Array4::from_elem(output_dims.clone(), 0.0);
@@ -75,14 +75,14 @@ impl Compute for MaxPool {
                     //outdim w
                     for j in 0..output_dims[3]{
                         //moving the kernel
-                        let mut max_num = x[[batch, channel, i * stride_h, j * stride_w]];
+                        let mut sum_num = 0.0;
                         for m in 0..kernel_size{
                             for n in 0..kernel_size {
-                                max_num = f32::max(max_num, x[[batch, channel, (i * stride_h + m), (j * stride_w + n)]]);
+                                sum_num += x[[batch, channel, (i * stride_h + m), (j * stride_w + n)]];
                             }
                         }
                         //after kernel assign the value
-                        result[[batch, channel, i, j]] = max_num;
+                        result[[batch, channel, i, j]] = sum_num / (kernel_size as f32 * kernel_size as f32);
                     }
                 }
             }

@@ -31,12 +31,14 @@ mod gemm;
 mod concat;
 mod maxpool;
 mod start;
+mod averagepool;
 
 #[cfg(test)]
 mod tests {
     use std::cmp::max;
     use ndarray::{arr1, Dim, Ix4, Shape};
     use ndarray::{Array1, Array2, Array4, ArrayD, Ix2, IxDyn};
+    use crate::averagepool::AveragePool;
     use crate::maxpool::MaxPool;
     use crate::operations::{Compute, Input, Output};
 
@@ -94,9 +96,24 @@ mod tests {
         };
         assert_eq!(result, comparison);
     }
+
+    #[test]
+    fn test_average_pool_stride2(){
+        let mut avg_pool_node = AveragePool::new(Some(Shape::from(Dim([7, 7]))),
+                                             Some(arr1(&[0,0,0,0])), Some(arr1(&[2,2])));
+        let mut prova = Array4::from_elem((1, 3, 9, 9), 1.0);
+        let mut comparison = Array4::from_elem((1, 3, 2, 2), 1.0);
+        let input_d = Input::TensorD(prova.into_shape(IxDyn(&[1, 3, 9, 9])).unwrap());
+        let result = match avg_pool_node.compute(input_d) {
+            Output::TensorD(arr) => arr.into_dimensionality::<Ix4>().unwrap(),
+            _ => panic!("Wrong result")
+        };
+        assert_eq!(result, comparison);
+    }
 }
 
 fn main() {
+
     //Script per estrarre onnx_proto3.rs tramite protocol buffer
     /*protoc_rust::Codegen::new()
         .out_dir("src")

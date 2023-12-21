@@ -67,7 +67,6 @@ impl Compute for AveragePool {
 
 
         //Input dims
-        println!("{}", x.clone());
         for batch in 0..b{
             for channel in 0..c{
                 //outdim h

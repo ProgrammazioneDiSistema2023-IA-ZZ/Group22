@@ -32,13 +32,15 @@ mod concat;
 mod maxpool;
 mod start;
 mod averagepool;
+mod local_response_normalization;
 
 #[cfg(test)]
 mod tests {
     use std::cmp::max;
-    use ndarray::{arr1, Dim, Ix4, Shape};
+    use ndarray::{arr1, Array, Dim, Ix4, Shape};
     use ndarray::{Array1, Array2, Array4, ArrayD, Ix2, IxDyn};
     use crate::averagepool::AveragePool;
+    use crate::local_response_normalization::LRN;
     use crate::maxpool::MaxPool;
     use crate::operations::{Compute, Input, Output};
 
@@ -74,7 +76,11 @@ mod tests {
 
     #[test]
     fn test_max_pool_stride2(){
-        let mut max_pool_node = MaxPool::new(Some(Shape::from(Dim([7, 7]))),
+        let mut kernel_vec:[usize; 2] = [0; 2];
+        let mut input: Vec<i64> = vec![7, 7];
+        let input = input.into_iter().map(|val| val as usize).collect::<Vec<usize>>();
+        kernel_vec.copy_from_slice(&input);
+        let mut max_pool_node = MaxPool::new(Some(Shape::from(Dim(kernel_vec) )),
                                              Some(arr1(&[0,0,0,0])), Some(arr1(&[2,2])));
         let mut prova = Array4::from_elem((1, 3, 9, 9), 0.0);
         let mut comparison = Array4::from_elem((1, 3, 2, 2), 0.0);
@@ -110,10 +116,39 @@ mod tests {
         };
         assert_eq!(result, comparison);
     }
+
+    #[test]
+    fn test_lrn(){
+        // Create two test Array4 instances (representing images)
+        let vec1 = vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0,
+                7.0, 8.0, 9.0, 10.0, 11.0, 12.0,
+            13.0, 14.0, 15.0, 16.0, 17.0, 18.0,
+            19.0, 20.0, 21.0, 22.0, 23.0, 24.0
+        ];
+        let vec2 = vec![0.99795485,  1.9948157,   2.9902866,   3.9840744,   4.9758863,   5.965434,
+              6.95243,     7.936592,    8.917418,    9.894319,   10.86688,    11.834699,
+             12.797375,   13.754522,   14.705759,   15.650717,   16.844427,   17.81153,
+             18.774221,   19.732246,   20.685343,   21.633266,   22.57577,    23.512613
+        ];
+        let test_data_1: Array4<f32> = Array4::from_shape_vec(
+            Shape::from(Dim([1, 3, 2, 4])), vec1).unwrap();
+
+        let test_data_2: Array4<f32> = Array4::from_shape_vec(
+            Shape::from(Dim([1, 3, 2, 4])), vec2).unwrap();
+
+        let mut lrn_node = LRN::new(0.0001, 0.75, 1.0, 3);
+
+        let input_d = Input::TensorD(test_data_1.into_shape(IxDyn(&[1, 3, 2, 4])).unwrap());
+        let result = match lrn_node.compute(input_d) {
+            Output::TensorD(arr) => arr.into_dimensionality::<Ix4>().unwrap(),
+            _ => panic!("Wrong result")
+        };
+        assert_eq!(result, test_data_2);
+    }
 }
 
 fn main() {
-
     //Script per estrarre onnx_proto3.rs tramite protocol buffer
     /*protoc_rust::Codegen::new()
         .out_dir("src")

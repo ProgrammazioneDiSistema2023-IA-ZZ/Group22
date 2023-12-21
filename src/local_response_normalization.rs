@@ -1,0 +1,63 @@
+use std::cmp::{max, min};
+use ndarray::{Array, array, Array1, Array2, Array4, ArrayD, Axis, Ix, Ix1, Ix2, IxDyn, s};
+use ndarray::Dim;
+use crate::operations::{Compute, Input, Output};
+use crate::onnx_proto3::{AttributeProto, NodeProto};
+use crate::operations::Input::TensorD;
+
+#[derive(Clone, Debug)]
+pub struct LRN{
+    alpha: f32,
+    beta: f32,
+    bias: f32,
+    size: i64
+}
+
+impl LRN {
+    pub fn new(alpha: f32, beta: f32, bias: f32, size: i64) -> LRN {
+        LRN{alpha, beta, bias, size}
+    }
+
+    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Option<LRN> {
+        //TODO Implement it
+        None
+    }
+}
+
+impl Compute for LRN {
+    fn compute(&mut self, input: Input) -> Output {
+
+        let mut tensor: Array4<f32> = match input {
+            Input::TensorD(array) => array.into_dimensionality().unwrap(),
+            _ => panic!("wrong input type")
+        };
+        let input_len = tensor.shape();
+        let mut square_sum = Array4::zeros(tensor.raw_dim());
+        let (b, c, h, w) = (input_len[0], input_len[1], input_len[2], input_len[3]);
+        let limit = (c) as i32;
+        //compute square_sum
+        for batch in 0..b{
+            for channel in 0..c{
+                // max(0, c - int(math.floor((nsize - 1) / 2))) : min(5, c + int(math.ceil((nsize - 1) / 2)) + 1
+                let tmp = ((self.size as f32 - 1.0)/2.0);
+                let cur_channel = channel as i32;
+                let start = max(0, cur_channel - tmp.floor() as i32) as usize;
+                let end = min(limit, cur_channel + tmp.ceil() as i32 + 1) as usize;
+                for i_h in 0..h{
+                    for j_w in 0..w{
+                        let sum_tmp = tensor.slice(s![batch,start..end,i_h, j_w])
+                            .mapv(|val| val.powf(2.0))
+                            .sum();
+                        square_sum[[batch, channel, i_h, j_w]] = sum_tmp;
+                    }
+                }
+            }
+        }
+
+        //y = x / ((bias + (alpha / nsize) * square_sum) ** beta)
+        let tmp = (self.bias + (self.alpha / self.size as f32) * square_sum).mapv(|val| val.powf(self.beta));
+        let normalized_values = tensor / tmp;
+        let outlen = Vec::from(normalized_values.shape());
+        return Output::TensorD(normalized_values.into_shape(IxDyn(&outlen)).unwrap());
+    }
+}

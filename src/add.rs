@@ -1,4 +1,4 @@
-use ndarray::{Array1, Array4, arr1, Shape, Dim};
+use ndarray::{Array1, Array4, arr1, Shape, Dim, IxDyn};
 use crate::operations::{Compute, Input, Output};
 use crate::onnx_proto3::{AttributeProto, NodeProto};
 
@@ -7,7 +7,7 @@ pub struct Add{
 }
 
 impl Add{
-    pub fn new(constant: f32) -> Add{
+    pub fn new() -> Add{
         return Add{ }
 
     }
@@ -23,12 +23,9 @@ impl Compute for Add{
         return match inputs {
             Input::Tensor4List(input) => {
                 let output = input.into_iter()
-                    .map(|v| {
-                        let tmp: Array4<f32> = v.into_dimensionality().unwrap();
-                        return tmp;
-                    })
                     .reduce(move |v1, v2| (v1 + v2)).unwrap();
-                return Output::Tensor32(output.clone());
+                let out_len = Vec::from(output.shape());
+                return Output::TensorD(output.into_shape(IxDyn(&out_len)).unwrap());
             },
             _ => panic!("Wrong input")
         }

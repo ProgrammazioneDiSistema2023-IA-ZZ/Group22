@@ -44,6 +44,7 @@ mod tests {
     use ndarray::{Array1, Array2, Array4, ArrayD, Ix2, IxDyn};
     use protobuf::Message;
     use crate::averagepool::AveragePool;
+    use crate::gemm::Gemm;
     use crate::local_response_normalization::LRN;
     use crate::maxpool::MaxPool;
     use crate::onnx_proto3::{ModelProto, NodeProto};
@@ -257,6 +258,38 @@ mod tests {
         }
         assert_eq!(lrn_nodes.len(), count);
     }
+
+    #[test]
+    fn test_gemm_parsing(){
+        let mut input_onnx = File::open("src/gender_googlenet.onnx").unwrap();
+        //Onnx file into byte array
+        let mut byte_array = Vec::<u8>::new();
+        input_onnx.read_to_end(&mut byte_array).unwrap();
+        //Parsing del byte array nella struttura onnx_proto3.rs
+        let model: ModelProto = match Message::parse_from_bytes(&byte_array) {
+            Ok(model) => model,
+            Err(err) => {
+                eprintln!("Failed to parse the ONNX model: {}", err);
+                return;
+            }
+        };
+        let graph = model.get_graph();
+        //Estrazione dei nodi dal protoGrafo
+        let nodes = graph.get_node();
+        let mut gemm_nodes: Vec<Gemm> = Vec::new();
+        let mut count = 0;
+
+        for node in nodes.iter(){
+            if node.op_type == "Gemm"{
+                count+=1;
+                gemm_nodes.push(Gemm::parse_from_proto_node(node.attribute.as_slice()));
+            }
+        }
+        for node in gemm_nodes.iter(){
+            println!("{} - {} - {} - {}", node.alpha, node.beta, node.trans_a, node.trans_b);
+        }
+        assert_eq!(gemm_nodes.len(), count);
+    }
 }
 
 fn main() {
@@ -342,7 +375,7 @@ fn main() {
     //stampa degli op_type di ogni operazione
     class_map.into_iter().for_each(|el| {println!("{}", el)});
 
-    let mut gemm_node = Gemm::new(None, None, None, Some(1), Vec::from(["Prova".to_string()]));
+    let mut gemm_node = Gemm::new(None, None, None, Some(1));
     let input_gemm = Array2::from_elem((1, 1024), 1.3).into_shape(IxDyn(&[1, 1024])).unwrap();
     let b_vec = Array2::from_elem((1000, 1024), 3.0).into_shape(IxDyn(&[1000, 1024])).unwrap();
     let c_vec = Array1::from_elem(1000, 2.0).into_shape(IxDyn(&[1000])).unwrap();

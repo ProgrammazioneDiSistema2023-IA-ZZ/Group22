@@ -6,9 +6,9 @@ use ndarray::ArrayD;
 
 #[derive(Clone, Debug)]
 pub struct MaxPool{
-    kernel_shape: Shape<Dim<[usize; 2]>>,
-    pads: Array1<i32>,
-    strides: Array1<i32>,
+    pub kernel_shape: Shape<Dim<[usize; 2]>>,
+    pub pads: Array1<i32>,
+    pub strides: Array1<i32>,
 }
 
 impl MaxPool{
@@ -24,9 +24,30 @@ impl MaxPool{
 
     }
 
-    /*pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> MaxPool{
-        //TODO Implement the method to parse from a vector of attributes
-    }*/
+    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> MaxPool{
+        let mut kernel_shape= Shape::from(Dim([1, 1]));
+        let mut kernel_vec: [usize; 2] = [0; 2];
+        let mut pads = Default::default();
+        let mut strides = Default::default();
+        for attr in attributes.iter(){
+            match attr.name.as_str(){
+                "kernel_shape" => {
+                    let tmp = attr.ints.iter().map(|val| *val as usize).collect::<Vec<usize>>();
+                    kernel_vec.copy_from_slice(&tmp);
+                    kernel_shape = Shape::from(Dim(kernel_vec));
+                },
+                "strides" => {
+                    strides = arr1(&attr.ints.iter().map(|val| *val as i32).collect::<Vec<i32>>());
+                },
+                "pads" => {
+                    pads = arr1(&attr.ints.iter().map(|val| *val as i32).collect::<Vec<i32>>());
+                },
+                _ => ()
+            }
+
+        }
+        return MaxPool{kernel_shape, pads, strides }
+    }
 
 }
 

@@ -37,11 +37,16 @@ mod local_response_normalization;
 #[cfg(test)]
 mod tests {
     use std::cmp::max;
-    use ndarray::{arr1, Array, Dim, Ix4, Shape};
+    use std::collections::HashSet;
+    use std::fs::File;
+    use std::io::Read;
+    use ndarray::{arr1, Array, Dim, Dimension, Ix4, Shape};
     use ndarray::{Array1, Array2, Array4, ArrayD, Ix2, IxDyn};
+    use protobuf::Message;
     use crate::averagepool::AveragePool;
     use crate::local_response_normalization::LRN;
     use crate::maxpool::MaxPool;
+    use crate::onnx_proto3::{ModelProto, NodeProto};
     use crate::operations::{Compute, Input, Output};
 
     #[test]
@@ -179,6 +184,47 @@ mod tests {
         };
         assert_eq!(result, test_data_2);
     }
+
+    #[test]
+    fn test_max_pool_parsing(){
+        let mut input_onnx = File::open("src/mnist-7.onnx").unwrap();
+        //Onnx file into byte array
+        let mut byte_array = Vec::<u8>::new();
+        input_onnx.read_to_end(&mut byte_array).unwrap();
+        //Parsing del byte array nella struttura onnx_proto3.rs
+        let model: ModelProto = match Message::parse_from_bytes(&byte_array) {
+            Ok(model) => model,
+            Err(err) => {
+                eprintln!("Failed to parse the ONNX model: {}", err);
+                return;
+            }
+        };
+        let graph = model.get_graph();
+        //Estrazione dei nodi dal protoGrafo
+        let nodes = graph.get_node();
+        let mut max_nodes: Vec<MaxPool> = Vec::new();
+        let mut count = 0;
+
+        for node in nodes.iter(){
+            if node.op_type == "MaxPool"{
+                count+=1;
+                max_nodes.push(MaxPool::parse_from_proto_node(node.attribute.as_slice()));
+            }
+        }
+        for node in max_nodes.iter(){
+            print!("Kernel Shape: ");
+            node.kernel_shape.raw_dim().slice().iter().for_each(|el| print!("{}", el));
+            println!();
+            print!("Pads: ");
+            node.pads.iter().for_each(|el| print!("{}", *el));
+            println!();
+            print!("Strides: ");
+            node.strides.iter().for_each(|el| print!("{}", *el));
+            println!();
+            println!();
+        }
+        assert_eq!(max_nodes.len(), count);
+    }
 }
 
 fn main() {
@@ -240,11 +286,11 @@ fn main() {
     let mut reshape_node: Option<NodeProto> = None;
 
     for node in nodes.iter(){
-        println!("{}", node.name.clone());
+        /*println!("{}", node.name.clone());
         println!("{}", node.get_domain());
         println!("{}", node.get_doc_string());
-        println!("{}", node.get_op_type());
-        if node.op_type == "Reshape"{
+        println!("{}", node.get_op_type());*/
+        if node.op_type == "MaxPool"{
            for attr in node.attribute.iter(){
                print!("{} ", attr.name);
                print!("{} ", attr.field_type.value());
@@ -259,14 +305,14 @@ fn main() {
         class_map.insert(node.op_type.clone());
     }
 
-
+    return;
     //stampa degli op_type di ogni operazione
     class_map.into_iter().for_each(|el| {println!("{}", el)});
 
     let mut gemm_node = Gemm::new(None, None, None, Some(1), Vec::from(["Prova".to_string()]));
     let input_gemm = Array2::from_elem((1, 1024), 1.3).into_shape(IxDyn(&[1, 1024])).unwrap();
     let b_vec = Array2::from_elem((1000, 1024), 3.0).into_shape(IxDyn(&[1000, 1024])).unwrap();
-    let c_vec = Array1::from_elem((1000), 2.0).into_shape(IxDyn(&[1000])).unwrap();
+    let c_vec = Array1::from_elem(1000, 2.0).into_shape(IxDyn(&[1000])).unwrap();
     let inputs = Input::Tensor4List(Vec::from([input_gemm, b_vec, c_vec]));
     let out = gemm_node.compute(inputs);
 

@@ -42,9 +42,10 @@ mod tests {
     use std::collections::HashSet;
     use std::fs::File;
     use std::io::Read;
-    use ndarray::{arr1, Array, Dim, Dimension, Ix4, Shape};
+    use ndarray::{arr1, Array, Array3, Dim, Dimension, Ix4, Shape};
     use ndarray::{Array1, Array2, Array4, ArrayD, Ix2, IxDyn};
     use protobuf::Message;
+    use crate::add::Add;
     use crate::averagepool::AveragePool;
     use crate::gemm::Gemm;
     use crate::local_response_normalization::LRN;
@@ -292,6 +293,44 @@ mod tests {
         }
         assert_eq!(gemm_nodes.len(), count);
     }
+
+    #[test]
+    fn test_add(){
+        let vec1 = vec![
+            1.0, 2.0, 3.0, 4.0, 5.0,
+            6.0, 7.0, 8.0, 9.0, 10.0,
+            11.0, 12.0, 13.0, 14.0, 15.0,
+            16.0
+        ];
+        let vec2 = vec![
+            13.0, 14.0, 15.0, 15.0
+        ];
+
+        //Retrieved from python NumPy
+        let vec3 = vec![14.0, 15.0, 16.0, 17.0, 19.0,
+                        20.0, 21.0, 22.0, 24.0, 25.0, 26.0, 27.0,
+                        28.0, 29.0, 30.0, 31.0];
+
+        let to_compare = Array4::from_shape_vec(
+            Shape::from(Dim([1, 4, 2, 2])), vec3).unwrap();
+
+        let test_data_1: Array4<f32> = Array4::from_shape_vec(
+            Shape::from(Dim([1, 4, 2, 2])), vec1).unwrap();
+
+        let test_data_2: Array3<f32> = Array3::from_shape_vec(
+            Shape::from(Dim([4, 1, 1])), vec2).unwrap();
+
+        let mut add_node = Add::new();
+
+        let input_1 = test_data_1.into_shape(IxDyn(&[1, 4, 2, 2])).unwrap();
+        let input_2 = test_data_2.into_shape(IxDyn(&[4, 1, 1])).unwrap();
+        let input_d = Input::Tensor4List(Vec::from([input_1, input_2]));
+        let result = match add_node.compute(input_d) {
+            Output::TensorD(arr) => arr.into_dimensionality::<Ix4>().unwrap(),
+            _ => panic!("Wrong result")
+        };
+        assert_eq!(result, to_compare);
+    }
 }
 
 fn main() {
@@ -398,7 +437,7 @@ fn main() {
     let mut nodes = HashMap::<String, Node>::new();
     let mut previous = "Start";
     let start_node = Node::new(previous.to_string(),
-                               Box::new(Start::new(Array4::from_elem((64, 3, 256, 256), 1.5))));
+                               Box::new(Start::new(Array4::from_elem((64, 3, 256, 256), 1.5).into_shape(IxDyn(&[64,3,256,256])).unwrap())));
     nodes.insert(start_node.id(), start_node);
     let x: u16 = 2;
 

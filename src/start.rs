@@ -1,4 +1,4 @@
-use ndarray::Array4;
+use ndarray::{ArrayD};
 use crate::operations::{Compute, Input, Output};
 
 pub struct Start {
@@ -6,8 +6,8 @@ pub struct Start {
 }
 
 impl Start {
-    pub fn new(input: Array4<f32>) -> Self {
-        Start{data: Input::Tensor32(input)}
+    pub fn new(input: ArrayD<f32>) -> Self {
+        Start{data: Input::TensorD(input)}
     }
 }
 
@@ -15,7 +15,7 @@ impl Compute for Start{
 
     fn compute(&mut self, inputs: Input) -> Output {
         return match self.data.clone() {
-            Input::Tensor32(vec) => Output::Tensor32(vec),
+            Input::TensorD(vec) => Output::TensorD(vec),
             _ => panic!("Wrong starting input type")
         }
     }

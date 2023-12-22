@@ -2,6 +2,75 @@ use std::collections::HashMap;
 use crate::graph::DepGraph;
 use crate::node::Node;
 
-pub struct ONNXRuntime {
+//Interface struct for
+pub mod onnxruntime {
+    use std::fs::File;
+    use std::io::Read;
+    use ndarray::{ArrayD, IxDyn};
+    use protobuf::Message;
+    use crate::node::Node;
+    use crate::onnx_proto3::{GraphProto, ModelProto};
+    use crate::operations::Output;
+    use crate::start::Start;
 
+    #[derive(Debug)]
+    pub enum Error{
+        ProtoBufError
+    }
+
+    pub fn parse_onnx(path: String) -> Result<ModelProto, Error>{
+        let mut input_onnx = File::open(path.as_str()).unwrap();
+        //Onnx file into byte array
+        let mut byte_array = Vec::<u8>::new();
+        input_onnx.read_to_end(&mut byte_array).unwrap();
+        //Parsing del byte array nella struttura onnx_proto3.rs
+        let model: ModelProto = match Message::parse_from_bytes(&byte_array) {
+            Ok(model) => model,
+            Err(err) => {
+                eprintln!("Failed to parse the ONNX model: {}", err);
+                return Err(Error::ProtoBufError);
+            }
+        };
+        return Ok(model);
+    }
+    pub fn get_computational_graph(path: String){
+        let model = parse_onnx(path).unwrap();
+        let graph = model.get_graph();
+
+    }
+
+    pub fn parse_initializers(graph: &GraphProto) -> Vec<Node>{
+        let starting_nodes = graph.get_initializer();
+        let mut cnt = 0;
+        let nodes: Vec<Node> = starting_nodes.into_iter().map(|tensor| {
+            cnt += 1;
+            let dims: Vec<usize> = tensor.get_dims().iter().map(|val| *val as usize).collect();
+            let mut raw = tensor.get_raw_data();
+            let mut data: Vec<f32> = Vec::new();
+            match tensor.get_data_type() {
+                1 => {
+                    if raw.len() != 0 {
+                        data = raw
+                            .chunks_exact(4) // Split into chunks of 4 bytes (size of f32)
+                            .map(|chunk| {
+                                let mut bytes_array = [0; 4];
+                                bytes_array.copy_from_slice(chunk);
+                                f32::from_bits(u32::from_le_bytes(bytes_array)) // Convert u8 to f32
+                            })
+                            .collect();
+                    } else {
+                        data = tensor.get_float_data().into_iter().map(|val| *val).collect();
+                    }
+                },
+                7 => data = tensor.get_int64_data().into_iter().map(|val| *val as f32).collect(),
+                _ => ()
+            }
+            let tensor_d = ArrayD::from_shape_vec(IxDyn(&dims), data).unwrap();
+            let mut tmp_node = Node::new(tensor.name.clone(), Box::new(Start::new()));
+            tmp_node.output = Some(Output::TensorD(tensor_d));
+            return tmp_node
+        }).collect();
+        println!("All parsed = {}",starting_nodes.len() == nodes.len());
+        return nodes;
+    }
 }

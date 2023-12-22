@@ -17,9 +17,8 @@ impl Dropout{
 
     }
 
-    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Option<Dropout>{ //Change from Option to pure Conv
-        //TODO Implement the method to parse from a vector of attributes
-        return None;
+    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Dropout{ //Change from Option to pure Conv
+        return Dropout{seed: 0};
     }
 
 }

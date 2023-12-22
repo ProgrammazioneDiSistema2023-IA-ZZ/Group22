@@ -38,14 +38,18 @@ pub struct DepGraph
     pub ready_nodes: Vec<String>,
     pub deps: DependencyMap,
     pub rdeps: DependencyMap,
-    pub nodes: Arc<HashMap<String, Arc<RwLock<Node>>>>
+    pub nodes: Arc<HashMap<String, Arc<RwLock<Node>>>>,
+    pub original_nodes: Vec<SimpleNode>
 }
 
 impl DepGraph
 {
     /// Create a new DepGraph based on a vector of edges.
     pub fn new(nodes: HashMap<String, Node>) -> Self {
-        let (deps, rdeps, ready_nodes) = DepGraph::parse_nodes(&nodes);
+        let simple_nodes = nodes.values()
+            .map(|node| SimpleNode::new(node.id().clone(), node.deps().clone()))
+            .collect::<Vec<SimpleNode>>();
+        let (deps, rdeps, ready_nodes) = DepGraph::parse_nodes(&simple_nodes);
         let nodes_safe = Arc::new(nodes
             .into_iter()
             .map( |(key, val)| (key, Arc::new(RwLock::new(val)))).collect());
@@ -53,14 +57,17 @@ impl DepGraph
             ready_nodes,
             deps,
             rdeps,
-            nodes: nodes_safe
+            nodes: nodes_safe,
+            original_nodes: simple_nodes
         }
     }
 
-    fn parse_nodes(nodes_map: &HashMap<String, Node>) -> (DependencyMap, DependencyMap, Vec<String>) {
-        let nodes = nodes_map.values()
+    //nodes_map: &HashMap<String, Node>
+    fn parse_nodes(nodes: &Vec<SimpleNode>) -> (DependencyMap, DependencyMap, Vec<String>) {
+        /*let nodes = nodes_map.values()
             .map(|node| SimpleNode::new(node.id().clone(), node.deps().clone()))
-            .collect::<Vec<SimpleNode>>();
+            .collect::<Vec<SimpleNode>>();*/
+
         let mut deps = InnerDependencyMap::default();
         let mut rdeps = InnerDependencyMap::default();
         let mut ready_nodes = Vec::<String>::default();
@@ -92,6 +99,10 @@ impl DepGraph
     }
 
     pub fn run(&mut self) -> Option<Output> {
+        let (deps, rdeps, ready_nodes) = DepGraph::parse_nodes(&self.original_nodes);
+        self.deps = deps;
+        self.rdeps = rdeps;
+        self.ready_nodes = ready_nodes;
         //Main thread works as dispatcher
         let mut threads = Vec::new();
         let (tx_input, rx_input): (crossbeam::channel::Sender<String>, crossbeam::channel::Receiver<String>) = unbounded();

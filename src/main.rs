@@ -33,6 +33,7 @@ mod maxpool;
 mod start;
 mod averagepool;
 mod local_response_normalization;
+mod relu;
 
 #[cfg(test)]
 mod tests {

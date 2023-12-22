@@ -15,7 +15,7 @@ impl Reshape{
         }
     }
 
-    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Reshape{
+    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Reshape{ //Change from Option to pure Conv
         let shape: Vec<usize> = attributes[0].ints.iter().map(|val| val.clone() as usize).collect();
         return Reshape{shape};
     }
@@ -51,4 +51,3 @@ impl Compute for Reshape{
         return Output::TensorD(reshaped);
     }
 }
-

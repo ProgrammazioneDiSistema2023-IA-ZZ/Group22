@@ -14,6 +14,7 @@ use crate::gemm::Gemm;
 use crate::local_response_normalization::LRN;
 use crate::maxpool::MaxPool;
 use crate::onnx_proto3::{ModelProto, NodeProto};
+use crate::onnx_runtime;
 use crate::operations::{Compute, Input, Output};
 use crate::Conv::{Conv};
 use crate::reshape::Reshape;
@@ -345,5 +346,26 @@ fn test_conv_parsing(){
             _ => panic!("Wrong result")
         };
         assert_eq!(result, to_compare);
+    }
+
+    #[test]
+    fn test_parse_initializer(){
+        let model = onnx_runtime::onnxruntime::parse_onnx("src/gender_googlenet.onnx".to_string()).unwrap();
+        let graph = model.get_graph();
+        let nodes = onnx_runtime::onnxruntime::parse_initializers(graph);
+        let test_len = nodes.len();
+        nodes.into_iter().for_each(|node| {
+            print!("{} - dim: ", node.id());
+            let name = node.id().to_string();
+            if let Output::TensorD(array) = node.output.unwrap(){
+                array.shape().iter().for_each(|val| print!("{} ", *val));
+                if name == "loss3/classifier_agexgender_shape".to_string(){
+                    println!("Got it");
+                    array.iter().for_each(|val| print!("{} ", *val));
+                }
+            }
+            println!();
+        });
+        assert_eq!(graph.get_initializer().len(), test_len);
     }
 //}

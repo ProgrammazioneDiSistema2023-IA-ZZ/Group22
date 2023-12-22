@@ -438,7 +438,7 @@ fn main() {
     let mut nodes = HashMap::<String, Node>::new();
     let mut previous = "Start";
     let start_node = Node::new(previous.to_string(),
-                               Box::new(Start::new(Array4::from_elem((64, 3, 256, 256), 1.5).into_shape(IxDyn(&[64,3,256,256])).unwrap())));
+                               Box::new(Start::new()));
     nodes.insert(start_node.id(), start_node);
     let x: u16 = 2;
 

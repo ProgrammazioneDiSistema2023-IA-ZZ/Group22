@@ -15,6 +15,7 @@ mod local_response_normalization;
 mod relu;
 mod matmul;
 mod Conv;
+mod onnx_runtime;
 
 #[cfg(test)]
 mod tests {

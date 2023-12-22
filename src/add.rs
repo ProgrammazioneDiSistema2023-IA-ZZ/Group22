@@ -1,4 +1,4 @@
-use ndarray::{Array1, Array4, arr1, Shape, Dim};
+use ndarray::{Array1, Array4, arr1, Shape, Dim, IxDyn};
 use crate::operations::{Compute, Input, Output};
 use crate::onnx_proto3::{AttributeProto, NodeProto};
 
@@ -28,7 +28,8 @@ impl Compute for Add{
                         return tmp;
                     })
                     .reduce(move |v1, v2| (v1 + v2)).unwrap();
-                return Output::Tensor32(output.clone());
+                let out_len = Vec::from(output.shape());
+                return Output::TensorD(output.into_shape(IxDyn(&out_len)).unwrap());
             },
             _ => panic!("Wrong input")
         }

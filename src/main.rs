@@ -146,6 +146,39 @@ mod tests {
         };
         assert_eq!(result, test_data_2);
     }
+
+    #[test]
+    fn test_max_pool_from_python_results(){
+        let vec1 = vec![
+            1.0, 2.0, 3.0, 4.0, 5.0,
+            6.0, 7.0, 8.0, 9.0, 10.0,
+            11.0, 12.0, 13.0, 14.0, 15.0,
+            16.0, 17.0, 18.0, 19.0, 20.0,
+            21.0, 22.0, 23.0, 24.0, 25.0
+        ];
+        let vec2 = vec![
+            13.0, 14.0, 15.0, 15.0, 15.0,
+            18.0, 19.0, 20.0, 20.0, 20.0,
+            23.0, 24.0, 25.0, 25.0, 25.0,
+            23.0, 24.0, 25.0, 25.0, 25.0,
+            23.0, 24.0, 25.0, 25.0, 25.0
+        ];
+        let test_data_1: Array4<f32> = Array4::from_shape_vec(
+            Shape::from(Dim([1, 1, 5, 5])), vec1).unwrap();
+
+        let test_data_2: Array4<f32> = Array4::from_shape_vec(
+            Shape::from(Dim([1, 1, 5, 5])), vec2).unwrap();
+
+        let mut max_pool_node = MaxPool::new(Some(Shape::from(Dim([5, 5]) )),
+                                             Some(arr1(&[2,2,2,2])), Some(arr1(&[1,1])));
+
+        let input_d = Input::TensorD(test_data_1.into_shape(IxDyn(&[1, 1, 5, 5])).unwrap());
+        let result = match max_pool_node.compute(input_d) {
+            Output::TensorD(arr) => arr.into_dimensionality::<Ix4>().unwrap(),
+            _ => panic!("Wrong result")
+        };
+        assert_eq!(result, test_data_2);
+    }
 }
 
 fn main() {

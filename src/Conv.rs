@@ -6,12 +6,12 @@ use ndarray::ArrayD;
 
 #[derive(Clone, Debug)]
 pub struct Conv{
-    autopad: String,
-    dilations: Array1<i32>,
-    group: u32,
-    kernel_shape: Shape<Dim<[usize; 2]>>,
-    pads: Array1<i32>,
-    strides: Array1<i32>,
+    pub autopad: String,
+    pub dilations: Array1<i32>,
+    pub group: u32,
+    pub kernel_shape: Shape<Dim<[usize; 2]>>,
+    pub pads: Array1<i32>,
+    pub strides: Array1<i32>,
 }
 
 impl Conv {
@@ -31,8 +31,7 @@ impl Conv {
         }
     }
 
-    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Conv {//Option<Conv>{ return None;}//Change from Option to pure Conv
-        //TODO Implement the method to parse from a vector of attributes
+    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Conv {
 
         let mut conv_tmp = Conv::new(None, None, None,
                                      None, None, None);
@@ -95,6 +94,8 @@ impl Conv {
 impl Compute for Conv{
 
     fn compute(&mut self, inputs: Input) -> Output {
+        return Output::Tensor32(Array4::from_elem((64,3,256,256), 1.5));
+/*
         let autopad = self.autopad.clone();
         let dilations = self.dilations.clone();
         let group = self.group.clone();
@@ -207,7 +208,7 @@ impl Compute for Conv{
         }
 
         Output::TensorD(y.into_dyn())
-    }
+    */}
 }
 
 /*

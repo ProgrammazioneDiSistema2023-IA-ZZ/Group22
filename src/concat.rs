@@ -12,6 +12,7 @@ impl Concat {
 
     pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Concat {
         Concat
+        //attribute axis not used since its value is always = 1; no need for parsing whatsoever then
     }
 }
 

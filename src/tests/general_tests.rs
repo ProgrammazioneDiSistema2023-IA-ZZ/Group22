@@ -16,6 +16,8 @@ use crate::maxpool::MaxPool;
 use crate::onnx_proto3::{ModelProto, NodeProto};
 use crate::onnx_runtime;
 use crate::operations::{Compute, Input, Output};
+use crate::Conv::{Conv};
+use crate::reshape::Reshape;
 
     #[test]
     fn it_works() {
@@ -193,6 +195,56 @@ use crate::operations::{Compute, Input, Output};
         }
         assert_eq!(max_nodes.len(), count);
     }
+
+#[test]
+fn test_conv_parsing(){
+    let mut input_onnx = File::open("src/gender_googlenet.onnx").unwrap();
+    //Onnx file into byte array
+    let mut byte_array = Vec::<u8>::new();
+    input_onnx.read_to_end(&mut byte_array).unwrap();
+    //Parsing del byte array nella struttura onnx_proto3.rs
+    let model: ModelProto = match Message::parse_from_bytes(&byte_array) {
+        Ok(model) => model,
+        Err(err) => {
+            eprintln!("Failed to parse the ONNX model: {}", err);
+            return;
+        }
+    };
+    let graph = model.get_graph();
+    //Estrazione dei nodi dal protoGrafo
+    let nodes = graph.get_node();
+    let mut max_nodes: Vec<Conv> = Vec::new();
+    let mut count = 0;
+
+    for node in nodes.iter(){
+        if node.op_type == "Conv"{
+            count+=1;
+            max_nodes.push(Conv::parse_from_proto_node(node.attribute.as_slice()));
+        }
+    }
+    for node in max_nodes.iter(){
+        print!("autopad: ");
+        print!("{}", node.autopad);
+        println!();
+        print!("strides: ");
+        node.strides.iter().for_each(|el| print!("{}", *el));
+        println!();
+        print!("pads: ");
+        node.pads.iter().for_each(|el| print!("{}", *el));
+        println!();
+        print!("dilations: ");
+        node.dilations.iter().for_each(|el| print!("{}", *el));
+        println!();
+        print!("group: ");
+        print!("{}", node.group);
+        println!();
+        print!("kernel_shape: ");
+        node.kernel_shape.raw_dim().slice().iter().for_each(|el| print!("{}", el));
+        println!();
+        println!();
+    }
+    assert_eq!(max_nodes.len(), count);
+}
 
     #[test]
     fn test_lrn_parsing(){

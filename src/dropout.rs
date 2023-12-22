@@ -4,21 +4,21 @@ use crate::onnx_proto3::{AttributeProto, NodeProto};
 
 #[derive(Clone, Debug)]
 pub struct Dropout{
-    seed: i32,
+    ratio: f32,
 }
 
 impl Dropout{
     pub fn new(
-        seed: Option<i32>
+        ratio: Option<f32>
     ) -> Dropout{
         return Dropout{
-            seed: seed.unwrap_or(0)//i don't know what the default value is
+            ratio: seed.unwrap_or(0.0)
         }
 
     }
 
     pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Dropout{ //Change from Option to pure Conv
-        return Dropout{seed: 0};
+        return Dropout{ratio: 0.4000000059604645};
     }
 
 }

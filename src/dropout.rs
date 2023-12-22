@@ -12,7 +12,7 @@ impl Dropout{
         ratio: Option<f32>
     ) -> Dropout{
         return Dropout{
-            ratio: seed.unwrap_or(0.0)
+            ratio: ratio.unwrap_or(0.0)
         }
 
     }

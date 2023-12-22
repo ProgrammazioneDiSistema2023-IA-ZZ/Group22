@@ -6,12 +6,12 @@ use ndarray::ArrayD;
 
 #[derive(Clone, Debug)]
 pub struct Conv{
-    autopad: String,
-    dilations: Array1<i32>,
-    group: u32,
-    kernel_shape: Shape<Dim<[usize; 2]>>,
-    pads: Array1<i32>,
-    strides: Array1<i32>,
+    pub autopad: String,
+    pub dilations: Array1<i32>,
+    pub group: u32,
+    pub kernel_shape: Shape<Dim<[usize; 2]>>,
+    pub pads: Array1<i32>,
+    pub strides: Array1<i32>,
 }
 
 impl Conv {

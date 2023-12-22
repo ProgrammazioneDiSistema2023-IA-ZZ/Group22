@@ -50,14 +50,7 @@ pub mod onnxruntime {
             match tensor.get_data_type() {
                 1 => {
                     if raw.len() != 0 {
-                        data = raw
-                            .chunks_exact(4) // Split into chunks of 4 bytes (size of f32)
-                            .map(|chunk| {
-                                let mut bytes_array = [0; 4];
-                                bytes_array.copy_from_slice(chunk);
-                                f32::from_bits(u32::from_le_bytes(bytes_array)) // Convert u8 to f32
-                            })
-                            .collect();
+                        data = parse_from_raw_data(raw);
                     } else {
                         data = tensor.get_float_data().into_iter().map(|val| *val).collect();
                     }
@@ -72,5 +65,15 @@ pub mod onnxruntime {
         }).collect();
         println!("All parsed = {}",starting_nodes.len() == nodes.len());
         return nodes;
+    }
+
+    pub fn parse_from_raw_data(raw: &[u8]) -> Vec<f32>{
+        return raw.chunks_exact(4) // Split into chunks of 4 bytes (size of f32)
+            .map(|chunk| {
+                let mut bytes_array = [0; 4];
+                bytes_array.copy_from_slice(chunk);
+                f32::from_bits(u32::from_le_bytes(bytes_array)) // Convert u8 to f32
+            })
+            .collect();
     }
 }

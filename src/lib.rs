@@ -14,6 +14,7 @@ mod averagepool;
 mod local_response_normalization;
 mod relu;
 mod matmul;
+mod onnx_runtime;
 
 #[cfg(test)]
 mod tests {

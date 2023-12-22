@@ -335,18 +335,6 @@ mod tests {
 }
 
 fn main() {
-    let model = onnx_runtime::onnxruntime::parse_onnx("src/gender_googlenet.onnx".to_string()).unwrap();
-    let graph = model.get_graph();
-    let nodes = onnx_runtime::onnxruntime::parse_initializers(graph);
-    nodes.into_iter().for_each(|node| {
-        print!("{} - dim: ", node.id());
-        if let Output::TensorD(array) = node.output.unwrap(){
-            array.shape().iter().for_each(|val| print!("{} ", *val));
-        }
-        println!();
-    });
-
-    return;
     //Script per estrarre onnx_proto3.rs tramite protocol buffer
     /*protoc_rust::Codegen::new()
         .out_dir("src")

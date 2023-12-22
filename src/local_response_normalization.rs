@@ -7,10 +7,10 @@ use crate::operations::Input::TensorD;
 
 #[derive(Clone, Debug)]
 pub struct LRN{
-    alpha: f32,
-    beta: f32,
-    bias: f32,
-    size: i64
+    pub alpha: f32,
+    pub beta: f32,
+    pub bias: f32,
+    pub size: i64
 }
 
 impl LRN {
@@ -18,9 +18,31 @@ impl LRN {
         LRN{alpha, beta, bias, size}
     }
 
-    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Option<LRN> {
-        //TODO Implement it
-        None
+    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> LRN {
+        let mut alpha = 0.0;
+        let mut beta = 0.0;
+        let mut bias = 0.0;
+        let mut size = 0;
+        for attr in attributes.iter(){
+            match attr.name.as_str(){
+                "alpha" => {
+                    alpha = attr.f;
+
+                },
+                "beta" => {
+                    beta = attr.f;
+                },
+                "bias" => {
+                    bias = attr.f;
+                },
+                "size" => {
+                    size = attr.i;
+                },
+                _ => ()
+            }
+
+        }
+        return LRN{alpha, beta, bias, size}
     }
 }
 

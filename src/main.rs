@@ -187,7 +187,7 @@ mod tests {
 
     #[test]
     fn test_max_pool_parsing(){
-        let mut input_onnx = File::open("src/mnist-7.onnx").unwrap();
+        let mut input_onnx = File::open("src/gender_googlenet.onnx").unwrap();
         //Onnx file into byte array
         let mut byte_array = Vec::<u8>::new();
         input_onnx.read_to_end(&mut byte_array).unwrap();
@@ -225,6 +225,38 @@ mod tests {
         }
         assert_eq!(max_nodes.len(), count);
     }
+
+    #[test]
+    fn test_lrn_parsing(){
+        let mut input_onnx = File::open("src/gender_googlenet.onnx").unwrap();
+        //Onnx file into byte array
+        let mut byte_array = Vec::<u8>::new();
+        input_onnx.read_to_end(&mut byte_array).unwrap();
+        //Parsing del byte array nella struttura onnx_proto3.rs
+        let model: ModelProto = match Message::parse_from_bytes(&byte_array) {
+            Ok(model) => model,
+            Err(err) => {
+                eprintln!("Failed to parse the ONNX model: {}", err);
+                return;
+            }
+        };
+        let graph = model.get_graph();
+        //Estrazione dei nodi dal protoGrafo
+        let nodes = graph.get_node();
+        let mut lrn_nodes: Vec<LRN> = Vec::new();
+        let mut count = 0;
+
+        for node in nodes.iter(){
+            if node.op_type == "LRN"{
+                count+=1;
+                lrn_nodes.push(LRN::parse_from_proto_node(node.attribute.as_slice()));
+            }
+        }
+        for node in lrn_nodes.iter(){
+            println!("{} - {} - {} - {}", node.alpha, node.beta, node.bias, node.size);
+        }
+        assert_eq!(lrn_nodes.len(), count);
+    }
 }
 
 fn main() {
@@ -237,7 +269,7 @@ fn main() {
         .expect("protoc");*/
 
     //Lettura onnx file
-    let mut input_onnx = File::open("src/mnist-7.onnx").unwrap();
+    let mut input_onnx = File::open("src/gender_googlenet.onnx").unwrap();
     //Onnx file into byte array
     let mut byte_array = Vec::<u8>::new();
     input_onnx.read_to_end(&mut byte_array).unwrap();
@@ -290,11 +322,12 @@ fn main() {
         println!("{}", node.get_domain());
         println!("{}", node.get_doc_string());
         println!("{}", node.get_op_type());*/
-        if node.op_type == "MaxPool"{
+        if node.op_type == "LRN"{
            for attr in node.attribute.iter(){
                print!("{} ", attr.name);
                print!("{} ", attr.field_type.value());
-               attr.ints.iter().for_each(|val| print!("{} ", val));
+               print!("{}", attr.f);
+               print!("{}", attr.i);
                println!();
            }
             node.get_input().iter().for_each(|s| println!("{}", s.clone()));

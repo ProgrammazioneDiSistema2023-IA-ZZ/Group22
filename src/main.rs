@@ -34,6 +34,7 @@ mod start;
 mod averagepool;
 mod local_response_normalization;
 mod relu;
+mod matmul;
 
 #[cfg(test)]
 mod tests {

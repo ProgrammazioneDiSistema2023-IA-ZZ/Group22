@@ -4,6 +4,7 @@ use crate::node::Node;
 
 //Interface struct for
 pub mod onnxruntime {
+    use std::collections::HashMap;
     use std::fs::File;
     use std::io::Read;
     use ndarray::{ArrayD, IxDyn};
@@ -76,4 +77,13 @@ pub mod onnxruntime {
             })
             .collect();
     }
+
+    pub fn get_in_out_mapping(graph: &GraphProto) -> HashMap<String, String>{
+        let nodes = graph.get_node();
+        return nodes.into_iter().flat_map(|x| {
+            let name = x.name.clone();
+            return x.get_output().into_iter().map(|s| (s.clone(), name.clone())).collect::<Vec<(String, String)>>();
+        }).collect::<HashMap<String, String>>();
+    }
+
 }

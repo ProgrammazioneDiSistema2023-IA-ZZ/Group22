@@ -384,8 +384,6 @@ fn main() {
     }
     return;*/
 
-
-
     //Estrazione dei nodi dal protoGrafo
     let nodes = graph.get_node();
     //Estrazione dei nomi delle operazioni con hash set per velocizzare sviluppo
@@ -393,11 +391,11 @@ fn main() {
     let mut reshape_node: Option<NodeProto> = None;
 
     for node in nodes.iter(){
-        /*println!("{}", node.name.clone());
-        println!("{}", node.get_domain());
-        println!("{}", node.get_doc_string());
-        println!("{}", node.get_op_type());*/
-        if node.op_type == "LRN"{
+        println!("name: {}", node.name.clone());
+        println!("dom: {}", node.get_domain());
+        println!("str: {}", node.get_doc_string());
+        println!("op: {}", node.get_op_type());
+        /*if node.op_type == "LRN"{
            for attr in node.attribute.iter(){
                print!("{} ", attr.name);
                print!("{} ", attr.field_type.value());
@@ -406,7 +404,7 @@ fn main() {
                println!();
            }
             node.get_input().iter().for_each(|s| println!("{}", s.clone()));
-        }
+        }*/
         if node.op_type == "Reshape"{
             reshape_node = Some(node.clone());
         }

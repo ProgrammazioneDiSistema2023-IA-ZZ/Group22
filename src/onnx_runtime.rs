@@ -9,9 +9,19 @@ pub mod onnxruntime {
     use std::io::Read;
     use ndarray::{ArrayD, IxDyn};
     use protobuf::Message;
+    use crate::averagepool::AveragePool;
+    use crate::concat::Concat;
+    use crate::Conv::Conv;
+    use crate::dropout::Dropout;
+    use crate::gemm::Gemm;
+    use crate::local_response_normalization::LRN;
+    use crate::maxpool::MaxPool;
     use crate::node::Node;
     use crate::onnx_proto3::{GraphProto, ModelProto};
-    use crate::operations::Output;
+    use crate::operations::{Compute, Output};
+    use crate::relu::Relu;
+    use crate::reshape::Reshape;
+    use crate::soft_max::SoftMax;
     use crate::start::Start;
 
     #[derive(Debug)]
@@ -84,6 +94,32 @@ pub mod onnxruntime {
             let name = x.name.clone();
             return x.get_output().into_iter().map(|s| (s.clone(), name.clone())).collect::<Vec<(String, String)>>();
         }).collect::<HashMap<String, String>>();
+    }
+
+    pub fn get_nodes(graph: &GraphProto) -> Vec<Node>{
+        let alias = get_in_out_mapping(graph);
+        return graph.get_node().into_iter().map(|node| {
+            let id = node.name.clone();
+            let res: Box<dyn Compute + Send + Sync> = match node.get_op_type(){
+                    "Softmax" => Box::new(SoftMax::parse_from_proto_node(node.get_attribute())),
+                    "Relu" => Box::new(Relu::parse_from_proto_node(node.get_attribute())),
+                    "Concat" => Box::new(Concat::parse_from_proto_node(node.get_attribute())),
+                    "Dropout" => Box::new(Dropout::parse_from_proto_node(node.get_attribute())),
+                    "MaxPool" => Box::new(MaxPool::parse_from_proto_node(node.get_attribute())),
+                    "LRN" => Box::new(LRN::parse_from_proto_node(node.get_attribute())),
+                    "AveragePool" => Box::new(AveragePool::parse_from_proto_node(node.get_attribute())),
+                    "Conv" => Box::new(Conv::parse_from_proto_node(node.get_attribute())),
+                    "Reshape" => Box::new(Reshape::parse_from_proto_node(node.get_attribute())),
+                    "Gemm" => Box::new(Gemm::parse_from_proto_node(node.get_attribute())),
+                    _ => panic!("Unknown operation type!")
+                };
+            let mut new_node = Node::new(id, res);
+            for dep in node.get_output(){
+                let tmp = alias.get(&dep).unwrap();
+                new_node.add_dep((*tmp).clone());
+            }
+            return new_node;
+        }).collect::<Vec<Node>>();
     }
 
 }

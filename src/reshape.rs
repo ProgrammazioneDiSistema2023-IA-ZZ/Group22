@@ -16,8 +16,8 @@ impl Reshape{
     }
 
     pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Reshape{ //Change from Option to pure Conv
-        let shape: Vec<usize> = attributes[0].ints.iter().map(|val| val.clone() as usize).collect();
-        return Reshape{shape};
+        //let shape: Vec<usize> = attributes[0].ints.iter().map(|val| val.clone() as usize).collect();
+        return Reshape{shape: vec![1, 1, 1]};
     }
 
 }

@@ -371,7 +371,7 @@ fn test_conv_parsing(){
 
     #[test]
     fn test_create_mapping(){
-        let model = onnx_runtime::onnxruntime::parse_onnx("src/gender_googlenet.onnx".to_string()).unwrap();
+        let model = onnx_runtime::onnxruntime::parse_onnx("src/mnist-7.onnx".to_string()).unwrap();
         let graph = model.get_graph();
         let tot_out = graph.get_node()
             .iter().map(|n| n.get_output().len()).reduce(|v1, v2| v1 + v2).unwrap();

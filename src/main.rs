@@ -36,6 +36,7 @@ mod local_response_normalization;
 mod relu;
 mod matmul;
 mod onnx_runtime;
+mod Conv;
 
 #[cfg(test)]
 mod tests {
@@ -411,9 +412,9 @@ fn main() {
         class_map.insert(node.op_type.clone());
     }
 
-    return;
     //stampa degli op_type di ogni operazione
     class_map.into_iter().for_each(|el| {println!("{}", el)});
+    return;
 
     let mut gemm_node = Gemm::new(None, None, None, Some(1));
     let input_gemm = Array2::from_elem((1, 1024), 1.3).into_shape(IxDyn(&[1, 1024])).unwrap();

@@ -337,6 +337,7 @@ mod tests {
 }
 
 fn main() {
+
     //Script per estrarre onnx_proto3.rs tramite protocol buffer
     /*protoc_rust::Codegen::new()
         .out_dir("src")
@@ -360,11 +361,12 @@ fn main() {
     };
     //Estrazione grafo dal modello Proto
     let graph = model.get_graph();
-    //How to transform a TensorProto into  Vec<f32>
-    let nodes = get_nodes(graph);
-    nodes.into_iter().for_each(|x| println!("{}", x));
+    let nodes = onnx_runtime::onnxruntime::get_computational_graph("src/gender_googlenet.onnx".to_string());
+    println!("Tot_original_nodes = {}", graph.get_node().len());
+    println!("Tot_nodes = {}", nodes.len());
+    nodes.into_iter().for_each(|(name, x)| println!("{}", x));
     return;
-
+    //How to transform a TensorProto into  Vec<f32>
     /*for val in graph.get_initializer().iter(){
         if val.get_name() == "loss3/classifier_w_0" {
             let mut raw = val.get_raw_data();

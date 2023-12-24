@@ -6,6 +6,7 @@ use crate::onnx_proto3::NodeProto;
 
 pub trait Compute {
     fn compute(&mut self, inputs: Input) -> Output;
+    fn op_type(&self) -> &'static str;
 }
 
 impl Clone for Box<dyn Compute> {

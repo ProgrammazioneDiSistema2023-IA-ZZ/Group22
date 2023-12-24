@@ -68,6 +68,10 @@ impl Compute for SoftMax {
         return Output::TensorD(softmax_values.into_shape(IxDyn(&out_len)).unwrap());
 
     }
+
+    fn op_type(&self) -> &'static str {
+        return "SoftMax";
+    }
 }
 
 

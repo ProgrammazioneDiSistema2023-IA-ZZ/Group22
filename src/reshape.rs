@@ -22,7 +22,6 @@ impl Reshape{
 
 }
 
-
 impl Compute for Reshape{
 
     fn compute(&mut self, inputs: Input) -> Output {
@@ -49,5 +48,9 @@ impl Compute for Reshape{
             _ => panic!("Wrong input reshape")
         };
         return Output::TensorD(reshaped);
+    }
+
+    fn op_type(&self) -> &'static str {
+        return "Reshape";
     }
 }

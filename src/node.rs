@@ -1,6 +1,7 @@
 use std::cmp::PartialEq;
 use std::collections::{HashMap, HashSet};
 use std::fmt;
+use std::fmt::{Display, Formatter};
 use std::hash::Hash;
 use std::sync::{Arc, RwLock};
 use ndarray::Array4;
@@ -89,5 +90,15 @@ impl Node
         }else{
             self.output = Some(self.operation.compute(Input::Empty));
         }
+    }
+}
+
+impl Display for Node {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        let id = self.id();
+        let inputs = self.deps.iter()
+            .map(|v| (*v).clone()).reduce(|d1, d2| d1 + " --- " + d2.as_str()).unwrap();
+        let op_type = self.operation.op_type();
+        write!(f, "id: {}\nop_type: {}\ninputs: {}\n", id, op_type, inputs)
     }
 }

@@ -14,6 +14,7 @@ use crate::gemm::Gemm;
 use crate::graph::DepGraph;
 use crate::maxpool::MaxPool;
 use crate::node::{Node, SimpleNode};
+use crate::onnx_runtime::onnxruntime::get_nodes;
 use crate::operations::{Compute, Input, Output};
 use crate::reshape::Reshape;
 use crate::soft_max::SoftMax;
@@ -360,7 +361,9 @@ fn main() {
     //Estrazione grafo dal modello Proto
     let graph = model.get_graph();
     //How to transform a TensorProto into  Vec<f32>
-
+    let nodes = get_nodes(graph);
+    nodes.into_iter().for_each(|x| println!("{}", x));
+    return;
 
     /*for val in graph.get_initializer().iter(){
         if val.get_name() == "loss3/classifier_w_0" {

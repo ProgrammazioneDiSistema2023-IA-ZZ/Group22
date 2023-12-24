@@ -90,7 +90,6 @@ impl Conv {
     }
 }
 
-
 impl Compute for Conv{
 
     fn compute(&mut self, inputs: Input) -> Output {
@@ -209,6 +208,10 @@ impl Compute for Conv{
 
         Output::TensorD(y.into_dyn())
     */}
+
+    fn op_type(&self) -> &'static str {
+        return "Conv";
+    }
 }
 
 /*

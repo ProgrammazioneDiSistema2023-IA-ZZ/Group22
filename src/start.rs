@@ -19,4 +19,8 @@ impl Compute for Start{
             _ => panic!("Wrong starting input type")
         }
     }
+
+    fn op_type(&self) -> &'static str {
+        return "Initializer";
+    }
 }

@@ -44,10 +44,11 @@ pub mod onnxruntime {
         };
         return Ok(model);
     }
-    pub fn get_computational_graph(path: String){
+    pub fn get_computational_graph(path: String) -> HashMap<String, Node>{
         let model = parse_onnx(path).unwrap();
         let graph = model.get_graph();
-
+        let nodes = get_nodes(graph);
+        return nodes.into_iter().map(|n| (n.id(), n)).collect::<HashMap<String, Node>>();
     }
 
     pub fn parse_initializers(graph: &GraphProto) -> Vec<Node>{
@@ -114,8 +115,11 @@ pub mod onnxruntime {
                     _ => panic!("Unknown operation type!")
                 };
             let mut new_node = Node::new(id, res);
-            for dep in node.get_output(){
-                let tmp = alias.get(&dep).unwrap();
+            for dep in node.get_input(){
+                let mut tmp = dep;
+                if alias.contains_key(dep) {
+                    tmp = alias.get(dep).unwrap();
+                }
                 new_node.add_dep((*tmp).clone());
             }
             return new_node;

@@ -33,4 +33,8 @@ impl MatMul {
             _ => panic!("Wrong input")
         }
     }
+
+    fn op_type() -> &'static str {
+        return "MatMul";
+    }
 }

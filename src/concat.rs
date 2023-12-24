@@ -65,4 +65,8 @@ impl Compute for Concat {
         return Output::TensorD(concatenated.into_shape(IxDyn(&out_len)).unwrap());
 
     }
+
+    fn op_type(&self) -> &'static str {
+        return "Concat";
+    }
 }

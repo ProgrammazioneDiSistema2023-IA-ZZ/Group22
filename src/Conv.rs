@@ -1,4 +1,4 @@
-use ndarray::{Array1, Array4, arr1, Shape, Dim};
+use ndarray::{Array1, Array4, arr1, Shape, Dim, IxDyn};
 use crate::operations::{Compute, Input, Output};
 use crate::onnx_proto3::{AttributeProto, NodeProto};
 use std::cmp::max;
@@ -106,7 +106,18 @@ impl Conv {
 impl Compute for Conv{
 
     fn compute(&mut self, inputs: Input) -> Output {
-        return Output::Tensor32(Array4::from_elem((64,3,256,256), 1.5));
+        let mut list = match inputs {
+            Input::Tensor4List(array) => array,
+            _ => panic!("wrong input type")
+        };
+        let w = list.pop().unwrap();
+        let mut array = list.pop().unwrap();
+        let shape = array.shape();
+        if shape[1] == 1{
+            return Output::TensorD(Array4::from_elem((1,8,28,28), 1.5).into_shape(IxDyn(&[1,8,28,28])).unwrap());
+        }else{
+            return Output::TensorD(Array4::from_elem((1,16,14,14), 1.5).into_shape(IxDyn(&[1, 16, 14, 14])).unwrap());
+        }
 /*
         let autopad = self.autopad.clone();
         let dilations = self.dilations.clone();

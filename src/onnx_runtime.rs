@@ -7,7 +7,7 @@ pub mod onnxruntime {
     use std::collections::HashMap;
     use std::fs::File;
     use std::io::Read;
-    use ndarray::{ArrayD, IxDyn};
+    use ndarray::{Array4, ArrayD, IxDyn};
     use protobuf::Message;
     use crate::add::Add;
     use crate::averagepool::AveragePool;
@@ -15,6 +15,7 @@ pub mod onnxruntime {
     use crate::Conv::Conv;
     use crate::dropout::Dropout;
     use crate::gemm::Gemm;
+    use crate::graph::DepGraph;
     use crate::local_response_normalization::LRN;
     use crate::matmul::MatMul;
     use crate::maxpool::MaxPool;
@@ -46,11 +47,19 @@ pub mod onnxruntime {
         };
         return Ok(model);
     }
-    pub fn get_computational_graph(path: String) -> HashMap<String, Node>{
+    pub fn get_computational_graph(path: String) -> DepGraph{
         let model = parse_onnx(path).unwrap();
         let graph = model.get_graph();
-        let nodes = get_nodes(graph);
-        return nodes.into_iter().map(|n| (n.id(), n)).collect::<HashMap<String, Node>>();
+        let mut nodes = get_nodes(graph);
+        let mut initializers = parse_initializers(graph);
+        nodes.append(&mut initializers);
+
+        let net_input = Array4::from_elem((1,1,28,28), 0.7)
+            .into_shape(IxDyn(&[1,1,28,28])).unwrap();
+        let operation = Box::new(Start::new(net_input));
+        nodes.push(Node::new("Input3".to_string(), operation));
+        let node_map = nodes.into_iter().map(|n| (n.id(), n)).collect::<HashMap<String, Node>>();
+        DepGraph::new(node_map)
     }
 
     pub fn parse_initializers(graph: &GraphProto) -> Vec<Node>{
@@ -73,8 +82,7 @@ pub mod onnxruntime {
                 _ => ()
             }
             let tensor_d = ArrayD::from_shape_vec(IxDyn(&dims), data).unwrap();
-            let mut tmp_node = Node::new(tensor.name.clone(), Box::new(Start::new()));
-            tmp_node.output = Some(Output::TensorD(tensor_d));
+            let mut tmp_node = Node::new(tensor.name.clone(), Box::new(Start::new(tensor_d)));
             return tmp_node
         }).collect();
         println!("All parsed = {}",starting_nodes.len() == nodes.len());

@@ -4,20 +4,18 @@ use crate::onnx_proto3::{AttributeProto, NodeProto};
 
 #[derive(Clone, Debug)]
 pub struct Reshape{
-    pub shape: Vec<usize>,
 }
 
 impl Reshape{
 
     pub fn new(shape: Vec<usize>) -> Reshape{
         return Reshape{
-            shape
         }
     }
 
     pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Reshape{ //Change from Option to pure Conv
         //let shape: Vec<usize> = attributes[0].ints.iter().map(|val| val.clone() as usize).collect();
-        return Reshape{shape: vec![1, 1, 1]};
+        return Reshape{};
     }
 
 }
@@ -43,10 +41,13 @@ impl Compute for Reshape{
             _ => panic!("Wrong shape dim reshape")
         }
     */
-        let reshaped =  match inputs {
-            Input::TensorD(array) => array.into_shape(IxDyn(&self.shape)).unwrap(),
+        let mut list =  match inputs {
+            Input::Tensor4List(array) => array,
             _ => panic!("Wrong input reshape")
         };
+        let mut shape = list.pop().unwrap().map(|val| (*val) as usize).into_raw_vec();
+        let mut vec = list.pop().unwrap();
+        let reshaped = vec.into_shape(IxDyn(&shape)).unwrap();
         return Output::TensorD(reshaped);
     }
 

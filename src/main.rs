@@ -337,6 +337,13 @@ mod tests {
 }
 
 fn main() {
+    let mut dep_graph = onnx_runtime::onnxruntime::get_computational_graph("src/mnist-7.onnx".to_string());
+    let out = dep_graph.run().unwrap();
+    match out {
+        Output::TensorD(array) => println!("{}", array),
+        _ => println!("Errore output")
+    }
+    return;
 
     //Script per estrarre onnx_proto3.rs tramite protocol buffer
     /*protoc_rust::Codegen::new()
@@ -347,7 +354,7 @@ fn main() {
         .expect("protoc");*/
 
     //Lettura onnx file
-    let mut input_onnx = File::open("src/gender_googlenet.onnx").unwrap();
+    let mut input_onnx = File::open("src/mnist-7.onnx").unwrap();
     //Onnx file into byte array
     let mut byte_array = Vec::<u8>::new();
     input_onnx.read_to_end(&mut byte_array).unwrap();
@@ -361,11 +368,6 @@ fn main() {
     };
     //Estrazione grafo dal modello Proto
     let graph = model.get_graph();
-    let nodes = onnx_runtime::onnxruntime::get_computational_graph("src/mnist-7.onnx".to_string());
-    println!("Tot_original_nodes = {}", graph.get_node().len());
-    println!("Tot_nodes = {}", nodes.len());
-    nodes.into_iter().for_each(|(name, x)| println!("{}", x));
-    return;
     //How to transform a TensorProto into  Vec<f32>
     /*for val in graph.get_initializer().iter(){
         if val.get_name() == "loss3/classifier_w_0" {
@@ -421,7 +423,10 @@ fn main() {
     class_map.into_iter().for_each(|el| {println!("{}", el)});
     return;
 
-    let mut gemm_node = Gemm::new(None, None, None, Some(1));
+}
+
+/*
+let mut gemm_node = Gemm::new(None, None, None, Some(1));
     let input_gemm = Array2::from_elem((1, 1024), 1.3).into_shape(IxDyn(&[1, 1024])).unwrap();
     let b_vec = Array2::from_elem((1000, 1024), 3.0).into_shape(IxDyn(&[1000, 1024])).unwrap();
     let c_vec = Array1::from_elem(1000, 2.0).into_shape(IxDyn(&[1000])).unwrap();
@@ -441,8 +446,8 @@ fn main() {
 
     let mut nodes = HashMap::<String, Node>::new();
     let mut previous = "Start";
-    let start_node = Node::new(previous.to_string(),
-                               Box::new(Start::new()));
+    /*let start_node = Node::new(previous.to_string(),
+                               Box::new(Start::new()));*/
     nodes.insert(start_node.id(), start_node);
     let x: u16 = 2;
 
@@ -501,7 +506,7 @@ fn main() {
         Output::Tensor32(vec) => vec
     };
     print!("{}", out);*/
-    let mut node_reshape = Reshape{shape: vec![3, 4, 1]};
+    let mut node_reshape = Reshape{};
     let input = Input::TensorD(Array2::from_elem((3, 4), 1.3).into_shape(IxDyn(&[3, 4])).unwrap());
     let output = node_reshape.compute(input);
     if let Output::Tensor3(array) = output {
@@ -509,7 +514,7 @@ fn main() {
         println!("{}", array);
     }
     let reshape_node_parsed = Reshape::parse_from_proto_node(&reshape_node.unwrap().attribute);
-    reshape_node_parsed.shape.into_iter().for_each(|val| print!("{} ", val));
+    //reshape_node_parsed.shape.into_iter().for_each(|val| print!("{} ", val));
 
     let input_vec:Vec<f32> = vec![0.0, 1.0, 2.0, 3.0, 10000.0, 10001.0, 10002.0, 10003.0];
     let good_result: Vec<f32> = vec![0.032058604, 0.08714432,  0.23688284,  0.6439143,
@@ -525,5 +530,5 @@ fn main() {
     result.iter().for_each(|val| print!("{}", val));
     assert_eq!(good_result, result);
 
-}
+*/
 

@@ -9,12 +9,14 @@ pub mod onnxruntime {
     use std::io::Read;
     use ndarray::{ArrayD, IxDyn};
     use protobuf::Message;
+    use crate::add::Add;
     use crate::averagepool::AveragePool;
     use crate::concat::Concat;
     use crate::Conv::Conv;
     use crate::dropout::Dropout;
     use crate::gemm::Gemm;
     use crate::local_response_normalization::LRN;
+    use crate::matmul::MatMul;
     use crate::maxpool::MaxPool;
     use crate::node::Node;
     use crate::onnx_proto3::{GraphProto, ModelProto};
@@ -112,6 +114,8 @@ pub mod onnxruntime {
                     "Conv" => Box::new(Conv::parse_from_proto_node(node.get_attribute())),
                     "Reshape" => Box::new(Reshape::parse_from_proto_node(node.get_attribute())),
                     "Gemm" => Box::new(Gemm::parse_from_proto_node(node.get_attribute())),
+                    "MatMul" => Box::new(MatMul::parse_from_proto_node(node.get_attribute())),
+                    "Add" => Box::new(Add::parse_from_proto_node(node.get_attribute())),
                     _ => panic!("Unknown operation type!")
                 };
             let mut new_node = Node::new(id, res);

@@ -17,8 +17,8 @@ impl MatMul{
     }
 }
 
-impl MatMul {
-    pub fn compute(&mut self, inputs: Input) -> Output {
+impl Compute for MatMul {
+    fn compute(&mut self, inputs: Input) -> Output {
         return match inputs {
             Input::Tensor4List(input) => {
                 let output = input.into_iter()
@@ -34,7 +34,8 @@ impl MatMul {
         }
     }
 
-    fn op_type() -> &'static str {
+    fn op_type(&self) -> &'static str {
         return "MatMul";
     }
 }
+

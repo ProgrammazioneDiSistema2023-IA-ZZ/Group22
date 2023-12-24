@@ -37,6 +37,19 @@ impl Conv {
                                      None, None, None);
         for attr in attributes.iter() {
             match attr.name.as_str() {
+                "auto_pad" => {
+                    let string_result: Result<String, _> = String::from_utf8(attr.s.clone());
+
+                    // Check if the conversion was successful
+                    match string_result {
+                        Ok(string) => {
+                            conv_tmp.autopad = string;
+                        }
+                        Err(e) => {
+                            println!("Error decoding Vec<u8>: {:?}", e);
+                        }
+                    }
+                },
                 "autopad" => {
                     let string_result: Result<String, _> = String::from_utf8(attr.s.clone());
 

@@ -361,7 +361,7 @@ fn main() {
     };
     //Estrazione grafo dal modello Proto
     let graph = model.get_graph();
-    let nodes = onnx_runtime::onnxruntime::get_computational_graph("src/gender_googlenet.onnx".to_string());
+    let nodes = onnx_runtime::onnxruntime::get_computational_graph("src/mnist-7.onnx".to_string());
     println!("Tot_original_nodes = {}", graph.get_node().len());
     println!("Tot_nodes = {}", nodes.len());
     nodes.into_iter().for_each(|(name, x)| println!("{}", x));

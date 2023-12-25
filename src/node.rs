@@ -65,6 +65,7 @@ impl Node
     }
 
     pub fn compute_operation(&mut self, nodes: &HashMap<String, Arc<RwLock<Node>>>) -> () {
+        println!("Computing Node = {}", self.id());
         if self.deps.len() == 1{
             let elem = self.deps.iter().next().unwrap().clone();
             let only_dep = nodes.get(&elem).unwrap();

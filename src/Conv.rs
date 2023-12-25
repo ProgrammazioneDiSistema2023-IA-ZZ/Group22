@@ -114,12 +114,12 @@ impl Compute for Conv{
         let mut array = list.pop().unwrap();
         let shape = array.shape();
         if shape[1] == 1{
-            return Output::TensorD(Array4::from_elem((1,8,28,28), 1.5).into_shape(IxDyn(&[1,8,28,28])).unwrap());
+            return Output::TensorD(Array4::from_elem((1,8,28,28), 1.2).into_shape(IxDyn(&[1,8,28,28])).unwrap());
         }else{
-            return Output::TensorD(Array4::from_elem((1,16,14,14), 1.5).into_shape(IxDyn(&[1, 16, 14, 14])).unwrap());
+            return Output::TensorD(Array4::from_elem((1,16,14,14), 23.2).into_shape(IxDyn(&[1, 16, 14, 14])).unwrap());
         }
-/*
-        let autopad = self.autopad.clone();
+
+        /*let autopad = self.autopad.clone();
         let dilations = self.dilations.clone();
         let group = self.group.clone();
         let kernel_shape = self.kernel_shape.clone();

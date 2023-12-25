@@ -6,7 +6,7 @@ use std::collections::hash_map::DefaultHasher;
 use std::fs::File;
 use std::hash::Hash;
 use std::io::Read;
-use crate::onnx_proto3::{AttributeProto, ModelProto, NodeProto, TypeProto_oneof_value};
+use crate::onnx_proto3::{AttributeProto, ModelProto, NodeProto, TensorProto, TypeProto_oneof_value};
 use protobuf::{Message, ProtobufEnum};
 use ndarray::{arr1, Array1, Array2, Array4, ArrayD, Dim, Ix2, Ix4, IxDyn, Shape};
 use crate::add::{Add, AddToTryGraph};
@@ -337,7 +337,20 @@ mod tests {
 }
 
 fn main() {
-    let mut dep_graph = onnx_runtime::onnxruntime::get_computational_graph("src/mnist-7.onnx".to_string());
+    let mut input_tensor = File::open("src/mnist-7/test_data_set_0/input_0.pb").unwrap();
+    //Onnx file into byte array
+    let mut byte_array = Vec::<u8>::new();
+    input_tensor.read_to_end(&mut byte_array).unwrap();
+    //Parsing del byte array nella struttura onnx_proto3.rs
+    let input_parsed: TensorProto = match Message::parse_from_bytes(&byte_array) {
+        Ok(model) => model,
+        Err(err) => {
+            eprintln!("Failed to parse the ONNX model: {}", err);
+            return;
+        }
+    };
+    input_parsed.dims.into_iter().for_each(|val| println!("{}", val));
+    let mut dep_graph = onnx_runtime::onnxruntime::get_computational_graph("src/mnist-7/model.onnx".to_string());
     let out = dep_graph.run().unwrap();
     match out {
         Output::TensorD(array) => println!("{}", array),

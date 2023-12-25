@@ -46,7 +46,7 @@ impl Conv {
                             conv_tmp.autopad = string;
                         }
                         Err(e) => {
-                            println!("Error decoding Vec<u8>: {:?}", e);
+                            panic!("Error decoding Vec<u8>: {:?}", e);
                         }
                     }
                 },
@@ -59,7 +59,7 @@ impl Conv {
                             conv_tmp.autopad = string;
                         }
                         Err(e) => {
-                            println!("Error decoding Vec<u8>: {:?}", e);
+                            panic!("Error decoding Vec<u8>: {:?}", e);
                         }
                     }
                 },

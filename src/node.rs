@@ -14,9 +14,9 @@ use crate::operations::{Compute, Input, Output};
 /// dependencies.
 pub struct Node
 {
-    id: String,
-    deps: Vec<String>,
-    operation: Box<dyn Compute + Send + Sync>,
+    pub id: String,
+    pub deps: Vec<String>,
+    pub operation: Box<dyn Compute + Send + Sync>,
     pub output: Option<Output>
 }
 
@@ -65,7 +65,6 @@ impl Node
     }
 
     pub fn compute_operation(&mut self, nodes: &HashMap<String, Arc<RwLock<Node>>>) -> () {
-        println!("Computing Node = {}", self.id());
         if self.deps.len() == 1{
             let elem = self.deps.iter().next().unwrap().clone();
             let only_dep = nodes.get(&elem).unwrap();

@@ -39,7 +39,7 @@ pub struct DepGraph
     pub ready_nodes: Vec<String>,
     pub deps: DependencyMap,
     pub rdeps: DependencyMap,
-    pub nodes: Arc<HashMap<String, Arc<RwLock<Node>>>>,
+    pub nodes: HashMap<String, Arc<RwLock<Node>>>,
     pub original_nodes: Vec<SimpleNode>,
     pub input_name: String
 }
@@ -52,9 +52,12 @@ impl DepGraph
             .map(|node| SimpleNode::new(node.id().clone(), node.deps().clone()))
             .collect::<Vec<SimpleNode>>();
         let (deps, rdeps, ready_nodes) = DepGraph::parse_nodes(&simple_nodes);
-        let nodes_safe = Arc::new(nodes
+        /*let nodes_safe = Arc::new(nodes
             .into_iter()
-            .map( |(key, val)| (key, Arc::new(RwLock::new(val)))).collect());
+            .map( |(key, val)| (key, Arc::new(RwLock::new(val)))).collect());*/
+        let nodes_safe = nodes
+            .into_iter()
+            .map( |(key, val)| (key, Arc::new(RwLock::new(val)))).collect();
         DepGraph {
             ready_nodes,
             deps,
@@ -114,10 +117,11 @@ impl DepGraph
         let mut threads = Vec::new();
         let (tx_input, rx_input): (crossbeam::channel::Sender<String>, crossbeam::channel::Receiver<String>) = unbounded();
         let (tx_output, rx_output): (crossbeam::channel::Sender<String>, crossbeam::channel::Receiver<String>)= unbounded();
+        let safe_map = Arc::new(self.nodes.clone());
         for i in 0..4 {
             let rx = rx_input.clone();
             let tx = tx_output.clone();
-            let node_map = self.nodes.clone();
+            let node_map = safe_map.clone();
 
             let input_name = self.input_name.clone();
             let cloned_input = input_array.clone();

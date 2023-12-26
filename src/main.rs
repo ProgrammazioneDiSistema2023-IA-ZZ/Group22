@@ -54,8 +54,8 @@ fn main() {
         _ => println!("Errore output")
     }
 
-    let net_input = Input::TensorD(Array4::from_elem((1,1,28,28), 0.7)
-        .into_shape(IxDyn(&[1,1,28,28])).unwrap());
+    let tmp_array: Vec<f32> = Array4::from_elem((1,1,28,28), 0.7).into_raw_vec();
+    let net_input = Input::from_raw_vec(tmp_array, &[1, 1, 28, 28]).unwrap();
     let out = dep_graph.run(net_input).unwrap();
     let result = out.into_raw_vec().unwrap();
     result.into_iter().for_each(|val| print!("{} ", val));

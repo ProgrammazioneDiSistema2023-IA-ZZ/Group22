@@ -60,6 +60,11 @@ fn main() {
     let result = out.into_raw_vec().unwrap();
     result.into_iter().for_each(|val| print!("{} ", val));
 
+    println!();
+    let arr = parse_input_tensor("src/mnist-7/test_data_set_0/output_0.pb".to_string()).unwrap();
+    let raw_out = arr.into_raw_vec().unwrap();
+    raw_out.into_iter().for_each(|val| print!("{} ", val));
+
 
     return;
 

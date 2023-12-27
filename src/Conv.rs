@@ -94,8 +94,8 @@ impl Conv {
 impl Compute for Conv{
 
     fn compute(&mut self, inputs: Input) -> Output {
-        return Output::Tensor32(Array4::from_elem((64,3,256,256), 1.5));
-/*
+        //return Output::Tensor32(Array4::from_elem((64,3,256,256), 1.5));
+
         let autopad = self.autopad.clone();
         let dilations = self.dilations.clone();
         let group = self.group.clone();
@@ -111,7 +111,7 @@ impl Compute for Conv{
         let mut x1 = &vec[0];
         let mut x: Array4<f32> = x1.clone().into_dimensionality().unwrap();
         let mut w1 = vec[1].clone();
-        let mut b = vec[2].clone();
+        //let mut b = vec[2].clone();
 
         // Retrieve input dimensions
         //let (n, c, h, w) = (x.shape()[0], x.shape()[1], x.shape()[2], x.shape()[3]);
@@ -141,10 +141,9 @@ impl Compute for Conv{
                 _ => panic!("Unexpected number of dimensions in the array"),
             }
         };
-        // Calculate output dimensions
-        //let oh = self.calculate_output_size(h, kh);
-        //let ow = self.calculate_output_size(w, kw);
+        // Calculate output dimensions based on autopad
 
+/*
         let oh = {
             match autopad.as_str() {
                 "SAME_UPPER" | "SAME_LOWER" => {
@@ -166,6 +165,58 @@ impl Compute for Conv{
             }
         };
 
+
+ */
+
+
+        let oh = match autopad.as_str() {
+            "SAME_UPPER" | "SAME_LOWER" => {
+                let padding_h = if autopad == "SAME_UPPER" {
+                    ((kh - 1) * dilations[0] as usize) / 2
+                } else {
+                    ((kh - 1) * dilations[0] as usize + 1) / 2
+                };
+                println!("padding_h: {}", padding_h);
+                ((h + padding_h * 2 - kh * dilations[0] as usize + strides[0] as usize - 1) / strides[0] as usize) + 1
+            }
+            "VALID" | "NOT_SET" => {
+                if pads.eq(&arr1(&[0, 0, 0, 0])) {
+                    ((h - kh + 2 * pads[0] as usize) / strides[0] as usize) + 1
+                    //((h - kh * dilations[0] as usize + strides[0] as usize - 1) / strides[0] as usize) + 1
+                }else{
+                    ((h + pads[0] as usize + pads[1] as usize + strides[0] as usize - kh * dilations[0] as usize - 1) / strides[0] as usize) + 1
+                }
+            },
+            _ => {
+                panic!("Invalid autopad mode")
+            },
+        };
+        //println!("oh: {}", oh);
+
+        let ow = match autopad.as_str() {
+            "SAME_UPPER" | "SAME_LOWER" => {
+                let padding_w = if autopad == "SAME_UPPER" {
+                    ((kw - 1) * dilations[1] as usize) / 2
+                } else {
+                    println!("io1");
+                    ((kw - 1) * dilations[1] as usize + 1) / 2
+                };
+                println!("padding_w: {}", padding_w);
+                ((w + padding_w * 2 - kw * dilations[1] as usize + strides[1] as usize - 1) / strides[1] as usize) + 1
+            }
+            "VALID" | "NOT_SET" => {
+                if pads.eq(&arr1(&[0, 0, 0, 0])) {
+
+                    //((w - kw * dilations[1] as usize + strides[1] as usize - 1) / strides[1] as usize) + 1
+                    ((w - kw + 2 * pads[0] as usize) / strides[0] as usize) + 1
+                }else{
+                    ((w + pads[2] as usize + pads[3] as usize + strides[1] as usize - kw * dilations[1] as usize - 1) / strides[1] as usize) + 1
+                }
+            },
+            _ => panic!("Invalid autopad mode")
+        };
+
+
         // Initialize output tensor
         let mut y = Array4::<f32>::zeros((n, m, oh, ow));
 
@@ -176,28 +227,48 @@ impl Compute for Conv{
                     for wi in 0..ow {
                         let mut sum = 0.0;
 
+                        // Iterate over input channels, kernel height, and kernel width
                         for ci in 0..c {
                             for ki in 0..kh {
                                 for kj in 0..kw {
-                                    let xi = hi * strides[0] as usize + ki - pads[0] as usize;
-                                    let xj = wi * strides[1] as usize + kj - pads[2] as usize;
+                                    // Calculate input indices with respect to padding and strides
+                                    /*
+                                    let mut xi= 0;
+                                    let mut xj= 0;
+                                    if ki == 0 && kj == 0 {
+                                        xi = hi * strides[0] as usize + ki;
+                                        xj = wi * strides[1] as usize + kj;
+                                    }
+                                    else if kj == 0 {
+                                        xi = hi * strides[0] as usize + ki - pads[0] as usize;
+                                        xj = wi * strides[1] as usize + kj;
 
+                                    }else if ki == 0 {
+                                        xi = hi * strides[0] as usize + ki;
+                                        xj = wi * strides[1] as usize + kj - pads[2] as usize;
+                                    }
+                                    else {*/
+                                        let xi = hi * strides[0] as usize + ki - pads[0] as usize;
+                                        let xj = wi * strides[1] as usize + kj - pads[2] as usize;
+                                    //}
+                                    // Check if input indices are within bounds
                                     if xi < h as usize && xj < w as usize {
                                         // Access individual ArrayD within the Vec
-                                        let x_tensor: &ArrayD<f32> = &x[ni];
+                                        //let x_tensor: &ArrayD<f32> = &x[ni];
+                                        // Access individual elements in input and weight tensors
                                         let w1_tensor = &w1;
 
-                                        sum += x_tensor[[ci, xi, xj]] * w1_tensor[[mi, ci, ki, kj]];
+                                        sum += x[[ni, ci, xi, xj]] * w1_tensor[[mi, ci, ki, kj]];
                                     }
                                 }
                             }
                         }
 
                         // Add bias if present
-                        if let Some(bias) = &b {
-                            sum += bias[mi];
-                        }
+                        //TODO: check whether b exists or is None
+                           // sum += b[mi];
 
+                        // Set the computed sum in the output tensor
                         y[[ni as usize, mi as usize, hi as usize, wi as usize]] = sum;
                         //the output tensor will have dimensions (n, m, oh, ow) where n is the number
                         //of examples in the batch; m is the number of output channels; oh is the
@@ -208,7 +279,7 @@ impl Compute for Conv{
         }
 
         Output::TensorD(y.into_dyn())
-    */}
+    }
 }
 
 /*

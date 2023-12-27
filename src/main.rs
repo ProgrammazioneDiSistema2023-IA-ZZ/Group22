@@ -40,7 +40,7 @@ mod input;
 
 fn main() {
     let mut dep_graph = onnx_runtime::onnxruntime::get_computational_graph("src/mnist-7/model.onnx".to_string());
-    let arr = parse_input_tensor("src/mnist-7/test_data_set_0/input_0.pb".to_string()).unwrap();
+    /*let arr = parse_input_tensor("src/mnist-7/test_data_set_0/input_0.pb".to_string()).unwrap();
     let out = dep_graph.run(arr).unwrap();
     match out {
         Output::TensorD(array) => println!("{}", array),
@@ -52,7 +52,7 @@ fn main() {
     match out {
         Output::TensorD(array) => println!("{}", array),
         _ => println!("Errore output")
-    }
+    }*/
 
     let tmp_array: Vec<f32> = Array4::from_elem((1,1,28,28), 0.7).into_raw_vec();
     let net_input = Input::from_raw_vec(tmp_array, &[1, 1, 28, 28]).unwrap();
@@ -64,7 +64,6 @@ fn main() {
     let arr = parse_input_tensor("src/mnist-7/test_data_set_0/output_0.pb".to_string()).unwrap();
     let raw_out = arr.into_raw_vec().unwrap();
     raw_out.into_iter().for_each(|val| print!("{} ", val));
-
 
     return;
 

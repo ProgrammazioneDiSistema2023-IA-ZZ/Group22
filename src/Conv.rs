@@ -757,7 +757,13 @@ impl Compute for Conv{
             //return Output::TensorD(Array4::from_elem((1,16,14,14), 23.2).into_shape(IxDyn(&[1, 16, 14, 14])).unwrap());
             return Output::TensorD(get_output2());
         }
-
+        /*
+        slice = np.ones((1, 3, 7, 7)) * 1
+    w = np.ones((64, 3, 7, 7)) * 3
+    b = np.ones(64)
+    res = slice * w
+    res = res.sum(axis=(1, 2, 3)) + b
+        */
         /*let autopad = self.autopad.clone();
         let dilations = self.dilations.clone();
         let group = self.group.clone();

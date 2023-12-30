@@ -1,4 +1,4 @@
-use ndarray::{Array1, Array4, arr1, Shape, Dim, Dimension, s, Axis, IntoDimension};
+use ndarray::{Array1, Array4, arr1, Shape, Dim, Dimension, s, Axis, IntoDimension, IxDyn};
 use crate::operations::{Compute, Input, Output};
 use crate::onnx_proto3::{AttributeProto, NodeProto};
 use std::cmp::max;
@@ -746,7 +746,7 @@ impl Compute for Conv{
     fn compute(&mut self, inputs: Input) -> Output {
         //return Output::Tensor32(Array4::from_elem((64,3,256,256), 1.5));
 
-        let autopad = self.autopad.clone();
+        /*let autopad = self.autopad.clone();
         let mut list = match inputs {
             Input::Tensor4List(array) => array,
             _ => panic!("wrong input type")
@@ -760,7 +760,7 @@ impl Compute for Conv{
         }else{
             //return Output::TensorD(Array4::from_elem((1,16,14,14), 23.2).into_shape(IxDyn(&[1, 16, 14, 14])).unwrap());
             return Output::TensorD(get_output2());
-        }
+        }*/
         /*
         slice = np.ones((1, 3, 7, 7)) * 1
     w = np.ones((64, 3, 7, 7)) * 3
@@ -768,7 +768,7 @@ impl Compute for Conv{
     res = slice * w
     res = res.sum(axis=(1, 2, 3)) + b
         */
-        /*let autopad = self.autopad.clone();
+        let autopad = self.autopad.clone();
         let dilations = self.dilations.clone();
         let group = self.group.clone();
         let kernel_shape = self.kernel_shape.clone();
@@ -855,9 +855,9 @@ impl Compute for Conv{
             _ => panic!("Invalid autopad mode")
         };
 
-        let oh = (((h + left_h + right_h - dilations[1] as usize * (kernel_size  - 1))/stride_h) + 1);
-        let ow = (((w + left_w + right_w - dilations[1] as usize * (kernel_size - 1))/stride_w) + 1);
-
+        let oh = (((h + left_h + right_h - dilations[1] as usize * (kernel_size))/stride_h) + 1);
+        let ow = (((w + left_w + right_w - dilations[1] as usize * (kernel_size))/stride_w) + 1);
+        println!("{} - {} - {} - {}", oh, ow, stride_h, stride_w);
         //Create padded image
 
         //create an image by taking into account the padding; this is the padded input, not the output
@@ -881,7 +881,7 @@ impl Compute for Conv{
         for batch in (0..b) {
             for channel in (0..c) {
                 for h in (0..oh).step_by(stride_h) {
-                    for w in (0..ow).step_by(stride_w) {
+                    for w in (0..ow).step_by(stride_w){
                         let input_slice = x.slice(s![
                         batch,
                         ..,
@@ -911,8 +911,8 @@ impl Compute for Conv{
                 }
             }
 
-/*
-        for batch in (0..b) {
+
+        /*for batch in (0..b) {
             for mi in (0..m) {
                 for channel in (0..c) {
                     for h in (0..oh).step_by(stride_h) {
@@ -943,12 +943,11 @@ impl Compute for Conv{
                     }
                 }
             }
-        }
+        }*/
 
 
- */
-/*
         // Convolution computation
+        /*
         for ni in 0..b {
             for mi in 0..m {
                 for hi in 0..oh {
@@ -1004,13 +1003,13 @@ impl Compute for Conv{
                     }
                 }
             }
-        }
+        }*/
 
         Output::TensorD(y.into_dyn())
     }
 
-    //fn op_type(&self) -> &'static str {
-        //return "Conv";
+    fn op_type(&self) -> &'static str {
+        return "Conv";
     }
 }
 

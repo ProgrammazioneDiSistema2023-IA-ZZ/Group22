@@ -23,7 +23,6 @@ impl Dropout{
 
 }
 
-
 impl Compute for Dropout{
 
     fn compute(&mut self, inputs: Input) -> Output {
@@ -32,5 +31,9 @@ impl Compute for Dropout{
             _ => panic!("Wrong input")
         };
         return Output::TensorD(out);
+    }
+
+    fn op_type(&self) -> &'static str {
+        return "Dropout";
     }
 }

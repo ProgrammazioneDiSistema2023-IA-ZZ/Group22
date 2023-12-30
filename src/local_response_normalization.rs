@@ -82,4 +82,8 @@ impl Compute for LRN {
         let outlen = Vec::from(normalized_values.shape());
         return Output::TensorD(normalized_values.into_shape(IxDyn(&outlen)).unwrap());
     }
+
+    fn op_type(&self) -> &'static str {
+        return "LRN";
+    }
 }

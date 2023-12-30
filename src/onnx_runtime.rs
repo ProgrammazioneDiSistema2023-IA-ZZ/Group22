@@ -4,18 +4,36 @@ use crate::node::Node;
 
 //Interface struct for
 pub mod onnxruntime {
+    use std::collections::HashMap;
     use std::fs::File;
     use std::io::Read;
-    use ndarray::{ArrayD, IxDyn};
+    use ndarray::{Array1, Array2, Array3, Array4, ArrayD, IxDyn};
     use protobuf::Message;
+    use crate::add::Add;
+    use crate::averagepool::AveragePool;
+    use crate::concat::Concat;
+    use crate::Conv::Conv;
+    use crate::dropout::Dropout;
+    use crate::gemm::Gemm;
+    use crate::graph::DepGraph;
+    use crate::input::InputNode;
+    use crate::local_response_normalization::LRN;
+    use crate::matmul::MatMul;
+    use crate::maxpool::MaxPool;
     use crate::node::Node;
-    use crate::onnx_proto3::{GraphProto, ModelProto};
-    use crate::operations::Output;
+    use crate::onnx_proto3::{GraphProto, ModelProto, TensorProto};
+    use crate::operations::{Compute, Input, Output};
+    use crate::relu::Relu;
+    use crate::reshape::Reshape;
+    use crate::soft_max::SoftMax;
     use crate::start::Start;
 
     #[derive(Debug)]
     pub enum Error{
-        ProtoBufError
+        ProtoBufError,
+        InputParsingError,
+        ShapeError,
+        ConversionError
     }
 
     pub fn parse_onnx(path: String) -> Result<ModelProto, Error>{
@@ -33,10 +51,20 @@ pub mod onnxruntime {
         };
         return Ok(model);
     }
-    pub fn get_computational_graph(path: String){
+    pub fn get_computational_graph(path: String) -> DepGraph{
         let model = parse_onnx(path).unwrap();
         let graph = model.get_graph();
+        let mut nodes = get_nodes(graph);
+        let mut initializers = parse_initializers(graph);
+        nodes.append(&mut initializers);
 
+        /*let net_input = Array4::from_elem((1,1,28,28), 0.7)
+            .into_shape(IxDyn(&[1,1,28,28])).unwrap();
+        let operation = Box::new(Start::new(net_input));*/
+        let input_name = graph.get_input()[0].name.clone();
+        nodes.push(Node::new(input_name.clone(), Box::new(InputNode::new())));
+        let node_map = nodes.into_iter().map(|n| (n.id(), n)).collect::<HashMap<String, Node>>();
+        DepGraph::new(node_map, input_name)
     }
 
     pub fn parse_initializers(graph: &GraphProto) -> Vec<Node>{
@@ -59,8 +87,7 @@ pub mod onnxruntime {
                 _ => ()
             }
             let tensor_d = ArrayD::from_shape_vec(IxDyn(&dims), data).unwrap();
-            let mut tmp_node = Node::new(tensor.name.clone(), Box::new(Start::new()));
-            tmp_node.output = Some(Output::TensorD(tensor_d));
+            let mut tmp_node = Node::new(tensor.name.clone(), Box::new(Start::new(tensor_d)));
             return tmp_node
         }).collect();
         println!("All parsed = {}",starting_nodes.len() == nodes.len());
@@ -76,4 +103,63 @@ pub mod onnxruntime {
             })
             .collect();
     }
+
+    pub fn parse_input_tensor(path: String) -> Result<Input, Error>{
+        let mut input_tensor = File::open(path).unwrap();
+        //Onnx file into byte array
+        let mut byte_array = Vec::<u8>::new();
+        input_tensor.read_to_end(&mut byte_array).unwrap();
+        //Parsing del byte array nella struttura onnx_proto3.rs
+        let input_parsed: TensorProto = match Message::parse_from_bytes(&byte_array) {
+            Ok(model) => model,
+            Err(err) => {
+                eprintln!("Failed to parse the ONNX model: {}", err);
+                return Err(Error::InputParsingError);
+            }
+        };
+        let dims = input_parsed.get_dims()
+            .into_iter().map(|v| *v as usize).collect::<Vec<usize>>();
+        let vec = parse_from_raw_data(input_parsed.get_raw_data());
+        return Ok(Input::TensorD( ArrayD::from_shape_vec(IxDyn(&dims), vec).unwrap()));
+    }
+
+    pub fn get_in_out_mapping(graph: &GraphProto) -> HashMap<String, String>{
+        let nodes = graph.get_node();
+        return nodes.into_iter().flat_map(|x| {
+            let name = x.name.clone();
+            return x.get_output().into_iter().map(|s| (s.clone(), name.clone())).collect::<Vec<(String, String)>>();
+        }).collect::<HashMap<String, String>>();
+    }
+
+    pub fn get_nodes(graph: &GraphProto) -> Vec<Node>{
+        let alias = get_in_out_mapping(graph);
+        return graph.get_node().into_iter().map(|node| {
+            let id = node.name.clone();
+            let res: Box<dyn Compute + Send + Sync> = match node.get_op_type(){
+                    "Softmax" => Box::new(SoftMax::parse_from_proto_node(node.get_attribute())),
+                    "Relu" => Box::new(Relu::parse_from_proto_node(node.get_attribute())),
+                    "Concat" => Box::new(Concat::parse_from_proto_node(node.get_attribute())),
+                    "Dropout" => Box::new(Dropout::parse_from_proto_node(node.get_attribute())),
+                    "MaxPool" => Box::new(MaxPool::parse_from_proto_node(node.get_attribute())),
+                    "LRN" => Box::new(LRN::parse_from_proto_node(node.get_attribute())),
+                    "AveragePool" => Box::new(AveragePool::parse_from_proto_node(node.get_attribute())),
+                    "Conv" => Box::new(Conv::parse_from_proto_node(node.get_attribute())),
+                    "Reshape" => Box::new(Reshape::parse_from_proto_node(node.get_attribute())),
+                    "Gemm" => Box::new(Gemm::parse_from_proto_node(node.get_attribute())),
+                    "MatMul" => Box::new(MatMul::parse_from_proto_node(node.get_attribute())),
+                    "Add" => Box::new(Add::parse_from_proto_node(node.get_attribute())),
+                    _ => panic!("Unknown operation type!")
+                };
+            let mut new_node = Node::new(id, res);
+            for dep in node.get_input(){
+                let mut tmp = dep;
+                if alias.contains_key(dep) {
+                    tmp = alias.get(dep).unwrap();
+                }
+                new_node.add_dep((*tmp).clone());
+            }
+            return new_node;
+        }).collect::<Vec<Node>>();
+    }
+
 }

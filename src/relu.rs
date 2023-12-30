@@ -43,4 +43,8 @@ impl Compute for Relu {
             _ => panic!("Wrong input"),
         }
     }
+
+    fn op_type(&self) -> &'static str {
+        return "Relu";
+    }
 }

@@ -1,11 +1,13 @@
 use std::fmt::Debug;
-use ndarray::{Array, Array1, Array2, Array3, Array4, ArrayBase, ArrayD};
+use ndarray::{Array, Array1, Array2, Array3, Array4, ArrayBase, ArrayD, IxDyn};
 use crate::add::Add;
 use crate::onnx_proto3::NodeProto;
+use crate::onnx_runtime::onnxruntime::{Error};
 
 
 pub trait Compute {
     fn compute(&mut self, inputs: Input) -> Output;
+    fn op_type(&self) -> &'static str;
 }
 
 impl Clone for Box<dyn Compute> {
@@ -35,6 +37,7 @@ impl Operation {
         }
     }
 }*/
+
 #[derive(Clone, Debug)]
 pub enum Input {
     Tensor32(Array4<f32>),
@@ -56,5 +59,71 @@ pub enum Output {
     Tensor3(Array3<f32>),
     Tensor4(Array4<f32>),
     TensorD(ArrayD<f32>)
+}
+
+impl Input {
+    pub fn from_raw_vec(vec: Vec<f32>, shape: &[usize]) -> Result<Input, Error>{
+        let res = match shape.len() {
+            d if d >= 1 && d <= 4 => {
+                ArrayD::from_shape_vec(IxDyn(shape), vec)
+            },
+            _ => return Err(Error::ShapeError)
+        };
+        return match res {
+            Ok(val) => Ok(Input::TensorD(val)),
+            Err(e) => Err(Error::ConversionError)
+        }
+    }
+
+    pub fn into_raw_vec(self) -> Result<Vec<f32>, Error> {
+        match self {
+            Input::Tensor32(arr) => Ok(arr.into_raw_vec()),
+            Input::Tensor1(arr) => Ok(arr.into_raw_vec()),
+            Input::Tensor2(arr) => Ok(arr.into_raw_vec()),
+            Input::Tensor3(arr) => Ok(arr.into_raw_vec()),
+            Input::Tensor4(arr) => Ok(arr.into_raw_vec()),
+            Input::TensorD(arr) => Ok(arr.into_raw_vec()),
+            _ => Err(Error::ConversionError)
+        }
+    }
+
+    pub fn list_into_raw_vec(self) -> Result<Vec<Vec<f32>>, Error> {
+        match self {
+            Input::Tensor4List(vec) =>
+                Ok(vec.into_iter().map(|val| val.into_raw_vec()).collect::<Vec<Vec<f32>>>()),
+            Input::Tensor32Vec(vec) =>
+                Ok(vec.into_iter().map(|val| val.into_raw_vec()).collect::<Vec<Vec<f32>>>()),
+            _ => Err(Error::ConversionError)
+        }
+    }
+
+}
+
+impl Output {
+    pub fn from_raw_vec(vec: Vec<f32>, shape: &[usize]) -> Result<Output, Error>{
+        let res = match shape.len() {
+            d if d >= 1 && d <= 4 => {
+                ArrayD::from_shape_vec(IxDyn(shape), vec)
+            },
+            _ => return Err(Error::ShapeError)
+        };
+        return match res {
+            Ok(val) => Ok(Output::TensorD(val)),
+            Err(e) => Err(Error::ConversionError)
+        }
+    }
+
+    pub fn into_raw_vec(self) -> Result<Vec<f32>, Error> {
+        match self {
+            Output::Tensor32(arr) => Ok(arr.into_raw_vec()),
+            Output::Tensor1(arr) => Ok(arr.into_raw_vec()),
+            Output::Tensor2(arr) => Ok(arr.into_raw_vec()),
+            Output::Tensor3(arr) => Ok(arr.into_raw_vec()),
+            Output::Tensor4(arr) => Ok(arr.into_raw_vec()),
+            Output::TensorD(arr) => Ok(arr.into_raw_vec()),
+            _ => Err(Error::ConversionError)
+        }
+    }
+
 }
 

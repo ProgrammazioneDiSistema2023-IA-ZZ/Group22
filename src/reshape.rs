@@ -22,7 +22,6 @@ impl Reshape{
 
 }
 
-
 impl Compute for Reshape{
 
     fn compute(&mut self, inputs: Input) -> Output {

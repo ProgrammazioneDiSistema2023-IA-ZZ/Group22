@@ -51,7 +51,6 @@ impl AveragePool{
 
 }
 
-
 impl Compute for AveragePool {
     fn compute(&mut self, inputs: Input) -> Output {
         let out = match inputs{
@@ -109,5 +108,9 @@ impl Compute for AveragePool {
         }
 
         return Output::TensorD(result.into_shape(IxDyn(&output_dims)).unwrap());
+    }
+
+    fn op_type(&self) -> &'static str {
+        return "AveragePool";
     }
 }

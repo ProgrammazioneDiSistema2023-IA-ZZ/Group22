@@ -55,7 +55,6 @@ impl Gemm{
 
 }
 
-
 impl Compute for Gemm{
 
     fn compute(&mut self, inputs: Input) -> Output {
@@ -75,5 +74,9 @@ impl Compute for Gemm{
         let result  = self.alpha * a.dot(&b) + self.beta * c;
         let out_len  = Vec::from(result.shape());
         return Output::TensorD(result.into_shape(IxDyn(&out_len)).unwrap());
+    }
+
+    fn op_type(&self) -> &'static str {
+        return "Gemm";
     }
 }

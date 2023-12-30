@@ -51,7 +51,6 @@ impl MaxPool{
 
 }
 
-
 impl Compute for MaxPool {
     fn compute(&mut self, inputs: Input) -> Output {
         let out = match inputs{
@@ -109,5 +108,9 @@ impl Compute for MaxPool {
         }
 
         return Output::TensorD(result.into_shape(IxDyn(&output_dims)).unwrap());
+    }
+
+    fn op_type(&self) -> &'static str {
+        return "MaxPool";
     }
 }

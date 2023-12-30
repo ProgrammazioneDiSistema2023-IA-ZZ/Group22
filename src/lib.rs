@@ -16,6 +16,7 @@ mod relu;
 mod matmul;
 mod Conv;
 mod onnx_runtime;
+mod input;
 
 #[cfg(test)]
 mod tests {

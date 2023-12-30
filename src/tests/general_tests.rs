@@ -485,4 +485,17 @@ fn test_conv_with_padding_autopad(){
     println!("{}", result);
     assert_eq!(result, y);
 }
+    #[test]
+    fn test_create_mapping(){
+        let model = onnx_runtime::onnxruntime::parse_onnx("src/mnist-7.onnx".to_string()).unwrap();
+        let graph = model.get_graph();
+        let tot_out = graph.get_node()
+            .iter().map(|n| n.get_output().len()).reduce(|v1, v2| v1 + v2).unwrap();
+        let mapping = onnx_runtime::onnxruntime::get_in_out_mapping(graph);
+        let mapping_len = mapping.len();
+        for (key, value) in mapping.into_iter(){
+            println!("key = {}, value = {}", key.clone(), value.clone())
+        }
+        assert_eq!(tot_out, mapping_len);
+    }
 //}

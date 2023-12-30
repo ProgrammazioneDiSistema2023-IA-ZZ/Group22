@@ -8,7 +8,8 @@ use std::sync::{Arc, RwLock};
 use std::sync::mpsc::channel;
 use ndarray::Array4;
 use crate::node::{Node, SimpleNode};
-use crate::operations::Output;
+use crate::operations::{Input, Output};
+use crate::start::Start;
 
 
 pub enum Error {
@@ -38,27 +39,32 @@ pub struct DepGraph
     pub ready_nodes: Vec<String>,
     pub deps: DependencyMap,
     pub rdeps: DependencyMap,
-    pub nodes: Arc<HashMap<String, Arc<RwLock<Node>>>>,
-    pub original_nodes: Vec<SimpleNode>
+    pub nodes: HashMap<String, Arc<RwLock<Node>>>,
+    pub original_nodes: Vec<SimpleNode>,
+    pub input_name: String
 }
 
 impl DepGraph
 {
     /// Create a new DepGraph based on a vector of edges.
-    pub fn new(nodes: HashMap<String, Node>) -> Self {
+    pub fn new(nodes: HashMap<String, Node>, input_name: String) -> Self {
         let simple_nodes = nodes.values()
             .map(|node| SimpleNode::new(node.id().clone(), node.deps().clone()))
             .collect::<Vec<SimpleNode>>();
         let (deps, rdeps, ready_nodes) = DepGraph::parse_nodes(&simple_nodes);
-        let nodes_safe = Arc::new(nodes
+        /*let nodes_safe = Arc::new(nodes
             .into_iter()
-            .map( |(key, val)| (key, Arc::new(RwLock::new(val)))).collect());
+            .map( |(key, val)| (key, Arc::new(RwLock::new(val)))).collect());*/
+        let nodes_safe = nodes
+            .into_iter()
+            .map( |(key, val)| (key, Arc::new(RwLock::new(val)))).collect();
         DepGraph {
             ready_nodes,
             deps,
             rdeps,
             nodes: nodes_safe,
-            original_nodes: simple_nodes
+            original_nodes: simple_nodes,
+            input_name
         }
     }
 
@@ -98,7 +104,11 @@ impl DepGraph
         )
     }
 
-    pub fn run(&mut self) -> Option<Output> {
+    pub fn run(&mut self, input: Input) -> Option<Output> {
+        let input_array = match input{
+            Input::TensorD(vec) => vec,
+            _ => panic!("Wrong Input")
+        };
         let (deps, rdeps, ready_nodes) = DepGraph::parse_nodes(&self.original_nodes);
         self.deps = deps;
         self.rdeps = rdeps;
@@ -107,14 +117,25 @@ impl DepGraph
         let mut threads = Vec::new();
         let (tx_input, rx_input): (crossbeam::channel::Sender<String>, crossbeam::channel::Receiver<String>) = unbounded();
         let (tx_output, rx_output): (crossbeam::channel::Sender<String>, crossbeam::channel::Receiver<String>)= unbounded();
-        for _ in 0..4 {
+        let safe_map = Arc::new(self.nodes.clone());
+        for i in 0..4 {
             let rx = rx_input.clone();
             let tx = tx_output.clone();
-            let node_map = self.nodes.clone();
+            let node_map = safe_map.clone();
+
+            let input_name = self.input_name.clone();
+            let cloned_input = input_array.clone();
+
             let thread = thread::spawn(move | | {
                     while let Ok(node) = rx.recv() {
+                        println!("Thread_{} computing node: {}", i, node.clone());
                         let mut node_to_process = node_map.get(&node).unwrap();
-                        node_to_process.write().unwrap().compute_operation(&node_map);
+                        if node != input_name {
+                            node_to_process.write().unwrap().compute_operation(&node_map);
+                        }else{
+                            let out = node_to_process.write().unwrap().operation.compute(Input::TensorD(cloned_input.clone()));
+                            node_to_process.write().unwrap().output = Some(out);
+                        }
                         tx.send(node).unwrap();
                     }
             });

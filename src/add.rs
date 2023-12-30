@@ -30,6 +30,10 @@ impl Compute for Add{
             _ => panic!("Wrong input")
         }
     }
+
+    fn op_type(&self) -> &'static str {
+        return "Add";
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -60,5 +64,9 @@ impl Compute for AddToTryGraph {
             },
             _ => panic!("Wrong input")
         }
+    }
+
+    fn op_type(&self) -> &'static str {
+        return "Add";
     }
 }

@@ -1,4 +1,4 @@
-use ndarray::{Array1, Array4, arr1, Shape, Dim, Dimension, s, Axis, IntoDimension, IxDyn};
+use ndarray::{Array1, Array4, arr1, Shape, Dim, Dimension, s, Axis, IntoDimension, IxDyn, ShapeBuilder};
 use crate::operations::{Compute, Input, Output};
 use crate::onnx_proto3::{AttributeProto, NodeProto};
 use std::cmp::max;
@@ -784,7 +784,6 @@ impl Compute for Conv{
         let mut x: Array4<f32> = x1.clone().into_dimensionality().unwrap();
         let mut w2 = &vec[1];
         let mut w1 = w2.clone();
-        //let mut bias = vec[2].clone();
 
         // Retrieve input dimensions
         //let (n, c, h, w) = (x.shape()[0], x.shape()[1], x.shape()[2], x.shape()[3]);
@@ -814,6 +813,14 @@ impl Compute for Conv{
                 _ => panic!("Unexpected number of dimensions in the array"),
             }
         };
+
+        let mut bias = Array1::<f32>::zeros((m));
+
+        match vec.get(2) {
+            Some(element) => bias = element.clone().into_shape((m,)).unwrap(),
+             _=> bias = bias,
+        };
+
 
         // Padding
         let mut left_h = pads[0] as usize;
@@ -857,7 +864,7 @@ impl Compute for Conv{
 
         let oh = (((h + left_h + right_h - dilations[1] as usize * (kernel_size))/stride_h) + 1);
         let ow = (((w + left_w + right_w - dilations[1] as usize * (kernel_size))/stride_w) + 1);
-        println!("{} - {} - {} - {}", oh, ow, stride_h, stride_w);
+        //println!("{} - {} - {} - {}", oh, ow, stride_h, stride_w);
         //Create padded image
 
         //create an image by taking into account the padding; this is the padded input, not the output
@@ -874,14 +881,14 @@ impl Compute for Conv{
         // Initialize output tensor
         let mut y = Array4::<f32>::zeros((b, m, oh, ow));
 
-        println!("stride h: {}", stride_h);
-        println!("kernel size: {}", kernel_size);
-        println!("stride w: {}", stride_w);
+        //println!("stride h: {}", stride_h);
+        //println!("kernel size: {}", kernel_size);
+        //println!("stride w: {}", stride_w);
+        //println!("x: {}", x);
 
         for batch in (0..b) {
-            for channel in (0..c) {
-                for h in (0..oh).step_by(stride_h) {
-                    for w in (0..ow).step_by(stride_w){
+                for h in (0..oh) {
+                    for w in (0..ow){
                         let input_slice = x.slice(s![
                         batch,
                         ..,
@@ -893,117 +900,25 @@ impl Compute for Conv{
                         //println!("{}", input_slice);
                         //println!("{}", w1);
 
-                        println!("h: {}", h);
-                        println!("w: {}", w);
+                        //println!("h: {}", h);
+                        //println!("w: {}", w);
+                        //println!("input slice: {}", input_slice);
                         let mut convolution_result = &input_slice * &w1;
+                        //println!("conv result1: {}", convolution_result);
                         convolution_result = convolution_result.sum_axis(Axis(1)).sum_axis(Axis(1)).sum_axis(Axis(1));
-                        //convolution_result = convolution_result + bias.clone();
+                        //println!("conv result2: {}", convolution_result);
+                        convolution_result = convolution_result + bias.clone();
+                        println!("{}", bias);
 
                         // Assign the result to the output array
                         //y[[batch, .., h, w]] = convolution_result;
-                        let mut y_temp = Array4::<f32>::zeros((b, m, oh, ow));
                         let mut slice_y = y.slice_mut(s![batch, .., h, w]);
                         slice_y.assign(&convolution_result);
                         //y = y_temp;
 
                     }
                 }
-                }
             }
-
-
-        /*for batch in (0..b) {
-            for mi in (0..m) {
-                for channel in (0..c) {
-                    for h in (0..oh).step_by(stride_h) {
-                        for w in (0..ow).step_by(stride_w) {
-                            let input_slice = x.slice(s![
-                        batch..batch + 1,
-                        channel..channel + 1,
-                        h * stride_h..h * stride_h + kernel_size,
-                        w * stride_w..w * stride_w + kernel_size
-                    ]);
-                            let mut convolution_result = 0.0;
-                            for ci in 0..c {
-                                for ki in 0..kh {
-                                    for kj in 0..kw {
-                                        println!("Io");
-                                        // Element-wise multiplication and sum
-                                        let w1_tensor = &w1;
-                                        convolution_result += input_slice[[batch, ci, h, w]] * w1[[mi, ci, ki, kj]];
-                                        //convolution_result = convolution_result.sum_axis(Axis(1)).sum_axis(Axis(1)).sum_axis(Axis(1));
-                                        //convolution_result = &convolution_result + &bias[[mi]];
-                                    }
-                                }
-                            }
-
-                            // Assign the result to the output array
-                            y[[batch, channel, h, w]] = convolution_result;
-                        }
-                    }
-                }
-            }
-        }*/
-
-
-        // Convolution computation
-        /*
-        for ni in 0..b {
-            for mi in 0..m {
-                for hi in 0..oh {
-                    for wi in 0..ow {
-                        let mut sum = 0.0;
-
-                        // Iterate over input channels, kernel height, and kernel width
-                        for ci in 0..c {
-                            for ki in 0..kh {
-                                for kj in 0..kw {
-                                    // Calculate input indices with respect to padding and strides
-                                    /*
-                                    let mut xi= 0;
-                                    let mut xj= 0;
-                                    if ki == 0 && kj == 0 {
-                                        xi = hi * strides[0] as usize + ki;
-                                        xj = wi * strides[1] as usize + kj;
-                                    }
-                                    else if kj == 0 {
-                                        xi = hi * strides[0] as usize + ki - pads[0] as usize;
-                                        xj = wi * strides[1] as usize + kj;
-
-                                    }else if ki == 0 {
-                                        xi = hi * strides[0] as usize + ki;
-                                        xj = wi * strides[1] as usize + kj - pads[2] as usize;
-                                    }
-                                    else {*/
-                                        let xi = hi * strides[0] as usize; //+ ki - pads[0] as usize;
-                                        let xj = wi * strides[1] as usize; //+ kj - pads[2] as usize;
-                                    //}
-                                    // Check if input indices are within bounds
-                                    if xi < h as usize && xj < w as usize {
-                                        // Access individual ArrayD within the Vec
-                                        //let x_tensor: &ArrayD<f32> = &x[ni];
-                                        // Access individual elements in input and weight tensors
-                                        let w1_tensor = &w1;
-
-                                        sum += x[[ni, ci, xi, xj]] * w1_tensor[[mi, ci, ki, kj]];
-                                    }
-                                }
-                            }
-                        }
-
-                        // Add bias if present
-                        //TODO: check whether b exists or is None
-                           // sum += b[mi];
-
-                        // Set the computed sum in the output tensor
-                        y[[ni as usize, mi as usize, hi as usize, wi as usize]] = sum;
-                        //the output tensor will have dimensions (n, m, oh, ow) where n is the number
-                        //of examples in the batch; m is the number of output channels; oh is the
-                        //output height; ow is the output width
-                    }
-                }
-            }
-        }*/
 
         Output::TensorD(y.into_dyn())
     }

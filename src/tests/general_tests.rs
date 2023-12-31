@@ -375,7 +375,7 @@ fn test_conv_without_padding_pads(){
     let mut input: Vec<i64> = vec![3, 3];
     let input = input.into_iter().map(|val| val as usize).collect::<Vec<usize>>();
     kernel_vec.copy_from_slice(&input);
-    let mut conv_node = Conv::new(None, Some(arr1(&[1, 1])), Some(1), Some(Shape::from(Dim(kernel_vec))), Some(arr1(&[0, 0, 0, 0])), Some(arr1(&[1, 1])));
+    let mut conv_node = Conv::new(None, Some(arr1(&[1, 1])), Some(1), Some(Shape::from(Dim(kernel_vec))), None, Some(arr1(&[1, 1])));
 
     // Define the input values
     let x_values = vec![
@@ -418,7 +418,10 @@ fn test_conv_with_padding_pads(){
 
     // Define the input values
     let x_values = vec![
-        0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0,
+        0.0, 1.0, 2.0, 3.0, 4.0,
+        5.0, 6.0, 7.0, 8.0, 9.0,
+        10.0, 11.0, 12.0, 13.0, 14.0,
+        15.0, 16.0, 17.0, 18.0, 19.0,
         20.0, 21.0, 22.0, 23.0, 24.0,
     ];
 
@@ -434,6 +437,137 @@ fn test_conv_with_padding_pads(){
 
     // Create a 1x1x5x5 array
     let y_with_padding = Array::from_shape_vec((1, 1, 5, 5), y_with_padding_values).unwrap();
+    let mut vec_of_arrayd: Vec<ArrayD<f32>> = Vec::new();
+    vec_of_arrayd.push(x.into_dyn());
+    vec_of_arrayd.push(weight.into_dyn());
+    let mut input_d = Input::Tensor4List(vec_of_arrayd);
+    let result = match conv_node.compute(input_d) {
+        Output::TensorD(arr) => arr.into_dimensionality::<Ix4>().unwrap(),
+        _ => panic!("Wrong result")
+    };
+    println!("{}", result);
+    assert_eq!(result, y_with_padding);
+}
+
+#[test]
+fn test_conv_with_padding_pads_strides(){
+    let mut kernel_vec:[usize; 2] = [0; 2];
+    let mut input: Vec<i64> = vec![3, 3];
+    let input = input.into_iter().map(|val| val as usize).collect::<Vec<usize>>();
+    kernel_vec.copy_from_slice(&input);
+    let mut conv_node = Conv::new(None, Some(arr1(&[1, 1])), Some(1), Some(Shape::from(Dim(kernel_vec))), Some(arr1(&[1, 1, 1, 1])), Some(arr1(&[2, 2])));
+
+    // Define the input values
+    let x_values = vec![
+        0.0, 1.0, 2.0, 3.0, 4.0,
+        5.0, 6.0, 7.0, 8.0, 9.0,
+        10.0, 11.0, 12.0, 13.0, 14.0,
+        15.0, 16.0, 17.0, 18.0, 19.0,
+        20.0, 21.0, 22.0, 23.0, 24.0,
+        25.0, 26.0 ,27.0, 28.0, 29.0,
+        30.0, 31.0, 32.0, 33.0, 34.0
+    ];
+
+    // Create a 1x1x5x5 array
+    let x = Array::from_shape_vec((1, 1, 7, 5), x_values).unwrap();
+    let mut weight = Array4::from_elem((1, 1, 3, 3), 1.0);
+
+    // Define the expected output
+    let y_with_padding_values = vec![
+        12.0, 27.0, 24.0, 63.0, 108.0, 81.0, 123.0, 198.0, 141.0, 112.0, 177.0, 124.0
+    ];
+
+    // Create a 1x1x5x5 array
+    let y_with_padding = Array::from_shape_vec((1, 1, 4, 3), y_with_padding_values).unwrap();
+    let mut vec_of_arrayd: Vec<ArrayD<f32>> = Vec::new();
+    vec_of_arrayd.push(x.into_dyn());
+    vec_of_arrayd.push(weight.into_dyn());
+    let mut input_d = Input::Tensor4List(vec_of_arrayd);
+    let result = match conv_node.compute(input_d) {
+        Output::TensorD(arr) => arr.into_dimensionality::<Ix4>().unwrap(),
+        _ => panic!("Wrong result")
+    };
+    println!("{}", result);
+    assert_eq!(result, y_with_padding);
+}
+
+#[test]
+fn test_conv_with_padding_pads_along_1dimension_strides(){
+    let mut kernel_vec:[usize; 2] = [0; 2];
+    let mut input: Vec<i64> = vec![3, 3];
+    let input = input.into_iter().map(|val| val as usize).collect::<Vec<usize>>();
+    kernel_vec.copy_from_slice(&input);
+    let mut conv_node = Conv::new(None, Some(arr1(&[1, 1])), Some(1), Some(Shape::from(Dim(kernel_vec))), Some(arr1(&[1, 0, 1, 0])), Some(arr1(&[2, 2])));
+
+    // Define the input values
+    let x_values = vec![
+        0.0, 1.0, 2.0, 3.0, 4.0,
+        5.0, 6.0, 7.0, 8.0, 9.0,
+        10.0, 11.0, 12.0, 13.0, 14.0,
+        15.0, 16.0, 17.0, 18.0, 19.0,
+        20.0, 21.0, 22.0, 23.0, 24.0,
+        25.0, 26.0 ,27.0, 28.0, 29.0,
+        30.0, 31.0, 32.0, 33.0, 34.0
+    ];
+
+    // Create a 1x1x5x5 array
+    let x = Array::from_shape_vec((1, 1, 7, 5), x_values).unwrap();
+    let mut weight = Array4::from_elem((1, 1, 3, 3), 1.0);
+
+    // Define the expected output
+    let y_with_padding_values = vec![
+        21.0, 33.0,
+        99.0, 117.0,
+        189.0, 207.0,
+        171.0, 183.0
+    ];
+
+    // Create a 1x1x4x2 array
+    let y_with_padding = Array::from_shape_vec((1, 1, 4, 2), y_with_padding_values).unwrap();
+    let mut vec_of_arrayd: Vec<ArrayD<f32>> = Vec::new();
+    vec_of_arrayd.push(x.into_dyn());
+    vec_of_arrayd.push(weight.into_dyn());
+    let mut input_d = Input::Tensor4List(vec_of_arrayd);
+    let result = match conv_node.compute(input_d) {
+        Output::TensorD(arr) => arr.into_dimensionality::<Ix4>().unwrap(),
+        _ => panic!("Wrong result")
+    };
+    println!("{}", result);
+    assert_eq!(result, y_with_padding);
+}
+
+#[test]
+fn test_conv_without_padding_pads_strides(){
+    let mut kernel_vec:[usize; 2] = [0; 2];
+    let mut input: Vec<i64> = vec![3, 3];
+    let input = input.into_iter().map(|val| val as usize).collect::<Vec<usize>>();
+    kernel_vec.copy_from_slice(&input);
+    let mut conv_node = Conv::new(None, Some(arr1(&[1, 1])), Some(1), Some(Shape::from(Dim(kernel_vec))), Some(arr1(&[0, 0, 0, 0])), Some(arr1(&[2, 2])));
+
+    // Define the input values
+    let x_values = vec![
+        0.0, 1.0, 2.0, 3.0, 4.0,
+        5.0, 6.0, 7.0, 8.0, 9.0,
+        10.0, 11.0, 12.0, 13.0, 14.0,
+        15.0, 16.0, 17.0, 18.0, 19.0,
+        20.0, 21.0, 22.0, 23.0, 24.0,
+        25.0, 26.0 ,27.0, 28.0, 29.0,
+        30.0, 31.0, 32.0, 33.0, 34.0
+    ];
+
+    // Create a 1x1x5x5 array
+    let x = Array::from_shape_vec((1, 1, 7, 5), x_values).unwrap();
+    let mut weight = Array4::from_elem((1, 1, 3, 3), 1.0);
+
+    // Define the expected output
+    let y_with_padding_values = vec![
+        54.0, 72.0,
+        144.0, 162.0,
+        234.0, 252.0
+    ];
+
+    // Create a 1x1x5x5 array
+    let y_with_padding = Array::from_shape_vec((1, 1, 3, 2), y_with_padding_values).unwrap();
     let mut vec_of_arrayd: Vec<ArrayD<f32>> = Vec::new();
     vec_of_arrayd.push(x.into_dyn());
     vec_of_arrayd.push(weight.into_dyn());

@@ -45,7 +45,7 @@ pub mod onnxruntime {
         let model: ModelProto = match Message::parse_from_bytes(&byte_array) {
             Ok(model) => model,
             Err(err) => {
-                eprintln!("Failed to parse the ONNX model: {}", err);
+                eprintln!("Failed to parse the ONNX googlenet: {}", err);
                 return Err(Error::ProtoBufError);
             }
         };
@@ -83,9 +83,14 @@ pub mod onnxruntime {
                         data = tensor.get_float_data().into_iter().map(|val| *val).collect();
                     }
                 },
-                7 => data = tensor.get_int64_data().into_iter().map(|val| *val as f32).collect(),
+                7 => {
+                    data = tensor.get_int64_data().into_iter().map(|val| *val as f32).collect();
+                    if data.len() == 0{
+                        data = parse_int64_from_raw_data(tensor.get_raw_data());
+                    }},
                 _ => ()
             }
+            //println!("{} -- {} -- {} -- {}", tensor.get_name(), data.len(), data[0].clone(), data[1].clone());
             let tensor_d = ArrayD::from_shape_vec(IxDyn(&dims), data).unwrap();
             let mut tmp_node = Node::new(tensor.name.clone(), Box::new(Start::new(tensor_d)));
             return tmp_node
@@ -104,6 +109,16 @@ pub mod onnxruntime {
             .collect();
     }
 
+    pub fn parse_int64_from_raw_data(raw: &[u8]) -> Vec<f32>{
+        return raw.chunks_exact(8) // Split into chunks of 4 bytes (size of f32)
+            .map(|chunk| {
+                let mut bytes_array = [0; 8];
+                bytes_array.copy_from_slice(chunk);
+                i64::from_le_bytes(bytes_array) as f32
+            })
+            .collect();
+    }
+
     pub fn parse_input_tensor(path: String) -> Result<Input, Error>{
         let mut input_tensor = File::open(path).unwrap();
         //Onnx file into byte array
@@ -113,7 +128,7 @@ pub mod onnxruntime {
         let input_parsed: TensorProto = match Message::parse_from_bytes(&byte_array) {
             Ok(model) => model,
             Err(err) => {
-                eprintln!("Failed to parse the ONNX model: {}", err);
+                eprintln!("Failed to parse the ONNX googlenet: {}", err);
                 return Err(Error::InputParsingError);
             }
         };
@@ -125,16 +140,27 @@ pub mod onnxruntime {
 
     pub fn get_in_out_mapping(graph: &GraphProto) -> HashMap<String, String>{
         let nodes = graph.get_node();
+        let mut index = 0;
         return nodes.into_iter().flat_map(|x| {
-            let name = x.name.clone();
+            let mut name = x.name.clone();
+            if name.len() == 0{
+                name = format!("Node_{}", index);
+                index += 1;
+            }
             return x.get_output().into_iter().map(|s| (s.clone(), name.clone())).collect::<Vec<(String, String)>>();
         }).collect::<HashMap<String, String>>();
     }
 
     pub fn get_nodes(graph: &GraphProto) -> Vec<Node>{
+        let mut index = 0;
         let alias = get_in_out_mapping(graph);
         return graph.get_node().into_iter().map(|node| {
-            let id = node.name.clone();
+            let mut id = node.name.clone();
+            if id.len() == 0{
+                id = format!("Node_{}", index);
+                index += 1;
+            }
+            //println!("{}", id.clone());
             let res: Box<dyn Compute + Send + Sync> = match node.get_op_type(){
                     "Softmax" => Box::new(SoftMax::parse_from_proto_node(node.get_attribute())),
                     "Relu" => Box::new(Relu::parse_from_proto_node(node.get_attribute())),
@@ -155,6 +181,7 @@ pub mod onnxruntime {
                 let mut tmp = dep;
                 if alias.contains_key(dep) {
                     tmp = alias.get(dep).unwrap();
+                    //println!("{} --> {}", dep.clone(), tmp.clone());
                 }
                 new_node.add_dep((*tmp).clone());
             }

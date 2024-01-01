@@ -835,7 +835,9 @@ impl Compute for Conv{
 
         match autopad.as_str() {
             "SAME_UPPER" | "SAME_LOWER" => {
-                let width_padding_difference = w - kernel_size;
+                //let oh = (((h + left_h + right_h - dilations[1] as usize * (kernel_size))/stride_h) + 1);
+                //let width_padding_difference = w - kernel_size;
+                let width_padding_difference = kernel_size/stride_w - 1;
                 //I'd get the same value with height_padding_difference
                 if width_padding_difference % 2 == 0 {
                     left_h = width_padding_difference.clone().div(2);
@@ -908,7 +910,7 @@ impl Compute for Conv{
                         convolution_result = convolution_result.sum_axis(Axis(1)).sum_axis(Axis(1)).sum_axis(Axis(1));
                         //println!("conv result2: {}", convolution_result);
                         convolution_result = convolution_result + bias.clone();
-                        println!("{}", bias);
+                        //println!("{}", bias);
 
                         // Assign the result to the output array
                         //y[[batch, .., h, w]] = convolution_result;
@@ -919,7 +921,8 @@ impl Compute for Conv{
                     }
                 }
             }
-
+        /*println!("Shape :");
+        y.shape().iter().for_each(|x| print!("{} ", x));*/
         Output::TensorD(y.into_dyn())
     }
 

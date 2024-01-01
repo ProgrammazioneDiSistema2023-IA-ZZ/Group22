@@ -74,7 +74,7 @@ impl Node
             };
             self.output = Some(self.operation.compute(input));
             match self.output.clone().unwrap(){
-                Output::TensorD(arr) => println!("{}", arr.clone()),
+                Output::TensorD(arr) => (),//println!("{}", arr.clone()),
                 _ => ()
             }
 
@@ -90,7 +90,7 @@ impl Node
             });
             self.output = Some(self.operation.compute(Input::Tensor4List(inputs)));
             match self.output.clone().unwrap(){
-                Output::TensorD(arr) => println!("{}", arr.clone()),
+                Output::TensorD(arr) => (), //println!("{}", arr.clone()),
                 _ => ()
             }
         }else{

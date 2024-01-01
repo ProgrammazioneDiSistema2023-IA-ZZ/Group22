@@ -165,7 +165,7 @@ use crate::reshape::Reshape;
         let model: ModelProto = match Message::parse_from_bytes(&byte_array) {
             Ok(model) => model,
             Err(err) => {
-                eprintln!("Failed to parse the ONNX model: {}", err);
+                eprintln!("Failed to parse the ONNX googlenet: {}", err);
                 return;
             }
         };
@@ -206,7 +206,7 @@ fn test_conv_parsing(){
     let model: ModelProto = match Message::parse_from_bytes(&byte_array) {
         Ok(model) => model,
         Err(err) => {
-            eprintln!("Failed to parse the ONNX model: {}", err);
+            eprintln!("Failed to parse the ONNX googlenet: {}", err);
             return;
         }
     };
@@ -256,7 +256,7 @@ fn test_conv_parsing(){
         let model: ModelProto = match Message::parse_from_bytes(&byte_array) {
             Ok(model) => model,
             Err(err) => {
-                eprintln!("Failed to parse the ONNX model: {}", err);
+                eprintln!("Failed to parse the ONNX googlenet: {}", err);
                 return;
             }
         };
@@ -288,7 +288,7 @@ fn test_conv_parsing(){
         let model: ModelProto = match Message::parse_from_bytes(&byte_array) {
             Ok(model) => model,
             Err(err) => {
-                eprintln!("Failed to parse the ONNX model: {}", err);
+                eprintln!("Failed to parse the ONNX googlenet: {}", err);
                 return;
             }
         };

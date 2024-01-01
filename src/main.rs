@@ -40,30 +40,64 @@ mod input;
 
 fn main() {
     let mut dep_graph = onnx_runtime::onnxruntime::get_computational_graph("src/mnist-7/model.onnx".to_string());
-    /*let arr = parse_input_tensor("src/mnist-7/test_data_set_0/input_0.pb".to_string()).unwrap();
+    let arr = parse_input_tensor("src/mnist-7/test_data_set_0/input_0.pb".to_string()).unwrap();
     let out = dep_graph.run(arr).unwrap();
-    match out {
-        Output::TensorD(array) => println!("{}", array),
-        _ => println!("Errore output")
-    }
+    println!("Result from graph: ");
+    let graph_result  = match out {
+        Output::TensorD(array) => array,
+        _ => panic!("Errore output")
+    };
+    println!("{}", graph_result.clone());
 
-    let mut arr = parse_input_tensor("src/mnist-7/test_data_set_0/input_0.pb".to_string()).unwrap();
-    let out = dep_graph.run(arr).unwrap();
-    match out {
-        Output::TensorD(array) => println!("{}", array),
-        _ => println!("Errore output")
-    }*/
-
-    let tmp_array: Vec<f32> = Array4::from_elem((1,1,28,28), 0.7).into_raw_vec();
+    /*let tmp_array: Vec<f32> = Array4::from_elem((1,1,28,28), 0.7).into_raw_vec();
     let net_input = Input::from_raw_vec(tmp_array, &[1, 1, 28, 28]).unwrap();
     let out = dep_graph.run(net_input).unwrap();
     let result = out.into_raw_vec().unwrap();
-    result.into_iter().for_each(|val| print!("{} ", val));
+    result.into_iter().for_each(|val| print!("{} ", val));*/
 
-    println!();
+    println!("Test_Data_set/Output_data: ");
     let arr = parse_input_tensor("src/mnist-7/test_data_set_0/output_0.pb".to_string()).unwrap();
-    let raw_out = arr.into_raw_vec().unwrap();
-    raw_out.into_iter().for_each(|val| print!("{} ", val));
+    let result = match arr {
+        Input::TensorD(array) => array,
+        _ => panic!("Errore output")
+    };
+    println!("{}", result.clone());
+    println!("Difference: ");
+    let diff = graph_result - result;
+    println!("{}", diff);
+
+    /*let mut dep_graph = onnx_runtime::onnxruntime::get_computational_graph("src/gender_googlenet.onnx".to_string());
+    let arr = Input::TensorD(Array4::from_elem((1, 3, 224, 224), 7.8)
+        .into_shape(IxDyn(&[1, 3, 224, 224])).unwrap());
+    let out = dep_graph.run(arr).unwrap();
+    println!("Result from graph: ");
+    let graph_result  = match out {
+        Output::TensorD(array) => array,
+        _ => panic!("Errore output")
+    };
+    println!("{}", graph_result.clone());*/
+
+    let mut dep_graph = onnx_runtime::onnxruntime::get_computational_graph("src/googlenet/model.onnx".to_string());
+    let arr = parse_input_tensor("src/googlenet/test_data_set_0/input_0.pb".to_string()).unwrap();
+    let out = dep_graph.run(arr).unwrap();
+    println!("Result from graph: ");
+    let graph_result  = match out {
+        Output::TensorD(array) => array,
+        _ => panic!("Errore output")
+    };
+    println!("{}", graph_result.clone());
+
+    println!("Test_Data_set/Output_data: ");
+    let arr = parse_input_tensor("src/googlenet/test_data_set_0/output_0.pb".to_string()).unwrap();
+    let result = match arr {
+        Input::TensorD(array) => array,
+        _ => panic!("Errore output")
+    };
+    println!("{}", result.clone());
+    println!("Difference: ");
+    let diff = graph_result - result;
+    println!("{}", diff);
+
 
     return;
 
@@ -84,7 +118,7 @@ fn main() {
     let model: ModelProto = match Message::parse_from_bytes(&byte_array) {
         Ok(model) => model,
         Err(err) => {
-            eprintln!("Failed to parse the ONNX model: {}", err);
+            eprintln!("Failed to parse the ONNX googlenet: {}", err);
             return;
         }
     };

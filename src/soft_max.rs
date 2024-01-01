@@ -25,7 +25,7 @@ impl Compute for SoftMax {
             Input::TensorD(array) => array.into_dimensionality().unwrap(),
             _ => panic!("wrong input type")
         }; //Questa parte del codice gestisce il passaggio dalla variante Input al tipo Array2<f32>
-
+        println!("{}", matrix.clone());
         /*
         PREVIOUS VERSION
         let max_value = matrix.iter().cloned().fold(f32::NEG_INFINITY, f32::max);
@@ -52,6 +52,7 @@ impl Compute for SoftMax {
         // Questa linea calcola la somma degli elementi esponenziali in ciascuna riga della matrice exp_values.
 
         let len = sum_exp.len();
+
         let softmax_values: Array2<f32> = exp_values / sum_exp.into_shape((len, 1)).unwrap();
         //Qui, viene calcolato il softmax dividendo ogni elemento dell'exp_values per la somma degli elementi sum_exp. Questo restituisce una matrice di valori softmax.
         //In questa riga, exp_values è una matrice di valori esponenziali di dimensioni (n, m) e sum_exp è un vettore di somme di valori esponenziali di dimensione (n,). Il broadcasting avviene quando si esegue l'operazione di divisione tra exp_values e sum_exp.

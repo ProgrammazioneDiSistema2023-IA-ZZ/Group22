@@ -1,9 +1,10 @@
 use std::cmp::PartialEq;
 use std::collections::{HashMap, HashSet};
 use std::fmt;
+use std::fmt::{Display, Formatter};
 use std::hash::Hash;
 use std::sync::{Arc, RwLock};
-use ndarray::Array4;
+use ndarray::{Array4, ArrayD};
 use crate::operations::{Compute, Input, Output};
 
 /// Single node in a dependency graph, which might have dependencies or be
@@ -13,9 +14,9 @@ use crate::operations::{Compute, Input, Output};
 /// dependencies.
 pub struct Node
 {
-    id: String,
-    deps: Vec<String>,
-    operation: Box<dyn Compute + Send + Sync>,
+    pub id: String,
+    pub deps: Vec<String>,
+    pub operation: Box<dyn Compute + Send + Sync>,
     pub output: Option<Output>
 }
 
@@ -64,30 +65,49 @@ impl Node
     }
 
     pub fn compute_operation(&mut self, nodes: &HashMap<String, Arc<RwLock<Node>>>) -> () {
-        //TODO Remember to handle gemm node order of input
         if self.deps.len() == 1{
             let elem = self.deps.iter().next().unwrap().clone();
             let only_dep = nodes.get(&elem).unwrap();
             let input = match only_dep.read().unwrap().output.clone().unwrap() {
-                Output::Tensor32(array) => Input::Tensor32(array),
+                Output::TensorD(array) => Input::TensorD(array),
                 _ => panic!("wrong output")
             };
             self.output = Some(self.operation.compute(input));
+            match self.output.clone().unwrap(){
+                Output::TensorD(arr) => (),//println!("{}", arr.clone()),
+                _ => ()
+            }
 
         }else if self.deps.len() > 1 {
-            let mut inputs = Vec::<Array4<f32>>::new();
+            let mut inputs = Vec::<ArrayD<f32>>::new();
             self.deps.iter().for_each(|dep| {
                 let elem = nodes.get(dep).unwrap();
                 let input = match elem.read().unwrap().output.clone().unwrap() {
-                    Output::Tensor32(array) => array,
+                    Output::TensorD(array) => array,
                     _ => panic!("wrong output")
                 };
                 inputs.push(input);
             });
-            self.output = Some(self.operation.compute(Input::Tensor32Vec(inputs)));
-
+            self.output = Some(self.operation.compute(Input::Tensor4List(inputs)));
+            match self.output.clone().unwrap(){
+                Output::TensorD(arr) => (), //println!("{}", arr.clone()),
+                _ => ()
+            }
         }else{
             self.output = Some(self.operation.compute(Input::Empty));
         }
+    }
+}
+
+impl Display for Node {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        let id = self.id();
+        let inputs = match self.deps.len() {
+            d if d > 0 => self.deps.iter()
+                .map(|v| (*v).clone()).reduce(|d1, d2| d1 + " --- " + d2.as_str()).unwrap(),
+            _ => "None -> Ready Node".to_string()
+        };
+        let op_type = self.operation.op_type();
+        write!(f, "id: {}\nop_type: {}\ninputs: {}\n", id, op_type, inputs)
     }
 }

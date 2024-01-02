@@ -1,95 +1,116 @@
-use ndarray::{Array1, Array4, Array, arr1, Shape, Dim, par_azip, s, Axis};
+use ndarray::{Array1, Array4, arr1, Shape, Dim, Dimension, IxDyn, s};
 use crate::operations::{Compute, Input, Output};
 use crate::onnx_proto3::{AttributeProto, NodeProto};
+use std::cmp::max;
+use ndarray::ArrayD;
 
 #[derive(Clone, Debug)]
 pub struct MaxPool{
-    autopad: String,
-    ceil_mode: u32,
-    dilations: Array1<i32>,
-    kernel_shape: Shape<Dim<[usize; 2]>>,
-    pads: Array1<i32>,
-    storage_order: u32,
-    strides:  Array1<i32>
+    pub kernel_shape: Shape<Dim<[usize; 2]>>,
+    pub pads: Array1<i32>,
+    pub strides: Array1<i32>,
 }
 
 impl MaxPool{
-    pub fn new(ap: Option<String>,
-               cm: Option<u32>,
-               dil: Option<ndarray::Array1<i32>>,
-               kernel_shape: Shape<Dim<[usize; 2]>>,
+    pub fn new(
+               kernel_shape: Option<Shape<Dim<[usize; 2]>>>,
                pads: Option<ndarray::Array1<i32>>,
-               st_or: Option<u32>,
-               strides: Option<ndarray::Array1<i32>>,
-               ) -> MaxPool{
+               strides: Option<ndarray::Array1<i32>>, ) -> MaxPool{
         return MaxPool{
-            autopad: ap.unwrap_or("NOT_SET".to_string()),
-            ceil_mode: cm.unwrap_or(0),
-            dilations: dil.unwrap_or(arr1(&[1, 1])),
-            kernel_shape: kernel_shape,
-            pads: pads.unwrap_or(arr1(&[0, 0, 0, 0])),
-            storage_order: st_or.unwrap_or(0),
+            kernel_shape: kernel_shape.unwrap_or(Shape::from(Dim([1, 1]))),
+            pads: pads.unwrap_or(arr1(&[1, 1, 1, 1])),
             strides: strides.unwrap_or(arr1(&[1, 1]))
         }
+
     }
 
-    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Option<MaxPool>{
-        //TODO Implement the method to parse from a vector of attributes
-        return None;
+    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> MaxPool{
+        let mut kernel_shape= Shape::from(Dim([1, 1]));
+        let mut kernel_vec: [usize; 2] = [0; 2];
+        let mut pads = Default::default();
+        let mut strides = Default::default();
+        for attr in attributes.iter(){
+            match attr.name.as_str(){
+                "kernel_shape" => {
+                    let tmp = attr.ints.iter().map(|val| *val as usize).collect::<Vec<usize>>();
+                    kernel_vec.copy_from_slice(&tmp);
+                    kernel_shape = Shape::from(Dim(kernel_vec));
+                },
+                "strides" => {
+                    strides = arr1(&attr.ints.iter().map(|val| *val as i32).collect::<Vec<i32>>());
+                },
+                "pads" => {
+                    pads = arr1(&attr.ints.iter().map(|val| *val as i32).collect::<Vec<i32>>());
+                },
+                _ => ()
+            }
+
+        }
+        return MaxPool{kernel_shape, pads, strides }
     }
+
 }
 
 impl Compute for MaxPool {
-    fn compute(&mut self, input: Input) -> Output {
-        match input {
-            Input::Tensor4(tensor) => {
-                // Estrarre le dimensioni del tensore di input
-                let (batch_size, channels, height, width) = tensor.dim();
+    fn compute(&mut self, inputs: Input) -> Output {
+        let out = match inputs{
+            Input::TensorD(array) => array,
+            _ => panic!("Wrong input")
+        };
 
-                // Accedere direttamente ai valori delle dimensioni del kernel
-                let (kernel_h, kernel_w) = (self.kernel_shape[0], self.kernel_shape[1]);
+        let mut x: Array4<f32> = out.into_dimensionality().unwrap();
 
-                // Utilizzare i valori dei riferimenti per strides e pads
-                let stride_h = self.strides[0] as usize;
-                let stride_w = self.strides[1] as usize;
-                let pad_h = self.pads[0] as usize;
-                let pad_w = self.pads[1] as usize;
+        // Padding
+        let left_h = self.pads[0] as usize;
+        let left_w = self.pads[1] as usize;
+        let right_h = self.pads[2] as usize;
+        let right_w = self.pads[3] as usize;
+        let kernel_size = self.kernel_shape.raw_dim().last_elem();
+        let stride_h = self.strides[0] as usize;
+        let stride_w = self.strides[1] as usize;
 
-                // Calcolare le dimensioni dell'output
-                let output_height = ((height + 2 * pad_h - kernel_h) as f32 / stride_h as f32).ceil() as usize;
-                let output_width = ((width + 2 * pad_w - kernel_w) as f32 / stride_w as f32).ceil() as usize;
 
-                let mut output = Array4::zeros((batch_size, channels, output_height, output_width));
+        let output_dims = [x.shape()[0],
+                                    x.shape()[1],
+            ((x.shape()[2] - kernel_size + left_h + right_h)/stride_h + 1),
+            ((x.shape()[3] - kernel_size + left_w + right_w)/stride_w + 1)];
+        let mut result: Array4<f32> = Array4::from_elem(output_dims.clone(), 0.0);
 
-                for b in 0..batch_size {
-                    for c in 0..channels {
-                        for h in 0..output_height {
-                            for w in 0..output_width {
-                                let start_row = h * stride_h - pad_h;
-                                let start_col = w * stride_w - pad_w;
+        let (b, c, h, w) = (x.shape()[0], x.shape()[1], x.shape()[2], x.shape()[3]);
 
-                                let end_row = (start_row + kernel_h).min(height);
-                                let end_col = (start_col + kernel_w).min(width);
+        //Create padded image
+        let mut padded_image = Array4::<f32>::zeros((b, c, h + left_h + right_h, w + left_w + right_w));
+        let mut original_view = x.view_mut();
+        let mut padded_view = padded_image.slice_mut(s![.., .., left_h..left_h + h, left_w..left_w + w]);
+        padded_view.assign(&original_view);
+        x = padded_image;
 
-                                let start_row = start_row.max(0) as usize;
-                                let start_col = start_col.max(0) as usize;
 
-                                // Estrarre la finestra corrente
-                                let window = tensor.slice(s![b, c, start_row..end_row, start_col..end_col]);
-
-                                // Trovare il valore massimo nella finestra
-                                let max_value = window.iter().cloned().fold(f32::NEG_INFINITY, f32::max);
-
-                                // Assegnare il valore massimo all'output
-                                output[[b, c, h, w]] = max_value;
+        //Input dims
+        for batch in 0..b{
+            for channel in 0..c{
+                //outdim h
+                for i in 0..output_dims[2]{
+                    //outdim w
+                    for j in 0..output_dims[3]{
+                        //moving the kernel
+                        let mut max_num = x[[batch, channel, i * stride_h, j * stride_w]];
+                        for m in 0..kernel_size{
+                            for n in 0..kernel_size {
+                                max_num = f32::max(max_num, x[[batch, channel, (i * stride_h + m), (j * stride_w + n)]]);
                             }
                         }
+                        //after kernel assign the value
+                        result[[batch, channel, i, j]] = max_num;
                     }
                 }
-
-                Output::Tensor4(output)
-            },
-            _ => panic!("Tipo di input errato per MaxPool"),
+            }
         }
+
+        return Output::TensorD(result.into_shape(IxDyn(&output_dims)).unwrap());
+    }
+
+    fn op_type(&self) -> &'static str {
+        return "MaxPool";
     }
 }

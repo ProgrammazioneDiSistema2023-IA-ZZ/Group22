@@ -1,4 +1,4 @@
-use ndarray::{Array1, Array4, arr1, Shape, Dim};
+use ndarray::{Array1, Array4, arr1, Shape, Dim, IxDyn};
 use crate::operations::{Compute, Input, Output};
 use crate::onnx_proto3::{AttributeProto, NodeProto};
 
@@ -7,7 +7,7 @@ pub struct Add{
 }
 
 impl Add{
-    pub fn new(constant: f32) -> Add{
+    pub fn new() -> Add{
         return Add{ }
 
     }
@@ -21,13 +21,18 @@ impl Add{
 impl Compute for Add{
     fn compute(&mut self, inputs: Input) -> Output {
         return match inputs {
-            Input::Tensor32Vec(input) => {
+            Input::Tensor4List(input) => {
                 let output = input.into_iter()
                     .reduce(move |v1, v2| (v1 + v2)).unwrap();
-                return Output::Tensor32(output.clone());
+                let out_len = Vec::from(output.shape());
+                return Output::TensorD(output.into_shape(IxDyn(&out_len)).unwrap());
             },
             _ => panic!("Wrong input")
         }
+    }
+
+    fn op_type(&self) -> &'static str {
+        return "Add";
     }
 }
 
@@ -59,5 +64,9 @@ impl Compute for AddToTryGraph {
             },
             _ => panic!("Wrong input")
         }
+    }
+
+    fn op_type(&self) -> &'static str {
+        return "Add";
     }
 }

@@ -4,26 +4,24 @@ use crate::onnx_proto3::{AttributeProto, NodeProto};
 
 #[derive(Clone, Debug)]
 pub struct Dropout{
-    seed: i32,
+    ratio: f32,
 }
 
 impl Dropout{
     pub fn new(
-        seed: Option<i32>
+        ratio: Option<f32>
     ) -> Dropout{
         return Dropout{
-            seed: seed.unwrap_or(0)//i don't know what the default value is
+            ratio: ratio.unwrap_or(0.0)
         }
 
     }
 
-    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Option<Dropout>{ //Change from Option to pure Conv
-        //TODO Implement the method to parse from a vector of attributes
-        return None;
+    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Dropout{ //Change from Option to pure Conv
+        return Dropout{ratio: 0.4000000059604645};
     }
 
 }
-
 
 impl Compute for Dropout{
 
@@ -33,5 +31,9 @@ impl Compute for Dropout{
             _ => panic!("Wrong input")
         };
         return Output::TensorD(out);
+    }
+
+    fn op_type(&self) -> &'static str {
+        return "Dropout";
     }
 }

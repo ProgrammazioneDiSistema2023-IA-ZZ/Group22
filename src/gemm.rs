@@ -4,11 +4,10 @@ use crate::onnx_proto3::{AttributeProto, NodeProto};
 
 #[derive(Clone, Debug)]
 pub struct Gemm{
-    alpha: f32,
-    beta: f32,
-    transA: i32,
-    transB: i32,
-    input_order: Vec<String>
+    pub alpha: f32,
+    pub beta: f32,
+    pub trans_a: i32,
+    pub trans_b: i32,
 }
 
 impl Gemm{
@@ -17,25 +16,44 @@ impl Gemm{
         beta: Option<f32>,
         trans_a: Option<i32>,
         trans_b: Option<i32>,
-        input_order: Vec<String>
     ) -> Gemm{
         return Gemm{
             alpha: alpha.unwrap_or(1.0),
             beta: beta.unwrap_or(1.0),
-            transA: trans_a.unwrap_or(0),
-            transB: trans_b.unwrap_or(0),
-            input_order: Vec::<String>::new()
+            trans_a: trans_a.unwrap_or(0),
+            trans_b: trans_b.unwrap_or(0)
         }
 
     }
 
-    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Option<Gemm>{ //Change from Option to pure Conv
-        //TODO Implement the method to parse from a vector of attributes
-        return None;
+    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Gemm{ //Change from Option to pure Conv
+        let mut alpha = 1.0;
+        let mut beta = 1.0;
+        let mut trans_a = 0;
+        let mut trans_b = 0;
+        for attr in attributes.iter(){
+            match attr.name.as_str(){
+                "alpha" => {
+                    alpha = attr.f;
+
+                },
+                "beta" => {
+                    beta = attr.f;
+                },
+                "transA" => {
+                    trans_a = attr.i as i32;
+                },
+                "transB" => {
+                    trans_b = attr.i as i32;
+                },
+                _ => ()
+            }
+
+        }
+        return Gemm{alpha, beta, trans_a, trans_b};
     }
 
 }
-
 
 impl Compute for Gemm{
 
@@ -47,14 +65,18 @@ impl Compute for Gemm{
         let mut c = arrays.pop().unwrap();
         let mut b: Array2<f32> = arrays.pop().unwrap().into_dimensionality().unwrap();
         let mut a: Array2<f32>  = arrays.pop().unwrap().into_dimensionality().unwrap();
-        if self.transA != 0 {
+        if self.trans_a != 0 {
             a = a.reversed_axes();
         }
-        if self.transB != 0 {
+        if self.trans_b != 0 {
             b = b.reversed_axes();
         }
         let result  = self.alpha * a.dot(&b) + self.beta * c;
         let out_len  = Vec::from(result.shape());
         return Output::TensorD(result.into_shape(IxDyn(&out_len)).unwrap());
+    }
+
+    fn op_type(&self) -> &'static str {
+        return "Gemm";
     }
 }

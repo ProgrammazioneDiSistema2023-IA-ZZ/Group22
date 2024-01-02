@@ -39,76 +39,57 @@ impl MaxPool{
     }
 }
 
-/*
 impl Compute for MaxPool {
-    fn compute(&mut self, inputs: Input) -> Output {
-        match inputs {
-            Input::Tensor32(input_array) => {
-                let (batch, input_channels, input_height, input_width) = input_array.dim();
-                let kh = self.kernel_shape.len_of(Axis(0));
-                let kw = self.kernel_shape.len_of(Axis(1));
+    fn compute(&mut self, input: Input) -> Output {
+        match input {
+            Input::Tensor4(tensor) => {
+                // Estrarre le dimensioni del tensore di input
+                let (batch_size, channels, height, width) = tensor.dim();
 
-                let (sh, sw) = (self.strides[0], self.strides[1]);
-                let (ph, pw) = (self.pads[0], self.pads[1]);
-                let (dilation_h, dilation_w) = (self.dilations[0], self.dilations[1]);
-                let ceil_mode = self.ceil_mode != 0;
+                // Accedere direttamente ai valori delle dimensioni del kernel
+                let (kernel_h, kernel_w) = (self.kernel_shape[0], self.kernel_shape[1]);
 
-                let output_height = if self.autopad == "VALID" {
-                    let numerator = input_height - ((kh - 1) * dilation_h + 1) + ph;
-                    if ceil_mode {
-                        (numerator + sh - 1) / sh
-                    } else {
-                        numerator / sh
-                    }
-                } else {
-                    if ceil_mode {
-                        ((input_height - 1) / sh) + 1
-                    } else {
-                        (input_height - 1) / sh + 1
-                    }
-                };
+                // Utilizzare i valori dei riferimenti per strides e pads
+                let stride_h = self.strides[0] as usize;
+                let stride_w = self.strides[1] as usize;
+                let pad_h = self.pads[0] as usize;
+                let pad_w = self.pads[1] as usize;
 
-                let output_width = if self.autopad == "VALID" {
-                    let numerator = input_width - ((kw - 1) * dilation_w + 1) + pw;
-                    if ceil_mode {
-                        (numerator + sw - 1) / sw
-                    } else {
-                        numerator / sw
-                    }
-                } else {
-                    if ceil_mode {
-                        ((input_width - 1) / sw) + 1
-                    } else {
-                        (input_width - 1) / sw + 1
-                    }
-                };
+                // Calcolare le dimensioni dell'output
+                let output_height = ((height + 2 * pad_h - kernel_h) as f32 / stride_h as f32).ceil() as usize;
+                let output_width = ((width + 2 * pad_w - kernel_w) as f32 / stride_w as f32).ceil() as usize;
 
-                let mut output = Array::zeros((batch, input_channels, output_height, output_width));
+                let mut output = Array4::zeros((batch_size, channels, output_height, output_width));
 
-                for b in 0..batch {
-                    for c in 0..input_channels {
-                        for oh in 0..output_height {
-                            for ow in 0..output_width {
-                                let hstart = oh * sh;
-                                let hend = (oh * sh + dilation_h * (kh - 1) + 1).min(input_height);
-                                let wstart = ow * sw;
-                                let wend = (ow * sw + dilation_w * (kw - 1) + 1).min(input_width);
-                                let input_window = input_array.slice(s![b, c, hstart..hend; dilation_h, wstart..wend; dilation_w]);
-                                let max_val = input_window.iter().fold(f32::NEG_INFINITY, |acc, &x| x.max(acc));
-                                output[[b, c, oh, ow]] = max_val;
+                for b in 0..batch_size {
+                    for c in 0..channels {
+                        for h in 0..output_height {
+                            for w in 0..output_width {
+                                let start_row = h * stride_h - pad_h;
+                                let start_col = w * stride_w - pad_w;
+
+                                let end_row = (start_row + kernel_h).min(height);
+                                let end_col = (start_col + kernel_w).min(width);
+
+                                let start_row = start_row.max(0) as usize;
+                                let start_col = start_col.max(0) as usize;
+
+                                // Estrarre la finestra corrente
+                                let window = tensor.slice(s![b, c, start_row..end_row, start_col..end_col]);
+
+                                // Trovare il valore massimo nella finestra
+                                let max_value = window.iter().cloned().fold(f32::NEG_INFINITY, f32::max);
+
+                                // Assegnare il valore massimo all'output
+                                output[[b, c, h, w]] = max_value;
                             }
                         }
                     }
                 }
 
-                println!("{}", self.kernel_shape.size());;
-                //Output::Tensor32(output)
-                Output::Tensor32(Array4::from_elem((64,3,256,256), 1.5))
-            }
-            _ => panic!("Wrong input"),
+                Output::Tensor4(output)
+            },
+            _ => panic!("Tipo di input errato per MaxPool"),
         }
-        ;
     }
 }
-
- */

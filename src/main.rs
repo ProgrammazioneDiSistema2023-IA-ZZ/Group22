@@ -29,6 +29,7 @@ mod soft_max;
 mod dropout;
 mod gemm;
 mod Concat;
+mod maxpool;
 
 fn main() {
     //Script per estrarre onnx_proto3.rs tramite protocol buffer

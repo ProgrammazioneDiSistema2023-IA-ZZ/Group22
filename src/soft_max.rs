@@ -25,7 +25,6 @@ impl Compute for SoftMax {
             Input::TensorD(array) => array.into_dimensionality().unwrap(),
             _ => panic!("wrong input type")
         }; //Questa parte del codice gestisce il passaggio dalla variante Input al tipo Array2<f32>
-        println!("{}", matrix.clone());
         /*
         PREVIOUS VERSION
         let max_value = matrix.iter().cloned().fold(f32::NEG_INFINITY, f32::max);

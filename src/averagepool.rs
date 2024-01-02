@@ -106,7 +106,6 @@ impl Compute for AveragePool {
                 }
             }
         }
-        println!("{}", result.clone());
         return Output::TensorD(result.into_shape(IxDyn(&output_dims)).unwrap());
     }
 

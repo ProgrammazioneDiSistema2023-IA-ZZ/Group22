@@ -1,9 +1,10 @@
-use ndarray::{Array1, Array4, arr1, Shape, Dim, Dimension, s, Axis, IntoDimension, IxDyn, ShapeBuilder};
+use ndarray::{Array1, Array4, arr1, Shape, Dim, Dimension, s, Axis, IntoDimension, IxDyn, ShapeBuilder, Array};
 use crate::operations::{Compute, Input, Output};
 use crate::onnx_proto3::{AttributeProto, NodeProto};
 use std::cmp::max;
 use std::ops::Div;
 use ndarray::ArrayD;
+use ndarray::parallel::prelude::*;
 
 #[derive(Clone, Debug)]
 pub struct Conv{
@@ -250,6 +251,7 @@ impl Compute for Conv{
         //println!("stride w: {}", stride_w);
         //println!("x: {}", x);
 
+        let w_arr: Array4<f32> = w1.into_dimensionality().unwrap();
         for batch in (0..b) {
                 for h in (0..oh) {
                     for w in (0..ow){
@@ -267,9 +269,16 @@ impl Compute for Conv{
                         //println!("h: {}", h);
                         //println!("w: {}", w);
                         //println!("input slice: {}", input_slice);
-                        let mut convolution_result = &input_slice * &w1;
-                        //println!("conv result1: {}", convolution_result);
-                        convolution_result = convolution_result.sum_axis(Axis(1)).sum_axis(Axis(1)).sum_axis(Axis(1));
+                        //let mut convolution_result = &input_slice * &w1;
+                        let mut results = Vec::new();
+                        w_arr.clone()
+                            .axis_iter(Axis(0))
+                            .into_par_iter()
+                            .map(|v| (&v * &input_slice).sum())
+                                .collect_into_vec(&mut results);
+
+                        let mut convolution_result= Array1::from(results);
+                        //convolution_result = convolution_result.sum_axis(Axis(1)).sum_axis(Axis(1)).sum_axis(Axis(1));
                         //println!("conv result2: {}", convolution_result);
                         convolution_result = convolution_result + bias.clone();
                         //println!("{}", bias);

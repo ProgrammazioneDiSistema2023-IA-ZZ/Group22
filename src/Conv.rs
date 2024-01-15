@@ -4,6 +4,8 @@ use crate::onnx_proto3::{AttributeProto, NodeProto};
 use std::cmp::max;
 use std::ops::Div;
 use ndarray::ArrayD;
+use pyo3::prelude::*;
+
 
 #[derive(Clone, Debug)]
 pub struct Conv{
@@ -292,6 +294,8 @@ impl Compute for Conv{
         return "Conv";
     }
 }
+
+
 
 /*
 notes about the attributes:

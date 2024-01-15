@@ -17,6 +17,9 @@ mod matmul;
 mod Conv;
 mod onnx_runtime;
 mod input;
+mod binding_python;
+
+use pyo3::pymodule;
 
 #[cfg(test)]
 mod tests {

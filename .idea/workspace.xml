@@ -15,10 +15,13 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6bb5e421-b668-4434-b672-cf9e8c142d5d" name="Changes" comment="minor changes">
+    <list default="true" id="6bb5e421-b668-4434-b672-cf9e8c142d5d" name="Changes" comment="Binding implementation for .pb inputs">
+      <change afterPath="$PROJECT_DIR$/src/binding_python.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Conv.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Conv.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Reshape.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Reshape.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/maxpool.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/maxpool.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,6 +45,19 @@
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">
+    <option name="selectedUrlAndAccountId">
+      <UrlAndAccount>
+        <option name="accountId" value="18af9351-f869-4264-82f5-363eea886e4f" />
+        <option name="url" value="https://github.com/ProgrammazioneDiSistema2023-IA-ZZ/Group22" />
+      </UrlAndAccount>
+    </option>
   </component>
   <component name="MacroExpansionManager">
     <option name="directoryName" value="k2hee9vj" />
@@ -69,6 +85,7 @@
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;org.rust.cargo.project.model.PROJECT_DISCOVERY&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;language.rust.cargo.check&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -114,6 +131,14 @@
       <workItem from="1698158285655" duration="9477000" />
       <workItem from="1698226815931" duration="5221000" />
       <workItem from="1701532104541" duration="5147000" />
+      <workItem from="1704214938834" duration="2568000" />
+      <workItem from="1704441871722" duration="5548000" />
+      <workItem from="1704617923774" duration="1645000" />
+      <workItem from="1704634927567" duration="8024000" />
+      <workItem from="1704822054584" duration="6485000" />
+      <workItem from="1704909542492" duration="1510000" />
+      <workItem from="1705244596828" duration="9282000" />
+      <workItem from="1705332971425" duration="12197000" />
     </task>
     <task id="LOCAL-00001" summary="no changes">
       <created>1697898891564</created>
@@ -164,7 +189,21 @@
       <option name="project" value="LOCAL" />
       <updated>1701533015473</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="ignor this commit">
+      <created>1704215153007</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1704215153007</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Binding implementation for .pb inputs">
+      <created>1705358828639</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1705358828639</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -198,6 +237,12 @@
     <MESSAGE value="implementation of relu" />
     <MESSAGE value="implementation of matmul" />
     <MESSAGE value="minor changes" />
-    <option name="LAST_COMMIT_MESSAGE" value="minor changes" />
+    <MESSAGE value="ignor this commit" />
+    <MESSAGE value="Binding implementation for .pb inputs" />
+    <option name="LAST_COMMIT_MESSAGE" value="Binding implementation for .pb inputs" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

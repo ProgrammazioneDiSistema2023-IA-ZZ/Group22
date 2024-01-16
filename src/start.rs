@@ -12,11 +12,9 @@ impl Start {
 }
 
 impl Compute for Start{
-
     fn compute(&mut self, inputs: Input) -> Output {
        Output::TensorD(self.data.clone())
     }
-
     fn op_type(&self) -> &'static str {
         return "Initializer";
     }

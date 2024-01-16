@@ -5,10 +5,12 @@ use ndarray::{Array1, Array4, ArrayD, IxDyn};
 use crate::operations::{Input, Output};
 use crate::onnx_runtime::onnxruntime::{Error, parse_from_raw_data};
 use std::path::Path;
+use numpy::{PyArray, PyArray4, PyReadonlyArrayDyn};
 use protobuf::Message;
 use crate::onnx_runtime;
 use pyo3::exceptions::{PyIOError, PyRuntimeError, PyValueError};
 use pyo3::PyErr;
+use pyo3::types::PyList;
 use crate::onnx_proto3::TensorProto;
 use crate::onnx_runtime::onnxruntime::Error as OnnxRuntimeError;
 
@@ -49,7 +51,6 @@ impl DepGraph {
     fn py_run(&mut self, py_input: PyInput) -> PyResult<Option<PyOutput>> {
         match self.dep_graph.run(py_input.input) {
             Some(output) => {
-                // Converti Output in PyOutput (assumendo che tu abbia una conversione adeguata)
                 let py_output = PyOutput{ output };
                     Ok(Some(py_output))
             },
@@ -88,6 +89,28 @@ impl PyInput {
             },
             _ => Err(PyErr::new::<PyValueError, _>("Unsupported input type")),
         }
+    }
+
+    #[staticmethod]
+
+    pub fn from_numpy(py: Python, array: &PyAny) -> PyResult<Self> {
+        if let Ok(numpy_array) = array.extract::<PyReadonlyArrayDyn<f32>>() {
+            let input = Input::TensorD(numpy_array.to_owned_array());
+            return Ok(PyInput { input });
+        }
+
+        if let Ok(py_list) = array.extract::<&PyList>() {
+            let mut tensor32vec = Vec::new();
+            for item in py_list.iter() {
+                let arr: &PyArray<f32, _> = item.extract::<&PyArray<f32, _>>()?;
+                let rust_array = arr.to_owned_array();
+                tensor32vec.push(rust_array);
+            }
+
+            return Ok(PyInput { input: Input::Tensor32Vec(tensor32vec) });
+        }
+
+        Err(PyErr::new::<PyRuntimeError, _>("Input must be a numpy array or a list of numpy arrays"))
     }
 }
 

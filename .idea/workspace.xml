@@ -16,6 +16,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6bb5e421-b668-4434-b672-cf9e8c142d5d" name="Changes" comment="Changes to be merged">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Reshape.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Reshape.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -40,6 +41,7 @@
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="SWAP_SIDES_IN_COMPARE_BRANCHES" value="true" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -137,7 +139,7 @@
       <workItem from="1705398911114" duration="1104000" />
       <workItem from="1705401333934" duration="135000" />
       <workItem from="1705401596251" duration="569000" />
-      <workItem from="1705425947108" duration="807000" />
+      <workItem from="1705425947108" duration="1977000" />
     </task>
     <task id="LOCAL-00001" summary="no changes">
       <created>1697898891564</created>
@@ -230,7 +232,14 @@
       <option name="project" value="LOCAL" />
       <updated>1705426351491</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Changes to be merged">
+      <created>1705426772207</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1705426772207</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

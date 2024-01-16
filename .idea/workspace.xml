@@ -15,8 +15,7 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6bb5e421-b668-4434-b672-cf9e8c142d5d" name="Changes" comment="Minor changes">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="6bb5e421-b668-4434-b672-cf9e8c142d5d" name="Changes" comment="Changes to be merged">
       <change beforePath="$PROJECT_DIR$/src/Reshape.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Reshape.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -138,7 +137,7 @@
       <workItem from="1705398911114" duration="1104000" />
       <workItem from="1705401333934" duration="135000" />
       <workItem from="1705401596251" duration="569000" />
-      <workItem from="1705425947108" duration="391000" />
+      <workItem from="1705425947108" duration="807000" />
     </task>
     <task id="LOCAL-00001" summary="no changes">
       <created>1697898891564</created>
@@ -224,7 +223,14 @@
       <option name="project" value="LOCAL" />
       <updated>1705401766029</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Changes to be merged">
+      <created>1705426351491</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1705426351491</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -263,7 +269,8 @@
     <MESSAGE value="Added binding implementation for custom numpy arrays" />
     <MESSAGE value="Added Python script to test the bindings" />
     <MESSAGE value="Minor changes" />
-    <option name="LAST_COMMIT_MESSAGE" value="Minor changes" />
+    <MESSAGE value="Changes to be merged" />
+    <option name="LAST_COMMIT_MESSAGE" value="Changes to be merged" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

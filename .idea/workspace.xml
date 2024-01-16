@@ -15,10 +15,7 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6bb5e421-b668-4434-b672-cf9e8c142d5d" name="Changes" comment="Changes to be merged">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Reshape.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Reshape.rs" afterDir="false" />
-    </list>
+    <list default="true" id="6bb5e421-b668-4434-b672-cf9e8c142d5d" name="Changes" comment="Changes to be merged" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -139,7 +136,7 @@
       <workItem from="1705398911114" duration="1104000" />
       <workItem from="1705401333934" duration="135000" />
       <workItem from="1705401596251" duration="569000" />
-      <workItem from="1705425947108" duration="1977000" />
+      <workItem from="1705425947108" duration="2484000" />
     </task>
     <task id="LOCAL-00001" summary="no changes">
       <created>1697898891564</created>

@@ -5,24 +5,24 @@ pub mod onnxruntime {
     use std::io::Read;
     use ndarray::{ArrayD, IxDyn};
     use protobuf::Message;
-    use crate::add::Add;
-    use crate::averagepool::AveragePool;
-    use crate::concat::Concat;
-    use crate::conv::Conv;
-    use crate::dropout::Dropout;
-    use crate::gemm::Gemm;
+    use crate::operations::add::Add;
+    use crate::operations::averagepool::AveragePool;
+    use crate::operations::concat::Concat;
+    use crate::operations::conv::Conv;
+    use crate::operations::dropout::Dropout;
+    use crate::operations::gemm::Gemm;
     use crate::graph::DepGraph;
-    use crate::input::InputNode;
-    use crate::local_response_normalization::LRN;
-    use crate::matmul::MatMul;
-    use crate::maxpool::MaxPool;
+    use crate::operations::input::InputNode;
+    use crate::operations::local_response_normalization::LRN;
+    use crate::operations::matmul::MatMul;
+    use crate::operations::maxpool::MaxPool;
     use crate::node::Node;
     use crate::onnx_proto3::{GraphProto, ModelProto, TensorProto};
     use crate::operations::{Compute, Input};
-    use crate::relu::Relu;
-    use crate::reshape::Reshape;
-    use crate::soft_max::SoftMax;
-    use crate::start::Start;
+    use crate::operations::relu::Relu;
+    use crate::operations::reshape::Reshape;
+    use crate::operations::soft_max::SoftMax;
+    use crate::operations::start::Start;
 
     #[derive(Debug)]
     pub enum Error{
@@ -53,10 +53,6 @@ pub mod onnxruntime {
         let mut nodes = get_nodes(graph);
         let mut initializers = parse_initializers(graph);
         nodes.append(&mut initializers);
-
-        /*let net_input = Array4::from_elem((1,1,28,28), 0.7)
-            .into_shape(IxDyn(&[1,1,28,28])).unwrap();
-        let operation = Box::new(Start::new(net_input));*/
         let input_name = graph.get_input()[0].name.clone();
         nodes.push(Node::new(input_name.clone(), Box::new(InputNode::new())));
         let node_map = nodes.into_iter().map(|n| (n.id(), n)).collect::<HashMap<String, Node>>();
@@ -86,7 +82,6 @@ pub mod onnxruntime {
                     }},
                 _ => ()
             }
-            //println!("{} -- {} -- {} -- {}", tensor.get_name(), data.len(), data[0].clone(), data[1].clone());
             let tensor_d = ArrayD::from_shape_vec(IxDyn(&dims), data).unwrap();
             let tmp_node = Node::new(tensor.name.clone(), Box::new(Start::new(tensor_d)));
             return tmp_node
@@ -156,7 +151,6 @@ pub mod onnxruntime {
                 id = format!("Node_{}", index);
                 index += 1;
             }
-            //println!("{}", id.clone());
             let res: Box<dyn Compute + Send + Sync> = match node.get_op_type(){
                     "Softmax" => Box::new(SoftMax::parse_from_proto_node()),
                     "Relu" => Box::new(Relu::parse_from_proto_node()),
@@ -177,7 +171,6 @@ pub mod onnxruntime {
                 let mut tmp = dep;
                 if alias.contains_key(dep) {
                     tmp = alias.get(dep).unwrap();
-                    //println!("{} --> {}", dep.clone(), tmp.clone());
                 }
                 new_node.add_dep((*tmp).clone());
             }

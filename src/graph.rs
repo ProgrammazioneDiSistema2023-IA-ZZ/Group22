@@ -28,7 +28,7 @@ impl error::Error for Error {}
 pub type InnerDependencyMap = HashMap<String, HashSet<String>>;
 pub type DependencyMap = Arc<RwLock<InnerDependencyMap>>;
 
-/// Dependency graph
+
 pub struct DepGraph
 {
     pub ready_nodes: Vec<String>,
@@ -41,15 +41,11 @@ pub struct DepGraph
 
 impl DepGraph
 {
-    /// Create a new DepGraph based on a vector of edges.
     pub fn new(nodes: HashMap<String, Node>, input_name: String) -> Self {
         let simple_nodes = nodes.values()
             .map(|node| SimpleNode::new(node.id().clone(), node.deps().clone()))
             .collect::<Vec<SimpleNode>>();
         let (deps, rdeps, ready_nodes) = DepGraph::parse_nodes(&simple_nodes);
-        /*let nodes_safe = Arc::new(nodes
-            .into_iter()
-            .map( |(key, val)| (key, Arc::new(RwLock::new(val)))).collect());*/
         let nodes_safe = nodes
             .into_iter()
             .map( |(key, val)| (key, Arc::new(RwLock::new(val)))).collect();
@@ -63,11 +59,7 @@ impl DepGraph
         }
     }
 
-    //nodes_map: &HashMap<String, Node>
     fn parse_nodes(nodes: &Vec<SimpleNode>) -> (DependencyMap, DependencyMap, Vec<String>) {
-        /*let nodes = nodes_map.values()
-            .map(|node| SimpleNode::new(node.id().clone(), node.deps().clone()))
-            .collect::<Vec<SimpleNode>>();*/
 
         let mut deps = InnerDependencyMap::default();
         let mut rdeps = InnerDependencyMap::default();
@@ -166,8 +158,6 @@ impl DepGraph
 
 }
 
-/// Remove all references to the node ID in the dependencies.
-///
 pub fn remove_node_id(
     id: String,
     deps: &DependencyMap,

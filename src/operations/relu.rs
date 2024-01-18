@@ -6,7 +6,7 @@ pub struct Relu{
 
 impl Relu{
 
-    pub fn new(constant: f32) -> Relu{
+    pub fn new() -> Relu{
         return Relu{}
     }
 

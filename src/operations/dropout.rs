@@ -14,7 +14,7 @@ impl Dropout{
     }
 
 
-    pub fn parse_from_proto_node() -> Dropout{ //Change from Option to pure Conv
+    pub fn parse_from_proto_node() -> Dropout{
         return Dropout{};
     }
 

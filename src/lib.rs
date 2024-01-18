@@ -1,23 +1,9 @@
 mod onnx_proto3;
 mod node;
-mod add;
-mod operations;
 mod graph;
-mod reshape;
-mod soft_max;
-mod dropout;
-mod gemm;
-mod concat;
-mod maxpool;
-mod start;
-mod averagepool;
-mod local_response_normalization;
-mod relu;
-mod matmul;
-mod conv;
 mod onnx_runtime;
-mod input;
 mod binding_python;
+mod operations;
 
 
 #[cfg(test)]

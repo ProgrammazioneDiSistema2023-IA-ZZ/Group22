@@ -1,42 +1,32 @@
 use std::fmt::Debug;
 use ndarray::{Array1, Array2, Array3, Array4, ArrayD, IxDyn};
 use crate::onnx_runtime::onnxruntime::{Error};
-
+pub mod add;
+pub mod reshape;
+pub mod soft_max;
+pub mod dropout;
+pub mod gemm;
+pub mod concat;
+pub mod maxpool;
+pub mod start;
+pub mod averagepool;
+pub mod local_response_normalization;
+pub mod relu;
+pub mod matmul;
+pub mod conv;
+pub mod input;
 
 pub trait Compute {
     fn compute(&mut self, inputs: Input) -> Output;
     fn op_type(&self) -> &'static str;
 }
-/*
-impl Clone for Box<dyn Compute> {
-    fn clone(&self) -> Self {
-        self.clone()
-    }
-}
 
- */
 
 impl Debug for dyn Compute {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "dyn Compute")
     }
 }
-
-/*#[derive(Clone, Debug)]
-pub enum Operation{
-    Convolution(Conv),
-    Addition(Add)
-}
-
-impl Operation {
-    pub fn get_operation(op_type: &str, node: NodeProto) -> Option<Self>{
-        match op_type {
-            "Conv" => Some(Convolution(Conv::parse_from_proto_node(&node.get_attribute()).unwrap())),
-            "Add" => Some(Addition(Add::parse_from_proto_node(&node.get_attribute()).unwrap())),
-            _ => None
-        }
-    }
-}*/
 
 #[derive(Clone, Debug)]
 pub enum Input {

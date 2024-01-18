@@ -13,7 +13,6 @@ impl Concat {
 
     pub fn parse_from_proto_node() -> Concat {
         Concat
-        //attribute axis not used since its value is always = 1; no need for parsing whatsoever then
     }
 }
 
@@ -30,7 +29,7 @@ impl Compute for Concat {
                 }
             },
             _ => panic!("wrong input type in the list"),
-        } //Questa parte del codice gestisce il passaggio dalla variante Input al tipo Array4<f32>
+        }
 
         let first_shape = matrices[0].shape();
 

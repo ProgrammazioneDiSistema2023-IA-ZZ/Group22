@@ -28,7 +28,7 @@ impl Gemm{
     }
 
 
-    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Gemm{ //Change from Option to pure Conv
+    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Gemm{
         let mut alpha = 1.0;
         let mut beta = 1.0;
         let mut trans_a = 0;

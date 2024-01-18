@@ -107,30 +107,6 @@ impl Conv {
 impl Compute for Conv{
 
     fn compute(&mut self, inputs: Input) -> Output {
-        //return Output::Tensor32(Array4::from_elem((64,3,256,256), 1.5));
-
-        /*let autopad = self.autopad.clone();
-        let mut list = match inputs {
-            Input::Tensor4List(array) => array,
-            _ => panic!("wrong input type")
-        };
-        let w = list.pop().unwrap();
-        let mut array = list.pop().unwrap();
-        let shape = array.shape();
-        if shape[1] == 1{
-            //return Output::TensorD(Array4::from_elem((1,8,28,28), 1.2).into_shape(IxDyn(&[1,8,28,28])).unwrap());
-            return Output::TensorD(get_first_conv());
-        }else{
-            //return Output::TensorD(Array4::from_elem((1,16,14,14), 23.2).into_shape(IxDyn(&[1, 16, 14, 14])).unwrap());
-            return Output::TensorD(get_output2());
-        }*/
-        /*
-        slice = np.ones((1, 3, 7, 7)) * 1
-    w = np.ones((64, 3, 7, 7)) * 3
-    b = np.ones(64)
-    res = slice * w
-    res = res.sum(axis=(1, 2, 3)) + b
-        */
         let autopad = self.autopad.clone();
         let dilations = self.dilations.clone();
         let group = self.group.clone();
@@ -147,9 +123,6 @@ impl Compute for Conv{
         let mut x: Array4<f32> = x1.clone().into_dimensionality().unwrap();
         let mut w2 = &vec[1];
         let mut w1 = w2.clone();
-
-        // Retrieve input dimensions
-        //let (n, c, h, w) = (x.shape()[0], x.shape()[1], x.shape()[2], x.shape()[3]);
 
         let (mut b, mut c, mut h, mut w) = (0, 0, 0, 0);
 
@@ -198,8 +171,6 @@ impl Compute for Conv{
 
         match autopad.as_str() {
             "SAME_UPPER" | "SAME_LOWER" => {
-                //let oh = (((h + left_h + right_h - dilations[1] as usize * (kernel_size))/stride_h) + 1);
-                //let width_padding_difference = w - kernel_size;
                 let width_padding_difference = kernel_size/stride_w - 1;
                 //I'd get the same value with height_padding_difference
                 if width_padding_difference % 2 == 0 {
@@ -229,7 +200,6 @@ impl Compute for Conv{
 
         let oh = (((h + left_h + right_h - dilations[1] as usize * (kernel_size))/stride_h) + 1);
         let ow = (((w + left_w + right_w - dilations[1] as usize * (kernel_size))/stride_w) + 1);
-        //println!("{} - {} - {} - {}", oh, ow, stride_h, stride_w);
         //Create padded image
 
         //create an image by taking into account the padding; this is the padded input, not the output
@@ -246,11 +216,6 @@ impl Compute for Conv{
         // Initialize output tensor
         let mut y = Array4::<f32>::zeros((b, m, oh, ow));
 
-        //println!("stride h: {}", stride_h);
-        //println!("kernel size: {}", kernel_size);
-        //println!("stride w: {}", stride_w);
-        //println!("x: {}", x);
-
         let w_arr: Array4<f32> = w1.into_dimensionality().unwrap();
         for batch in (0..b) {
             for h in (0..oh) {
@@ -262,13 +227,6 @@ impl Compute for Conv{
                         w * stride_w..w * stride_w + kernel_size
                     ]);
 
-                    // Element-wise multiplication and sum
-                    //println!("{}", input_slice);
-                    //println!("{}", w1);
-
-                    //println!("h: {}", h);
-                    //println!("w: {}", w);
-                    //println!("input slice: {}", input_slice);
                     //let mut convolution_result = &input_slice * &w1;
                     let mut results = Vec::new();
                     w_arr.clone()
@@ -279,21 +237,15 @@ impl Compute for Conv{
 
                     let mut convolution_result= Array1::from(results);
                     //convolution_result = convolution_result.sum_axis(Axis(1)).sum_axis(Axis(1)).sum_axis(Axis(1));
-                    //println!("conv result2: {}", convolution_result);
                     convolution_result = convolution_result + bias.clone();
-                    //println!("{}", bias);
 
                     // Assign the result to the output array
-                    //y[[batch, .., h, w]] = convolution_result;
                     let mut slice_y = y.slice_mut(s![batch, .., h, w]);
                     slice_y.assign(&convolution_result);
-                    //y = y_temp;
 
                 }
             }
         }
-        /*println!("Shape :");
-        y.shape().iter().for_each(|x| print!("{} ", x));*/
         Output::TensorD(y.into_dyn())
     }
 
@@ -301,32 +253,3 @@ impl Compute for Conv{
         return "Conv";
     }
 }
-
-/*
-notes about the attributes:
--auto_pad: ...When set to SAME_UPPER or SAME_LOWER, the input is padded to ensure that for each
- axis i, the output shape output_shape[i] is approximately equal to ceil(input_shape[i] / strides[i])...
-
-The operation ceil(input_shape[i] / strides[i]) involves two mathematical operations: division and ceiling rounding.
-
--Division (input_shape[i] / strides[i]): It calculates the result of dividing the value of
-input_shape[i] by the value of strides[i]. This operation represents the number of steps or
-intervals along a specific axis (indexed by i) that the convolutional or pooling operation takes.
-*strides: The sliding window moves with a specified stride, determining how much it shifts over
-the input after each operation -> the stride represents how many steps you go further before repeating
-a certain operation (Max Pooling for instance)
-
--Ceiling Rounding (ceil(...)): The ceil function rounds the result of the division operation to
-the smallest integer greater than or equal to the result. In the context of neural networks and
-convolutional operations, this rounding is often used to ensure that the output size is sufficient
- to cover the entire input, even when the division result is not an integer.
-
-N.B.In the context of a convolutional neural network (CNN), the convolution kernel (also referred
-to as a filter) is a small matrix applied to an input to produce a feature map. It plays a crucial
-role in the convolution operation, which is a fundamental operation in CNNs.
-
-The convolution operation involves sliding a kernel window over the input data (image or feature map)
-and computing the element-wise multiplication between the values in the kernel and the overlapping
-input values. The results are then summed up to produce a single value in the output feature map.
-This process is repeated for every position of the kernel window, resulting in the entire output feature map
- */

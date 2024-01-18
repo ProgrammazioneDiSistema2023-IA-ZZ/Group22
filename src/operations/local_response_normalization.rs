@@ -59,7 +59,6 @@ impl Compute for LRN {
         //compute square_sum
         for batch in 0..b{
             for channel in 0..c{
-                // max(0, c - int(math.floor((nsize - 1) / 2))) : min(5, c + int(math.ceil((nsize - 1) / 2)) + 1
                 let tmp = (self.size as f32 - 1.0)/2.0;
                 let cur_channel = channel as i32;
                 let start = max(0, cur_channel - tmp.floor() as i32) as usize;

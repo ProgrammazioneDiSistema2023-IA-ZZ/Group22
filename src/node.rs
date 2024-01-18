@@ -5,11 +5,7 @@ use std::sync::{Arc, RwLock};
 use ndarray::{ArrayD};
 use crate::operations::{Compute, Input, Output};
 
-/// Single node in a dependency graph, which might have dependencies or be
-/// be used as a dependency by other nodes.
-///
-/// A node is represented by a unique identifier and may contain a list of
-/// dependencies.
+
 pub struct Node
 {
     pub id: String,
@@ -18,7 +14,6 @@ pub struct Node
     pub output: Option<Output>
 }
 
-///utility struct to generate dependency Graph
 pub struct SimpleNode {
     id: String,
     deps: HashSet<String>,
@@ -88,7 +83,7 @@ impl Node
             });
             self.output = Some(self.operation.compute(Input::Tensor4List(inputs)));
             match self.output.clone().unwrap(){
-                Output::TensorD(arr) => (), //println!("{}", arr.clone()),
+                Output::TensorD(arr) => (),
                 _ => ()
             }
         }else{

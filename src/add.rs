@@ -6,13 +6,12 @@ pub struct Add{
 }
 
 impl Add{
-    /*
     pub fn new() -> Add{
         return Add{ }
 
     }
 
-     */
+
 
     pub fn parse_from_proto_node() -> Add{
         return Add{}

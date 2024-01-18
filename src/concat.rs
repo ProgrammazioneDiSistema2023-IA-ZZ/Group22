@@ -5,11 +5,11 @@ use crate::operations::{Compute, Input, Output};
 pub struct Concat; // l'asse lungo il quale effettuare la concatenazione è sempre axis=1
 
 impl Concat {
-    /*
+
     pub fn new() -> Concat {
         Concat
     }
-     */
+
 
     pub fn parse_from_proto_node() -> Concat {
         Concat

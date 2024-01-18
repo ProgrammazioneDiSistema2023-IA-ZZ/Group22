@@ -18,9 +18,10 @@ mod averagepool;
 mod local_response_normalization;
 mod relu;
 mod matmul;
-mod onnx_runtime;
 mod conv;
 mod input;
+mod onnx_runtime;
+
 
 fn main() {
     let mut dep_graph = onnx_runtime::onnxruntime::get_computational_graph("src/mnist-7/model.onnx".to_string());

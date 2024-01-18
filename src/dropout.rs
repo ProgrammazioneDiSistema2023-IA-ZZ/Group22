@@ -5,16 +5,14 @@ pub struct Dropout{
 }
 
 impl Dropout{
-    /*
+
     pub fn new(
-        ratio: Option<f32>
     ) -> Dropout{
         return Dropout{
-            ratio: ratio.unwrap_or(0.0)
         }
 
     }
-     */
+
 
     pub fn parse_from_proto_node() -> Dropout{ //Change from Option to pure Conv
         return Dropout{};

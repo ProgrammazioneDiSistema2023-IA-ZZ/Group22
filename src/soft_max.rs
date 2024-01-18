@@ -5,11 +5,11 @@ use crate::operations::{Compute, Input, Output};
 pub struct SoftMax;
 
 impl SoftMax {
-    /*
+
     pub fn new() -> SoftMax {
         SoftMax
     }
-     */
+
 
     pub fn parse_from_proto_node() -> SoftMax {
         SoftMax

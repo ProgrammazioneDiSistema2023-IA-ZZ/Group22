@@ -11,7 +11,7 @@ pub struct Gemm{
 }
 
 impl Gemm{
-    /*
+
     pub fn new(
         alpha: Option<f32>,
         beta: Option<f32>,
@@ -26,7 +26,7 @@ impl Gemm{
         }
 
     }
-     */
+
 
     pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Gemm{ //Change from Option to pure Conv
         let mut alpha = 1.0;

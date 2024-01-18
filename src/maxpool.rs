@@ -10,7 +10,7 @@ pub struct MaxPool{
 }
 
 impl MaxPool{
-    /*
+
     pub fn new(
                kernel_shape: Option<Shape<Dim<[usize; 2]>>>,
                pads: Option<ndarray::Array1<i32>>,
@@ -22,7 +22,7 @@ impl MaxPool{
         }
 
     }
-     */
+
 
     pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> MaxPool{
         let mut kernel_shape= Shape::from(Dim([1, 1]));

@@ -5,11 +5,11 @@ pub struct Relu{
 }
 
 impl Relu{
-    /*
+
     pub fn new(constant: f32) -> Relu{
         return Relu{}
     }
-    */
+
 
 
     pub fn parse_from_proto_node() -> Relu{

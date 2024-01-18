@@ -5,6 +5,12 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[target.aarch64-apple-darwin]
+rustflags = [
+    "-C", "link-arg=-undefined",
+    "-C", "link-arg=dynamic_lookup",
+]
+
 [dependencies]
 protobuf = "2.28.0"
 protobuf-codegen = "3.3.0"
@@ -14,12 +20,12 @@ ndarray= {version = "0.15.6", features = ["rayon"]}
 crossbeam = "0.8"
 rayon = "1.5"
 rand = "0.8"
-pyo3 = { version = "0.19.2", features = ["extension-module"] }
+pyo3 = { version = "0.19.2"}
 numpy = "0.19.0"
 
 [lib]
 name = "onnx_rust2py"
-crate-type = ["cdylib", "rlib"]
+crate-type = ["cdylib"]
 
 
 

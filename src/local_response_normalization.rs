@@ -12,11 +12,11 @@ pub struct LRN{
 }
 
 impl LRN {
-    /*
+
     pub fn new(alpha: f32, beta: f32, bias: f32, size: i64) -> LRN {
         LRN{alpha, beta, bias, size}
     }
-*/
+
     pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> LRN {
         let mut alpha = 0.0;
         let mut beta = 0.0;

@@ -6,11 +6,10 @@ pub struct MatMul{
 }
 
 impl MatMul{
-    /*
     pub fn new() -> MatMul{
         return MatMul{}
     }
-*/
+
     pub fn parse_from_proto_node() -> MatMul{
         return MatMul{}
     }

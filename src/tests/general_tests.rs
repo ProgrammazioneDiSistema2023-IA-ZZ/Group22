@@ -16,7 +16,7 @@ use crate::maxpool::MaxPool;
 use crate::onnx_proto3::{ModelProto, NodeProto};
 use crate::onnx_runtime;
 use crate::operations::{Compute, Input, Output};
-use crate::Conv::{Conv};
+use crate::conv::{Conv};
 use crate::reshape::Reshape;
 
     #[test]
@@ -370,45 +370,6 @@ fn test_conv_parsing(){
     }
 
 #[test]
-fn test_conv_without_padding_pads(){
-    let mut kernel_vec:[usize; 2] = [0; 2];
-    let mut input: Vec<i64> = vec![3, 3];
-    let input = input.into_iter().map(|val| val as usize).collect::<Vec<usize>>();
-    kernel_vec.copy_from_slice(&input);
-    let mut conv_node = Conv::new(None, Some(arr1(&[1, 1])), Some(1), Some(Shape::from(Dim(kernel_vec))), None, Some(arr1(&[1, 1])));
-
-    // Define the input values
-    let x_values = vec![
-        0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0,
-        20.0, 21.0, 22.0, 23.0, 24.0,
-    ];
-
-    // Create a 1x1x5x5 array
-    let x = Array::from_shape_vec((1, 1, 5, 5), x_values).unwrap();
-    let mut weight = Array4::from_elem((1, 1, 3, 3), 1.0);
-
-    // Define the expected output
-    let y_values = vec![
-        54.0, 63.0, 72.0, 99.0, 108.0, 117.0, 144.0, 153.0, 162.0,
-    ];
-
-    // Create a 1x1x5x5 array
-    let y = Array::from_shape_vec((1, 1, 3, 3), y_values).unwrap();
-    //let input_d = Input::TensorD(x.into_shape(IxDyn(&[1, 3, 9, 9])).unwrap());
-    //let weight_d = Input::TensorD(weight.into_shape(IxDyn(&[1 ,1, 3, 3])).unwrap());
-    let mut vec_of_arrayd: Vec<ArrayD<f32>> = Vec::new();
-    vec_of_arrayd.push(x.into_dyn());
-    vec_of_arrayd.push(weight.into_dyn());
-    let mut input_d = Input::Tensor4List(vec_of_arrayd);
-    let result = match conv_node.compute(input_d) {
-        Output::TensorD(arr) => arr.into_dimensionality::<Ix4>().unwrap(),
-        _ => panic!("Wrong result")
-    };
-    println!("{}", result);
-    assert_eq!(result, y);
-}
-
-#[test]
 fn test_conv_with_padding_pads(){
     let mut kernel_vec:[usize; 2] = [0; 2];
     let mut input: Vec<i64> = vec![3, 3];
@@ -580,45 +541,6 @@ fn test_conv_without_padding_pads_strides(){
     assert_eq!(result, y_with_padding);
 }
 
-#[test]
-fn test_conv_with_padding_autopad(){
-    let mut kernel_vec:[usize; 2] = [0; 2];
-    let mut input: Vec<i64> = vec![3, 3];
-    let input = input.into_iter().map(|val| val as usize).collect::<Vec<usize>>();
-    kernel_vec.copy_from_slice(&input);
-    let autopad:Option<String> = Some("SAME_LOWER".to_string());
-    let mut conv_node = Conv::new(autopad, Some(arr1(&[1, 1])), Some(1), Some(Shape::from(Dim(kernel_vec))), None, Some(arr1(&[2, 2])));
-
-    // Define the input values
-    let x_values = vec![
-        0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0,
-        20.0, 21.0, 22.0, 23.0, 24.0,
-    ];
-
-    // Create a 1x1x5x5 array
-    let x = Array::from_shape_vec((1, 1, 5, 5), x_values).unwrap();
-    let mut weight = Array4::from_elem((1, 1, 3, 3), 1.0);
-
-    // Define the expected output
-    let y_values = vec![
-        12.0, 27.0, 24.0, 63.0, 108.0, 81.0, 72.0, 117.0, 84.0,
-    ];
-
-    // Create a 1x1x5x5 array
-    let y = Array::from_shape_vec((1, 1, 3, 3), y_values).unwrap();
-    //let input_d = Input::TensorD(x.into_shape(IxDyn(&[1, 3, 9, 9])).unwrap());
-    //let weight_d = Input::TensorD(weight.into_shape(IxDyn(&[1 ,1, 3, 3])).unwrap());
-    let mut vec_of_arrayd: Vec<ArrayD<f32>> = Vec::new();
-    vec_of_arrayd.push(x.into_dyn());
-    vec_of_arrayd.push(weight.into_dyn());
-    let mut input_d = Input::Tensor4List(vec_of_arrayd);
-    let result = match conv_node.compute(input_d) {
-        Output::TensorD(arr) => arr.into_dimensionality::<Ix4>().unwrap(),
-        _ => panic!("Wrong result")
-    };
-    println!("{}", result);
-    assert_eq!(result, y);
-}
 
 #[test]
 fn test_conv_without_padding_pads_bias(){

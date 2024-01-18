@@ -1,6 +1,5 @@
 use ndarray::{Array2, Axis, IxDyn};
 use crate::operations::{Compute, Input, Output};
-use crate::onnx_proto3::{AttributeProto};
 
 #[derive(Clone, Debug)]
 pub struct SoftMax;
@@ -12,7 +11,7 @@ impl SoftMax {
     }
      */
 
-    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> SoftMax {
+    pub fn parse_from_proto_node() -> SoftMax {
         SoftMax
     }
     //attribute axis not used since its value is always = 1; no need for parsing whatsoever then

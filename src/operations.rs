@@ -7,12 +7,14 @@ pub trait Compute {
     fn compute(&mut self, inputs: Input) -> Output;
     fn op_type(&self) -> &'static str;
 }
-
+/*
 impl Clone for Box<dyn Compute> {
     fn clone(&self) -> Self {
         self.clone()
     }
 }
+
+ */
 
 impl Debug for dyn Compute {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {

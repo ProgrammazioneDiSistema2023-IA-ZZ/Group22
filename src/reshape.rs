@@ -1,6 +1,5 @@
 use ndarray::{IxDyn};
 use crate::operations::{Compute, Input, Output};
-use crate::onnx_proto3::{AttributeProto};
 
 #[derive(Clone, Debug)]
 pub struct Reshape{
@@ -14,7 +13,7 @@ impl Reshape{
     }
  */
 
-    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Reshape{ //Change from Option to pure Conv
+    pub fn parse_from_proto_node() -> Reshape{ //Change from Option to pure Conv
         //let shape: Vec<usize> = attributes[0].ints.iter().map(|val| val.clone() as usize).collect();
         return Reshape{};
     }

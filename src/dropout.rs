@@ -1,9 +1,7 @@
 use crate::operations::{Compute, Input, Output};
-use crate::onnx_proto3::{AttributeProto};
 
 #[derive(Clone, Debug)]
 pub struct Dropout{
-    ratio: f32,
 }
 
 impl Dropout{
@@ -18,8 +16,8 @@ impl Dropout{
     }
      */
 
-    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Dropout{ //Change from Option to pure Conv
-        return Dropout{ratio: 0.4000000059604645};
+    pub fn parse_from_proto_node() -> Dropout{ //Change from Option to pure Conv
+        return Dropout{};
     }
 
 }

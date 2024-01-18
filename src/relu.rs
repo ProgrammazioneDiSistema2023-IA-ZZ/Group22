@@ -1,5 +1,4 @@
 use crate::operations::{Compute, Input, Output};
-use crate::onnx_proto3::{AttributeProto};
 
 #[derive(Clone, Debug)]
 pub struct Relu{
@@ -13,7 +12,7 @@ impl Relu{
     */
 
 
-    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Relu{
+    pub fn parse_from_proto_node() -> Relu{
         return Relu{}
     }
 }

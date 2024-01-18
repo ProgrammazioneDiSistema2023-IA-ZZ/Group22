@@ -3,7 +3,7 @@ use std::io::Read;
 use pyo3::prelude::*;
 use ndarray::{ArrayD, IxDyn};
 use crate::operations::{Input, Output};
-use crate::onnx_runtime::onnxruntime::{Error, parse_from_raw_data};
+use crate::onnx_runtime::onnxruntime::{parse_from_raw_data};
 use std::path::Path;
 use numpy::{PyArray, PyReadonlyArrayDyn};
 use protobuf::Message;
@@ -154,7 +154,7 @@ impl PyOutput {
             Output::Tensor3(tensor) => Ok(tensor.clone().into_raw_vec()),
             Output::Tensor4(tensor) => Ok(tensor.clone().into_raw_vec()),
             Output::TensorD(tensor) => Ok(tensor.clone().into_raw_vec()),
-            _ => Err(PyErr::new::<PyValueError, _>("Unsupported input type")),
+            //_ => Err(PyErr::new::<PyValueError, _>("Unsupported input type")),
         }
     }
 }

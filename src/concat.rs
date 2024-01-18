@@ -1,6 +1,5 @@
 use ndarray::{Array4, ArrayView4, concatenate, Axis, IxDyn};
 use crate::operations::{Compute, Input, Output};
-use crate::onnx_proto3::{AttributeProto};
 
 #[derive(Clone, Debug)]
 pub struct Concat; // l'asse lungo il quale effettuare la concatenazione è sempre axis=1
@@ -12,7 +11,7 @@ impl Concat {
     }
      */
 
-    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Concat {
+    pub fn parse_from_proto_node() -> Concat {
         Concat
         //attribute axis not used since its value is always = 1; no need for parsing whatsoever then
     }
@@ -32,16 +31,7 @@ impl Compute for Concat {
             },
             _ => panic!("wrong input type in the list"),
         } //Questa parte del codice gestisce il passaggio dalla variante Input al tipo Array4<f32>
-/*
-        for input1 in input {
-            match input1 {
-                Input::TensorD(array) => {
-                    matrices.push(array.into_dimensionality().unwrap());
-                }
-                _ => panic!("wrong input type in the list"),
-            }
-        }
-*/
+
         let first_shape = matrices[0].shape();
 
         for (_, tensor) in matrices.iter().enumerate() {
@@ -50,7 +40,7 @@ impl Compute for Concat {
                 || tensor_shape[2] != first_shape[2]
                 || tensor_shape[3] != first_shape[3]
             {
-                return panic!("mismatch input dimensions")
+                panic!("mismatch input dimensions")
             }
         }
 

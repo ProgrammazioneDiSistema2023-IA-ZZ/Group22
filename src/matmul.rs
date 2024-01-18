@@ -1,6 +1,5 @@
 use ndarray::{Array2, IxDyn};
 use crate::operations::{Compute, Input, Output};
-use crate::onnx_proto3::{AttributeProto};
 
 #[derive(Clone, Debug)]
 pub struct MatMul{
@@ -12,7 +11,7 @@ impl MatMul{
         return MatMul{}
     }
 */
-    pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> MatMul{
+    pub fn parse_from_proto_node() -> MatMul{
         return MatMul{}
     }
 }

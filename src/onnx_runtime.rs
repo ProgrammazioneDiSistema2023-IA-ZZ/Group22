@@ -158,18 +158,18 @@ pub mod onnxruntime {
             }
             //println!("{}", id.clone());
             let res: Box<dyn Compute + Send + Sync> = match node.get_op_type(){
-                    "Softmax" => Box::new(SoftMax::parse_from_proto_node(node.get_attribute())),
-                    "Relu" => Box::new(Relu::parse_from_proto_node(node.get_attribute())),
-                    "Concat" => Box::new(Concat::parse_from_proto_node(node.get_attribute())),
-                    "Dropout" => Box::new(Dropout::parse_from_proto_node(node.get_attribute())),
+                    "Softmax" => Box::new(SoftMax::parse_from_proto_node()),
+                    "Relu" => Box::new(Relu::parse_from_proto_node()),
+                    "Concat" => Box::new(Concat::parse_from_proto_node()),
+                    "Dropout" => Box::new(Dropout::parse_from_proto_node()),
                     "MaxPool" => Box::new(MaxPool::parse_from_proto_node(node.get_attribute())),
                     "LRN" => Box::new(LRN::parse_from_proto_node(node.get_attribute())),
                     "AveragePool" => Box::new(AveragePool::parse_from_proto_node(node.get_attribute())),
                     "Conv" => Box::new(Conv::parse_from_proto_node(node.get_attribute())),
-                    "Reshape" => Box::new(Reshape::parse_from_proto_node(node.get_attribute())),
+                    "Reshape" => Box::new(Reshape::parse_from_proto_node()),
                     "Gemm" => Box::new(Gemm::parse_from_proto_node(node.get_attribute())),
-                    "MatMul" => Box::new(MatMul::parse_from_proto_node(node.get_attribute())),
-                    "Add" => Box::new(Add::parse_from_proto_node(node.get_attribute())),
+                    "MatMul" => Box::new(MatMul::parse_from_proto_node()),
+                    "Add" => Box::new(Add::parse_from_proto_node()),
                     _ => panic!("Unknown operation type!")
                 };
             let mut new_node = Node::new(id, res);

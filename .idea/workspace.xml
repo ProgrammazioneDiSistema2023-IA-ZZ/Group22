@@ -15,29 +15,8 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6bb5e421-b668-4434-b672-cf9e8c142d5d" name="Changes" comment="Changes to be merged">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/add.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/operations/add.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/averagepool.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/operations/averagepool.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/concat.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/operations/concat.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/conv.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/operations/conv.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/dropout.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/operations/dropout.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gemm.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/operations/gemm.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graph.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/graph.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/input.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/operations/input.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/local_response_normalization.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/operations/local_response_normalization.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/matmul.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/operations/matmul.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/maxpool.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/operations/maxpool.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/node.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/node.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/onnx_runtime.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/onnx_runtime.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/operations.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/operations.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/relu.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/operations/relu.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/reshape.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/operations/reshape.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/soft_max.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/operations/soft_max.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/start.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/operations/start.rs" afterDir="false" />
+    <list default="true" id="6bb5e421-b668-4434-b672-cf9e8c142d5d" name="Changes" comment="changed modules organization">
+      <change beforePath="$PROJECT_DIR$/src/tests/general_tests.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/tests/general_tests.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -112,6 +91,7 @@
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/operations" />
+      <recent name="$PROJECT_DIR$/src" />
     </key>
   </component>
   <component name="RunManager" selected="Cargo.Run">
@@ -149,8 +129,42 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
+    <configuration name="Test general_tests (2)" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package onnx --lib tests::general_tests" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <envs />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="Test general_tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="command" value="cargo test" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <envs />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test tests::general_tests::test_conv_parsing" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package onnx --lib tests::general_tests::test_conv_parsing -- --exact" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <option name="channel" value="DEFAULT" />
       <option name="requiredFeatures" value="true" />
@@ -185,6 +199,8 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Cargo.Test tests::general_tests::test_conv_parsing" />
+        <item itemvalue="Cargo.Test general_tests (2)" />
         <item itemvalue="Cargo.Test general_tests (1)" />
         <item itemvalue="Cargo.Test general_tests" />
         <item itemvalue="Cargo.Test tests::general_tests::test_max_pool_stride1" />
@@ -228,7 +244,7 @@
       <workItem from="1705425947108" duration="2484000" />
       <workItem from="1705593432071" duration="7382000" />
       <workItem from="1705613154818" duration="1665000" />
-      <workItem from="1705614831674" duration="614000" />
+      <workItem from="1705614831674" duration="952000" />
     </task>
     <task id="LOCAL-00001" summary="no changes">
       <created>1697898891564</created>
@@ -328,7 +344,14 @@
       <option name="project" value="LOCAL" />
       <updated>1705426772207</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="changed modules organization">
+      <created>1705615470499</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1705615470499</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -368,7 +391,8 @@
     <MESSAGE value="Added Python script to test the bindings" />
     <MESSAGE value="Minor changes" />
     <MESSAGE value="Changes to be merged" />
-    <option name="LAST_COMMIT_MESSAGE" value="Changes to be merged" />
+    <MESSAGE value="changed modules organization" />
+    <option name="LAST_COMMIT_MESSAGE" value="changed modules organization" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

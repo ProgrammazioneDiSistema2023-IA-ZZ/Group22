@@ -1,9 +1,7 @@
 use std::cmp::{max, min};
-use ndarray::{Array, array, Array1, Array2, Array4, ArrayD, Axis, Ix, Ix1, Ix2, IxDyn, s};
-use ndarray::Dim;
+use ndarray::{Array4, IxDyn, s};
 use crate::operations::{Compute, Input, Output};
-use crate::onnx_proto3::{AttributeProto, NodeProto};
-use crate::operations::Input::TensorD;
+use crate::onnx_proto3::{AttributeProto};
 
 #[derive(Clone, Debug)]
 pub struct LRN{
@@ -14,10 +12,11 @@ pub struct LRN{
 }
 
 impl LRN {
+    /*
     pub fn new(alpha: f32, beta: f32, bias: f32, size: i64) -> LRN {
         LRN{alpha, beta, bias, size}
     }
-
+*/
     pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> LRN {
         let mut alpha = 0.0;
         let mut beta = 0.0;
@@ -49,7 +48,7 @@ impl LRN {
 impl Compute for LRN {
     fn compute(&mut self, input: Input) -> Output {
 
-        let mut tensor: Array4<f32> = match input {
+        let tensor: Array4<f32> = match input {
             Input::TensorD(array) => array.into_dimensionality().unwrap(),
             _ => panic!("wrong input type")
         };
@@ -61,7 +60,7 @@ impl Compute for LRN {
         for batch in 0..b{
             for channel in 0..c{
                 // max(0, c - int(math.floor((nsize - 1) / 2))) : min(5, c + int(math.ceil((nsize - 1) / 2)) + 1
-                let tmp = ((self.size as f32 - 1.0)/2.0);
+                let tmp = (self.size as f32 - 1.0)/2.0;
                 let cur_channel = channel as i32;
                 let start = max(0, cur_channel - tmp.floor() as i32) as usize;
                 let end = min(limit, cur_channel + tmp.ceil() as i32 + 1) as usize;

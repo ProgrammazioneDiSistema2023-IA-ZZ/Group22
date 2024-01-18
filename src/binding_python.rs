@@ -1,11 +1,11 @@
 use std::fs::File;
 use std::io::Read;
 use pyo3::prelude::*;
-use ndarray::{Array1, Array4, ArrayD, IxDyn};
+use ndarray::{ArrayD, IxDyn};
 use crate::operations::{Input, Output};
 use crate::onnx_runtime::onnxruntime::{Error, parse_from_raw_data};
 use std::path::Path;
-use numpy::{PyArray, PyArray4, PyReadonlyArrayDyn};
+use numpy::{PyArray, PyReadonlyArrayDyn};
 use protobuf::Message;
 use crate::onnx_runtime;
 use pyo3::exceptions::{PyIOError, PyRuntimeError, PyValueError};

@@ -1,19 +1,14 @@
-use crossbeam::channel::{unbounded, Sender, Receiver};
+use crossbeam::channel::{unbounded};
 use std::collections::{HashMap, HashSet};
 use std::{error, mem, thread};
 use std::fmt;
 use std::fmt::{Debug, Display, Formatter};
-use std::hash::Hash;
 use std::sync::{Arc, RwLock};
-use std::sync::mpsc::channel;
-use ndarray::Array4;
 use crate::node::{Node, SimpleNode};
 use crate::operations::{Input, Output};
-use crate::start::Start;
-
 
 pub enum Error {
-    NodeNotfound
+    //NodeNotfound
 }
 
 impl Display for Error {
@@ -129,7 +124,7 @@ impl DepGraph
             let thread = thread::spawn(move | | {
                     while let Ok(node) = rx.recv() {
                         println!("Thread_{} computing node: {}", i, node.clone());
-                        let mut node_to_process = node_map.get(&node).unwrap();
+                        let node_to_process = node_map.get(&node).unwrap();
                         if node != input_name {
                             node_to_process.write().unwrap().compute_operation(&node_map);
                         }else{

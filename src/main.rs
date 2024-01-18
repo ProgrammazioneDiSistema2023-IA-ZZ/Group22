@@ -1,22 +1,6 @@
-use std::any::Any;
-use std::collections::{HashMap, HashSet};
-use std::collections::hash_map::DefaultHasher;
-use std::fs::File;
-use std::hash::Hash;
-use std::io::Read;
-use crate::onnx_proto3::{AttributeProto, ModelProto, NodeProto, TensorProto, TypeProto_oneof_value};
-use protobuf::{Message, ProtobufEnum};
-use ndarray::{arr1, Array1, Array2, Array4, ArrayD, Dim, Ix2, Ix4, IxDyn, Shape};
-use crate::add::{Add, AddToTryGraph};
-use crate::gemm::Gemm;
-use crate::graph::DepGraph;
-use crate::maxpool::MaxPool;
-use crate::node::{Node, SimpleNode};
-use crate::onnx_runtime::onnxruntime::{get_nodes, parse_input_tensor};
-use crate::operations::{Compute, Input, Output};
-use crate::reshape::Reshape;
-use crate::soft_max::SoftMax;
-use crate::start::Start;
+use ndarray::{Array4};
+use crate::onnx_runtime::onnxruntime::{parse_input_tensor};
+use crate::operations::{Input, Output};
 
 mod onnx_proto3;
 mod node;
@@ -35,7 +19,7 @@ mod local_response_normalization;
 mod relu;
 mod matmul;
 mod onnx_runtime;
-mod Conv;
+mod conv;
 mod input;
 
 fn main() {

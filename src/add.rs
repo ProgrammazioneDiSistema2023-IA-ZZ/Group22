@@ -1,6 +1,6 @@
-use ndarray::{Array1, Array4, arr1, Shape, Dim, IxDyn};
+use ndarray::{IxDyn};
 use crate::operations::{Compute, Input, Output};
-use crate::onnx_proto3::{AttributeProto, NodeProto};
+use crate::onnx_proto3::{AttributeProto};
 
 #[derive(Clone, Debug)]
 pub struct Add{

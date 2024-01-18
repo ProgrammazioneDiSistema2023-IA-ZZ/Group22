@@ -1,8 +1,6 @@
 use ndarray::{Array1, Array4, arr1, Shape, Dim, Dimension, IxDyn, s};
 use crate::operations::{Compute, Input, Output};
-use crate::onnx_proto3::{AttributeProto, NodeProto};
-use std::cmp::max;
-use ndarray::ArrayD;
+use crate::onnx_proto3::{AttributeProto};
 
 #[derive(Clone, Debug)]
 pub struct MaxPool{
@@ -12,6 +10,7 @@ pub struct MaxPool{
 }
 
 impl MaxPool{
+    /*
     pub fn new(
                kernel_shape: Option<Shape<Dim<[usize; 2]>>>,
                pads: Option<ndarray::Array1<i32>>,
@@ -23,6 +22,7 @@ impl MaxPool{
         }
 
     }
+     */
 
     pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> MaxPool{
         let mut kernel_shape= Shape::from(Dim([1, 1]));
@@ -80,7 +80,7 @@ impl Compute for MaxPool {
 
         //Create padded image
         let mut padded_image = Array4::<f32>::zeros((b, c, h + left_h + right_h, w + left_w + right_w));
-        let mut original_view = x.view_mut();
+        let original_view = x.view_mut();
         let mut padded_view = padded_image.slice_mut(s![.., .., left_h..left_h + h, left_w..left_w + w]);
         padded_view.assign(&original_view);
         x = padded_image;

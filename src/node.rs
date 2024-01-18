@@ -1,10 +1,8 @@
-use std::cmp::PartialEq;
 use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::fmt::{Display, Formatter};
-use std::hash::Hash;
 use std::sync::{Arc, RwLock};
-use ndarray::{Array4, ArrayD};
+use ndarray::{ArrayD};
 use crate::operations::{Compute, Input, Output};
 
 /// Single node in a dependency graph, which might have dependencies or be

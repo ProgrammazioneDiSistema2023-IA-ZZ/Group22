@@ -1,4 +1,3 @@
-use ndarray::{ArrayD};
 use crate::operations::{Compute, Input, Output};
 
 pub struct InputNode{

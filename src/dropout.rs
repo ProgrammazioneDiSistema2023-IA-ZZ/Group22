@@ -1,6 +1,5 @@
-use ndarray::{Array1, Array4, arr1, Shape, Dim};
 use crate::operations::{Compute, Input, Output};
-use crate::onnx_proto3::{AttributeProto, NodeProto};
+use crate::onnx_proto3::{AttributeProto};
 
 #[derive(Clone, Debug)]
 pub struct Dropout{
@@ -8,6 +7,7 @@ pub struct Dropout{
 }
 
 impl Dropout{
+    /*
     pub fn new(
         ratio: Option<f32>
     ) -> Dropout{
@@ -16,6 +16,7 @@ impl Dropout{
         }
 
     }
+     */
 
     pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Dropout{ //Change from Option to pure Conv
         return Dropout{ratio: 0.4000000059604645};

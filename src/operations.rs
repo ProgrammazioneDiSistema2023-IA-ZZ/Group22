@@ -1,7 +1,5 @@
 use std::fmt::Debug;
-use ndarray::{Array, Array1, Array2, Array3, Array4, ArrayBase, ArrayD, IxDyn};
-use crate::add::Add;
-use crate::onnx_proto3::NodeProto;
+use ndarray::{Array1, Array2, Array3, Array4, ArrayD, IxDyn};
 use crate::onnx_runtime::onnxruntime::{Error};
 
 
@@ -121,7 +119,7 @@ impl Output {
             Output::Tensor3(arr) => Ok(arr.into_raw_vec()),
             Output::Tensor4(arr) => Ok(arr.into_raw_vec()),
             Output::TensorD(arr) => Ok(arr.into_raw_vec()),
-            _ => Err(Error::ConversionError)
+            //_ => Err(Error::ConversionError)
         }
     }
 

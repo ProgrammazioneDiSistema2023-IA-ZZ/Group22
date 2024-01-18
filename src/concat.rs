@@ -1,14 +1,16 @@
-use ndarray::{Array1, Array4, arr1, Array2, Shape, Dim, ArrayView4, concatenate, Axis, IxDyn};
+use ndarray::{Array4, ArrayView4, concatenate, Axis, IxDyn};
 use crate::operations::{Compute, Input, Output};
-use crate::onnx_proto3::{AttributeProto, NodeProto};
+use crate::onnx_proto3::{AttributeProto};
 
 #[derive(Clone, Debug)]
 pub struct Concat; // l'asse lungo il quale effettuare la concatenazione è sempre axis=1
 
 impl Concat {
+    /*
     pub fn new() -> Concat {
         Concat
     }
+     */
 
     pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Concat {
         Concat
@@ -24,7 +26,7 @@ impl Compute for Concat {
         match input{
             Input::Tensor4List(array) => {
                 for input1 in array.iter(){
-                    let mut element: Array4<f32> = input1.clone().into_dimensionality().unwrap();
+                    let element: Array4<f32> = input1.clone().into_dimensionality().unwrap();
                     matrices.push(element.into_dimensionality().unwrap());
                 }
             },
@@ -42,7 +44,7 @@ impl Compute for Concat {
 */
         let first_shape = matrices[0].shape();
 
-        for (index, tensor) in matrices.iter().enumerate() {
+        for (_, tensor) in matrices.iter().enumerate() {
             let tensor_shape = tensor.shape();
             if tensor_shape[0] != first_shape[0]
                 || tensor_shape[2] != first_shape[2]

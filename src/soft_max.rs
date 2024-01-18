@@ -1,16 +1,16 @@
-use ndarray::{Array, array, Array1, Array2, ArrayD, Axis, Ix, Ix1, Ix2, IxDyn};
-use ndarray::Dim;
+use ndarray::{Array2, Axis, IxDyn};
 use crate::operations::{Compute, Input, Output};
-use crate::onnx_proto3::{AttributeProto, NodeProto};
-use crate::operations::Input::TensorD;
+use crate::onnx_proto3::{AttributeProto};
 
 #[derive(Clone, Debug)]
 pub struct SoftMax;
 
 impl SoftMax {
+    /*
     pub fn new() -> SoftMax {
         SoftMax
     }
+     */
 
     pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> SoftMax {
         SoftMax
@@ -21,7 +21,7 @@ impl SoftMax {
 impl Compute for SoftMax {
     fn compute(&mut self, input: Input) -> Output {
 
-        let mut matrix: Array2<f32> = match input {
+        let matrix: Array2<f32> = match input {
             Input::TensorD(array) => array.into_dimensionality().unwrap(),
             _ => panic!("wrong input type")
         }; //Questa parte del codice gestisce il passaggio dalla variante Input al tipo Array2<f32>

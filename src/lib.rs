@@ -14,12 +14,11 @@ mod averagepool;
 mod local_response_normalization;
 mod relu;
 mod matmul;
-mod Conv;
+mod conv;
 mod onnx_runtime;
 mod input;
 mod binding_python;
 
-use pyo3::pymodule;
 
 #[cfg(test)]
 mod tests {

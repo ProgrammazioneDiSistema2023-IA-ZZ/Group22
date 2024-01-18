@@ -1,6 +1,6 @@
-use ndarray::{Array1, Array4, arr1, Shape, Dim, Array2, IxDyn};
+use ndarray::{Array2, IxDyn};
 use crate::operations::{Compute, Input, Output};
-use crate::onnx_proto3::{AttributeProto, NodeProto};
+use crate::onnx_proto3::{AttributeProto};
 
 #[derive(Clone, Debug)]
 pub struct Gemm{
@@ -11,6 +11,7 @@ pub struct Gemm{
 }
 
 impl Gemm{
+    /*
     pub fn new(
         alpha: Option<f32>,
         beta: Option<f32>,
@@ -25,6 +26,7 @@ impl Gemm{
         }
 
     }
+     */
 
     pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Gemm{ //Change from Option to pure Conv
         let mut alpha = 1.0;
@@ -62,7 +64,7 @@ impl Compute for Gemm{
             Input::Tensor4List(vec_array) => vec_array,
             _ => panic!("Input is not a vector")
         };
-        let mut c = arrays.pop().unwrap();
+        let c = arrays.pop().unwrap();
         let mut b: Array2<f32> = arrays.pop().unwrap().into_dimensionality().unwrap();
         let mut a: Array2<f32>  = arrays.pop().unwrap().into_dimensionality().unwrap();
         if self.trans_a != 0 {

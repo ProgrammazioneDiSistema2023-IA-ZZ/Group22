@@ -1,16 +1,17 @@
-use ndarray::{Array1, Array4, Array, arr1, Shape, Dim};
 use crate::operations::{Compute, Input, Output};
-use crate::onnx_proto3::{AttributeProto, NodeProto};
-use ndarray::parallel;
+use crate::onnx_proto3::{AttributeProto};
 
 #[derive(Clone, Debug)]
 pub struct Relu{
 }
 
 impl Relu{
+    /*
     pub fn new(constant: f32) -> Relu{
         return Relu{}
     }
+    */
+
 
     pub fn parse_from_proto_node(attributes: &[AttributeProto]) -> Relu{
         return Relu{}

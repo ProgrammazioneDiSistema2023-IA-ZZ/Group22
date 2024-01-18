@@ -1,18 +1,14 @@
-use std::collections::HashMap;
-use crate::graph::DepGraph;
-use crate::node::Node;
-
 //Interface struct for
 pub mod onnxruntime {
     use std::collections::HashMap;
     use std::fs::File;
     use std::io::Read;
-    use ndarray::{Array1, Array2, Array3, Array4, ArrayD, IxDyn};
+    use ndarray::{ArrayD, IxDyn};
     use protobuf::Message;
     use crate::add::Add;
     use crate::averagepool::AveragePool;
     use crate::concat::Concat;
-    use crate::Conv::Conv;
+    use crate::conv::Conv;
     use crate::dropout::Dropout;
     use crate::gemm::Gemm;
     use crate::graph::DepGraph;
@@ -22,7 +18,7 @@ pub mod onnxruntime {
     use crate::maxpool::MaxPool;
     use crate::node::Node;
     use crate::onnx_proto3::{GraphProto, ModelProto, TensorProto};
-    use crate::operations::{Compute, Input, Output};
+    use crate::operations::{Compute, Input};
     use crate::relu::Relu;
     use crate::reshape::Reshape;
     use crate::soft_max::SoftMax;
@@ -73,7 +69,7 @@ pub mod onnxruntime {
         let nodes: Vec<Node> = starting_nodes.into_iter().map(|tensor| {
             cnt += 1;
             let dims: Vec<usize> = tensor.get_dims().iter().map(|val| *val as usize).collect();
-            let mut raw = tensor.get_raw_data();
+            let raw = tensor.get_raw_data();
             let mut data: Vec<f32> = Vec::new();
             match tensor.get_data_type() {
                 1 => {
@@ -92,7 +88,7 @@ pub mod onnxruntime {
             }
             //println!("{} -- {} -- {} -- {}", tensor.get_name(), data.len(), data[0].clone(), data[1].clone());
             let tensor_d = ArrayD::from_shape_vec(IxDyn(&dims), data).unwrap();
-            let mut tmp_node = Node::new(tensor.name.clone(), Box::new(Start::new(tensor_d)));
+            let tmp_node = Node::new(tensor.name.clone(), Box::new(Start::new(tensor_d)));
             return tmp_node
         }).collect();
         println!("All parsed = {}",starting_nodes.len() == nodes.len());

@@ -29,9 +29,6 @@ impl Compute for Reshape{
         };
         let mut shape = list.pop().unwrap().map(|val| (*val) as usize).into_raw_vec();
         let mut vec = list.pop().unwrap();
-        //println!("shape: {:?}", shape);
-        //vec.shape().iter().for_each(|val| print!("{}",val));
-        //println!();
         let reshaped = vec.into_shape(IxDyn(&shape)).unwrap();
         return Output::TensorD(reshaped);
     }

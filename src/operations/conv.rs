@@ -18,11 +18,11 @@ pub struct Conv{
 
 impl Conv {
     pub fn new(ap: Option<String>,
-               dil: Option<ndarray::Array1<i32>>,
+               dil: Option<Array1<i32>>,
                group: Option<u32>,
                kernel_shape: Option<Shape<Dim<[usize; 2]>>>,
-               pads: Option<ndarray::Array1<i32>>,
-               strides: Option<ndarray::Array1<i32>>, ) -> Conv {
+               pads: Option<Array1<i32>>,
+               strides: Option<Array1<i32>>, ) -> Conv {
         return Conv {
             autopad: ap.unwrap_or("NOT_SET".to_string()),
             dilations: dil.unwrap_or(arr1(&[1, 1])),
@@ -109,9 +109,8 @@ impl Compute for Conv{
     fn compute(&mut self, inputs: Input) -> Output {
         let autopad = self.autopad.clone();
         let dilations = self.dilations.clone();
-        let group = self.group.clone();
         let kernel_shape = self.kernel_shape.clone();
-        let pads = self.pads.clone();
+        let pads: Array1<i32> = self.pads.clone();
         let strides = self.strides.clone();
 
         let mut vec = match inputs {
@@ -179,7 +178,7 @@ impl Compute for Conv{
                     left_w = width_padding_difference.clone().div(2);
                     right_w = width_padding_difference.clone().div(2);
                 }else{
-                    if(autopad == "SAME_LOWER") {
+                    if autopad == "SAME_LOWER" {
                         left_h = width_padding_difference.clone().div(2) + 1;
                         right_h = width_padding_difference.clone().div(2);
                         left_w = width_padding_difference.clone().div(2) + 1;
@@ -217,9 +216,9 @@ impl Compute for Conv{
         let mut y = Array4::<f32>::zeros((b, m, oh, ow));
 
         let w_arr: Array4<f32> = w1.into_dimensionality().unwrap();
-        for batch in (0..b) {
-            for h in (0..oh) {
-                for w in (0..ow){
+        for batch in 0..b {
+            for h in 0..oh {
+                for w in 0..ow {
                     let input_slice = x.slice(s![
                         batch,
                         ..,

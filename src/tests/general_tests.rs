@@ -1,6 +1,7 @@
 
-/*#[cfg(test)]
-pub mod tests {*/
+#[cfg(test)]
+pub mod general_tests {
+
 use std::cmp::max;
 use std::collections::HashSet;
 use std::fs::File;
@@ -576,4 +577,4 @@ fn test_conv_without_padding_pads_bias(){
         }
         assert_eq!(tot_out, mapping_len);
     }
-//}
+}

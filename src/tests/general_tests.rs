@@ -158,7 +158,7 @@ use crate::operations::reshape::Reshape;
 
     #[test]
     fn test_max_pool_parsing(){
-        let mut input_onnx = File::open("src/gender_googlenet.onnx").unwrap();
+        let mut input_onnx = File::open("src/tests/gender_googlenet.onnx").unwrap();
         //Onnx file into byte array
         let mut byte_array = Vec::<u8>::new();
         input_onnx.read_to_end(&mut byte_array).unwrap();
@@ -199,7 +199,7 @@ use crate::operations::reshape::Reshape;
 
 #[test]
 fn test_conv_parsing(){
-    let mut input_onnx = File::open("src/gender_googlenet.onnx").unwrap();
+    let mut input_onnx = File::open("src/tests/gender_googlenet.onnx").unwrap();
     //Onnx file into byte array
     let mut byte_array = Vec::<u8>::new();
     input_onnx.read_to_end(&mut byte_array).unwrap();
@@ -249,7 +249,7 @@ fn test_conv_parsing(){
 
     #[test]
     fn test_lrn_parsing(){
-        let mut input_onnx = File::open("src/gender_googlenet.onnx").unwrap();
+        let mut input_onnx = File::open("src/tests/gender_googlenet.onnx").unwrap();
         //Onnx file into byte array
         let mut byte_array = Vec::<u8>::new();
         input_onnx.read_to_end(&mut byte_array).unwrap();
@@ -281,7 +281,7 @@ fn test_conv_parsing(){
 
     #[test]
     fn test_gemm_parsing(){
-        let mut input_onnx = File::open("src/gender_googlenet.onnx").unwrap();
+        let mut input_onnx = File::open("src/tests/gender_googlenet.onnx").unwrap();
         //Onnx file into byte array
         let mut byte_array = Vec::<u8>::new();
         input_onnx.read_to_end(&mut byte_array).unwrap();
@@ -566,7 +566,7 @@ fn test_conv_without_padding_pads_bias(){
 
     #[test]
     fn test_create_mapping(){
-        let model = onnx_runtime::onnxruntime::parse_onnx("src/mnist-7.onnx".to_string()).unwrap();
+        let model = onnx_runtime::onnxruntime::parse_onnx("src/tests/mnist-7.onnx".to_string()).unwrap();
         let graph = model.get_graph();
         let tot_out = graph.get_node()
             .iter().map(|n| n.get_output().len()).reduce(|v1, v2| v1 + v2).unwrap();

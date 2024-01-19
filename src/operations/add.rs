@@ -6,6 +6,8 @@ pub struct Add{
 }
 
 impl Add{
+
+    #[allow(dead_code)]
     pub fn new() -> Add{
         return Add{ }
 
@@ -19,6 +21,8 @@ impl Add{
 
 }
 
+
+#[allow(unreachable_code)]
 impl Compute for Add{
     fn compute(&mut self, inputs: Input) -> Output {
         return match inputs {

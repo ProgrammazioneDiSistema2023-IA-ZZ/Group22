@@ -93,7 +93,7 @@ impl PyInput {
 
     #[staticmethod]
 
-    pub fn from_numpy(py: Python, array: &PyAny) -> PyResult<Self> {
+    pub fn from_numpy(_py: Python, array: &PyAny) -> PyResult<Self> {
         if let Ok(numpy_array) = array.extract::<PyReadonlyArrayDyn<f32>>() {
             let input = Input::TensorD(numpy_array.to_owned_array());
             return Ok(PyInput { input });
@@ -173,7 +173,7 @@ fn diff_out(v1: PyOutput, v2: PyOutput) -> PyResult<Vec<f32>> {
 
 
 #[pymodule]
-fn onnx_rust2py(py: Python, m: &PyModule) -> PyResult<()> {
+fn onnx_rust2py(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<DepGraph>()?;
     m.add_class::<PyInput>()?;
     m.add_class::<PyOutput>()?;

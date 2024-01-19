@@ -6,6 +6,7 @@ pub struct Dropout{
 
 impl Dropout{
 
+    #![allow(dead_code)]
     pub fn new(
     ) -> Dropout{
         return Dropout{

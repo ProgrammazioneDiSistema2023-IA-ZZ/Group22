@@ -1,6 +1,7 @@
 use std::fmt::Debug;
 use ndarray::{Array1, Array2, Array3, Array4, ArrayD, IxDyn};
 use crate::onnx_runtime::onnxruntime::{Error};
+
 pub mod add;
 pub mod reshape;
 pub mod soft_max;
@@ -28,6 +29,7 @@ impl Debug for dyn Compute {
     }
 }
 
+
 #[derive(Clone, Debug)]
 pub enum Input {
     Tensor32(Array4<f32>),
@@ -40,6 +42,7 @@ pub enum Input {
     Tensor4List(Vec<ArrayD<f32>>),
     Empty
 }
+
 
 #[derive(Clone, Debug)]
 pub enum Output {
@@ -61,10 +64,11 @@ impl Input {
         };
         return match res {
             Ok(val) => Ok(Input::TensorD(val)),
-            Err(e) => Err(Error::ConversionError)
+            Err(_e) => Err(Error::ConversionError)
         }
     }
 
+    #[allow(dead_code)]
     pub fn into_raw_vec(self) -> Result<Vec<f32>, Error> {
         match self {
             Input::Tensor32(arr) => Ok(arr.into_raw_vec()),
@@ -77,6 +81,7 @@ impl Input {
         }
     }
 
+    #[allow(dead_code)]
     pub fn list_into_raw_vec(self) -> Result<Vec<Vec<f32>>, Error> {
         match self {
             Input::Tensor4List(vec) =>
@@ -90,6 +95,8 @@ impl Input {
 }
 
 impl Output {
+
+    #[allow(dead_code)]
     pub fn from_raw_vec(vec: Vec<f32>, shape: &[usize]) -> Result<Output, Error>{
         let res = match shape.len() {
             d if d >= 1 && d <= 4 => {
@@ -99,7 +106,7 @@ impl Output {
         };
         return match res {
             Ok(val) => Ok(Output::TensorD(val)),
-            Err(e) => Err(Error::ConversionError)
+            Err(_e) => Err(Error::ConversionError)
         }
     }
 

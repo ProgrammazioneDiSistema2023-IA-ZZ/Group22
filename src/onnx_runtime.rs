@@ -110,6 +110,7 @@ pub mod onnxruntime {
             .collect();
     }
 
+    #[allow(dead_code)]
     pub fn parse_input_tensor(path: String) -> Result<Input, Error>{
         let mut input_tensor = File::open(path).unwrap();
         //Onnx file into byte array

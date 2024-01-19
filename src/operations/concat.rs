@@ -6,6 +6,7 @@ pub struct Concat; // l'asse lungo il quale effettuare la concatenazione è semp
 
 impl Concat {
 
+    #![allow(dead_code)]
     pub fn new() -> Concat {
         Concat
     }

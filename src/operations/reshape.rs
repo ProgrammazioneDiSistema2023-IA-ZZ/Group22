@@ -7,7 +7,8 @@ pub struct Reshape{
 
 impl Reshape{
 
-    pub fn new(shape: Vec<usize>) -> Reshape{
+    #![allow(dead_code)]
+    pub fn new() -> Reshape{
         return Reshape{
         }
     }

@@ -6,6 +6,7 @@ pub struct Relu{
 
 impl Relu{
 
+    #![allow(dead_code)]
     pub fn new() -> Relu{
         return Relu{}
     }

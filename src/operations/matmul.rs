@@ -6,6 +6,8 @@ pub struct MatMul{
 }
 
 impl MatMul{
+
+    #![allow(dead_code)]
     pub fn new() -> MatMul{
         return MatMul{}
     }
@@ -15,6 +17,8 @@ impl MatMul{
     }
 }
 
+
+#[allow(unreachable_code)]
 impl Compute for MatMul {
     fn compute(&mut self, inputs: Input) -> Output {
         return match inputs {

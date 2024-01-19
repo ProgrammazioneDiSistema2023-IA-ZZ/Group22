@@ -1,9 +1,7 @@
-use ndarray::{Array1, Array4, arr1, Shape, Dim, Dimension, s, Axis, IntoDimension, IxDyn, ShapeBuilder, Array};
+use ndarray::{Array1, Array4, arr1, Shape, Dim, Dimension, s, Axis};
 use crate::operations::{Compute, Input, Output};
-use crate::onnx_proto3::{AttributeProto, NodeProto};
-use std::cmp::max;
+use crate::onnx_proto3::{AttributeProto};
 use std::ops::Div;
-use ndarray::ArrayD;
 use ndarray::parallel::prelude::*;
 
 #[derive(Clone, Debug)]
@@ -113,34 +111,32 @@ impl Compute for Conv{
         let pads: Array1<i32> = self.pads.clone();
         let strides = self.strides.clone();
 
-        let mut vec = match inputs {
+        let vec = match inputs {
             Input::Tensor4List(vec_array) => vec_array,
             _ => panic!("Input is not a vector")
         };
         // let mut x = vec[0].clone();
-        let mut x1 = &vec[0];
+        let x1 = &vec[0];
         let mut x: Array4<f32> = x1.clone().into_dimensionality().unwrap();
-        let mut w2 = &vec[1];
-        let mut w1 = w2.clone();
-
-        let (mut b, mut c, mut h, mut w) = (0, 0, 0, 0);
+        let w2 = &vec[1];
+        let w1 = w2.clone();
 
         // Get the size of each dimension
         let shape = x.shape();
-        match shape.len() {
+        let ( b,  c,  h,  w) = match shape.len() {
             4 => {
-                b = shape[0].clone();
-                c = shape[1].clone();
-                h = shape[2].clone();
-                w = shape[3].clone();
+                (shape[0].clone(),
+                shape[1].clone(),
+                shape[2].clone(),
+                shape[3].clone())
             },
             _ => panic!("Unexpected number of dimensions in the tensor"),
-        }
+        };
 
 
         // Retrieve weight dimensions
 
-        let (m, _, kh, kw) = {
+        let (m, _, _, _) = {
             // Get the size of each dimension
             let shape = w1.shape();
             match shape.len() {
@@ -149,7 +145,7 @@ impl Compute for Conv{
             }
         };
 
-        let mut bias = Array1::<f32>::zeros((m));
+        let mut bias = Array1::<f32>::zeros(m);
 
         match vec.get(2) {
             Some(element) => bias = element.clone().into_shape((m,)).unwrap(),
@@ -197,14 +193,14 @@ impl Compute for Conv{
             _ => panic!("Invalid autopad mode")
         };
 
-        let oh = (((h + left_h + right_h - dilations[1] as usize * (kernel_size))/stride_h) + 1);
-        let ow = (((w + left_w + right_w - dilations[1] as usize * (kernel_size))/stride_w) + 1);
+        let oh = ((h + left_h + right_h - dilations[1] as usize * (kernel_size))/stride_h) + 1;
+        let ow = ((w + left_w + right_w - dilations[1] as usize * (kernel_size))/stride_w) + 1;
         //Create padded image
 
         //create an image by taking into account the padding; this is the padded input, not the output
         let mut padded_image = Array4::<f32>::zeros((b, c, h + left_h + right_h, w + left_w + right_w));
         //generate a mutable copy of x
-        let mut original_view = x.view_mut();
+        let original_view = x.view_mut();
         //generate a view on padded_image by only considering the pixels without padding
         let mut padded_view = padded_image.slice_mut(s![.., .., left_h..left_h + h, left_w..left_w + w]);
         //now x is the original image + the padded values

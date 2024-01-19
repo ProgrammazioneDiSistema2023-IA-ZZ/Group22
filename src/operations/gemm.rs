@@ -12,6 +12,7 @@ pub struct Gemm{
 
 impl Gemm{
 
+    #![allow(dead_code)]
     pub fn new(
         alpha: Option<f32>,
         beta: Option<f32>,

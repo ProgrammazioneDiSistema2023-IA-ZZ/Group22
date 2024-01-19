@@ -6,6 +6,7 @@ pub struct SoftMax;
 
 impl SoftMax {
 
+    #![allow(dead_code)]
     pub fn new() -> SoftMax {
         SoftMax
     }

@@ -66,10 +66,10 @@ impl Node
                 _ => panic!("wrong output")
             };
             self.output = Some(self.operation.compute(input));
-            match self.output.clone().unwrap(){
-                Output::TensorD(arr) => (),//println!("{}", arr.clone()),
+            /*match self.output.clone().unwrap(){
+                Output::TensorD(arr) => (),
                 _ => ()
-            }
+            }*/
 
         }else if self.deps.len() > 1 {
             let mut inputs = Vec::<ArrayD<f32>>::new();
@@ -82,10 +82,10 @@ impl Node
                 inputs.push(input);
             });
             self.output = Some(self.operation.compute(Input::Tensor4List(inputs)));
-            match self.output.clone().unwrap(){
+            /*match self.output.clone().unwrap(){
                 Output::TensorD(arr) => (),
                 _ => ()
-            }
+            }*/
         }else{
             self.output = Some(self.operation.compute(Input::Empty));
         }

@@ -11,6 +11,7 @@ pub struct AveragePool{
 
 impl AveragePool{
 
+    #![allow(dead_code)]
     pub fn new(
         kernel_shape: Option<Shape<Dim<[usize; 2]>>>,
         pads: Option<ndarray::Array1<i32>>,

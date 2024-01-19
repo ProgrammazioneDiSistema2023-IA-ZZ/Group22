@@ -13,6 +13,7 @@ pub struct LRN{
 
 impl LRN {
 
+    #![allow(dead_code)]
     pub fn new(alpha: f32, beta: f32, bias: f32, size: i64) -> LRN {
         LRN{alpha, beta, bias, size}
     }

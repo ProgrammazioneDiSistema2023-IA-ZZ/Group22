@@ -16,7 +16,7 @@ pub struct Node
 
 pub struct SimpleNode {
     id: String,
-    deps: HashSet<String>,
+    pub deps: HashSet<String>,
 }
 
 impl SimpleNode

@@ -180,7 +180,37 @@ impl DepGraph
         }
     }
 
-
+    pub fn modify_node_dep(&mut self, name: String, to_remove: Option<String>, to_add: Option<String>) -> Result<(), Error>{
+        let node = match self.nodes.get_mut(&mut name.clone()){
+            Some(val) => val,
+            None => return Err(Error::NodeNotfound)
+        };
+        if to_add.is_some(){
+            node.write().unwrap().deps.push(to_add.clone().unwrap().clone());
+            let mut found = 0;
+            for (ind, node) in self.original_nodes.iter().enumerate(){
+                if node.id() == name{
+                    found = ind;
+                    break
+                }
+            }
+            let tmp = to_add.clone().unwrap().clone();
+            self.original_nodes[found].deps.insert(tmp);
+        }
+        if to_remove.is_some(){
+            let to_compare = to_remove.unwrap().clone();
+            node.write().unwrap().deps.retain(|v| *v != to_compare);
+            let mut found = 0;
+            for (ind, node) in self.original_nodes.iter().enumerate(){
+                if node.id() == name{
+                    found = ind;
+                    break
+                }
+            }
+            self.original_nodes[found].deps.remove(&to_compare);
+        }
+        Ok(())
+    }
 
 }
 

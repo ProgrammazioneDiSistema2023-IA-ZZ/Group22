@@ -15,7 +15,7 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6bb5e421-b668-4434-b672-cf9e8c142d5d" name="Changes" comment="suppressed warnings and made code cleaner">
+    <list default="true" id="6bb5e421-b668-4434-b672-cf9e8c142d5d" name="Changes" comment="feat: added add and remove node">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/graph.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/graph.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
@@ -248,7 +248,7 @@
       <workItem from="1705613154818" duration="1665000" />
       <workItem from="1705614831674" duration="2242000" />
       <workItem from="1705659935217" duration="981000" />
-      <workItem from="1705671050709" duration="4409000" />
+      <workItem from="1705671050709" duration="5889000" />
     </task>
     <task id="LOCAL-00001" summary="no changes">
       <created>1697898891564</created>
@@ -376,7 +376,14 @@
       <option name="project" value="LOCAL" />
       <updated>1705672511778</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="feat: added add and remove node">
+      <created>1705676023644</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1705676023644</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -419,7 +426,8 @@
     <MESSAGE value="fixed general_tests" />
     <MESSAGE value="minor changes" />
     <MESSAGE value="suppressed warnings and made code cleaner" />
-    <option name="LAST_COMMIT_MESSAGE" value="suppressed warnings and made code cleaner" />
+    <MESSAGE value="feat: added add and remove node" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: added add and remove node" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

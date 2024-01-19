@@ -5,10 +5,10 @@ use std::fmt;
 use std::fmt::{Debug, Display, Formatter};
 use std::sync::{Arc, RwLock};
 use crate::node::{Node, SimpleNode};
-use crate::operations::{Input, Output};
+use crate::operations::{Compute, Input, Output};
 
 pub enum Error {
-    //NodeNotfound
+    NodeNotfound
 }
 
 impl Display for Error {
@@ -154,6 +154,32 @@ impl DepGraph
             return None;
         }
     }
+
+    pub fn add_node(&mut self, name: String, operation: Box<dyn Compute + Send + Sync>, deps: &[String]){
+        let mut new_node = Node::new(name.clone(), operation);
+        deps.iter().for_each(|x | new_node.add_dep(x.clone()));
+        self.nodes.insert(name.clone(), Arc::new(RwLock::new(new_node)));
+        self.original_nodes.push(SimpleNode::new(name.clone(), deps.into_iter()
+            .map(|n| n.clone()).collect::<HashSet<String>>()));
+    }
+
+    pub fn remove_node(&mut self, name: String) -> Result<(), Error>{
+        return match self.nodes.remove(&name){
+            Some(_x) => {
+                let mut found = 0;
+                for (ind, node) in self.original_nodes.iter().enumerate(){
+                    if node.id() == name {
+                        found = ind;
+                        break
+                    }
+                }
+                self.original_nodes.remove(found);
+                Ok(())
+            },
+            None => Err(Error::NodeNotfound)
+        }
+    }
+
 
 
 }

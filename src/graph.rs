@@ -155,6 +155,7 @@ impl DepGraph
         }
     }
 
+    #[allow(dead_code)]
     pub fn add_node(&mut self, name: String, operation: Box<dyn Compute + Send + Sync>, deps: &[String]){
         let mut new_node = Node::new(name.clone(), operation);
         deps.iter().for_each(|x | new_node.add_dep(x.clone()));
@@ -163,6 +164,7 @@ impl DepGraph
             .map(|n| n.clone()).collect::<HashSet<String>>()));
     }
 
+    #[allow(dead_code)]
     pub fn remove_node(&mut self, name: String) -> Result<(), Error>{
         return match self.nodes.remove(&name){
             Some(_x) => {
@@ -180,6 +182,7 @@ impl DepGraph
         }
     }
 
+    #[allow(dead_code)]
     pub fn modify_node_dep(&mut self, name: String, to_remove: Option<String>, to_add: Option<String>) -> Result<(), Error>{
         let node = match self.nodes.get_mut(&mut name.clone()){
             Some(val) => val,

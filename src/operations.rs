@@ -29,7 +29,7 @@ impl Debug for dyn Compute {
     }
 }
 
-
+#[allow(dead_code)]
 #[derive(Clone, Debug)]
 pub enum Input {
     Tensor32(Array4<f32>),
@@ -43,7 +43,7 @@ pub enum Input {
     Empty
 }
 
-
+#[allow(dead_code)]
 #[derive(Clone, Debug)]
 pub enum Output {
     Tensor32(Array4<f32>),

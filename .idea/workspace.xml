@@ -15,13 +15,11 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6bb5e421-b668-4434-b672-cf9e8c142d5d" name="Changes" comment="Changes to be merged">
-      <change beforePath="$PROJECT_DIR$/python_binding/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/python_binding/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="6bb5e421-b668-4434-b672-cf9e8c142d5d" name="Changes" comment="Bindings: added implementation for edits on the network and creation of new operations">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/python_binding/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/python_binding/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/binding_python.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/binding_python.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/build.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graph.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/graph.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/operations/averagepool.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/operations/averagepool.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python_binding/onnx_rust2py.pyd" beforeDir="false" afterPath="$PROJECT_DIR$/python_binding/onnx_rust2py.pyd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/operations.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/operations.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -253,6 +251,7 @@
       <workItem from="1705614831674" duration="2242000" />
       <workItem from="1705659935217" duration="981000" />
       <workItem from="1705671050709" duration="5889000" />
+      <workItem from="1705752472080" duration="1171000" />
     </task>
     <task id="LOCAL-00001" summary="no changes">
       <created>1697898891564</created>
@@ -387,7 +386,21 @@
       <option name="project" value="LOCAL" />
       <updated>1705676023644</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="Bindings: added implementation for edits on the network and creation of new operations">
+      <created>1705718742642</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1705718742642</updated>
+    </task>
+    <task id="LOCAL-00021" summary="Bindings: added implementation for edits on the network and creation of new operations">
+      <created>1705718782908</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1705718782908</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -431,7 +444,8 @@
     <MESSAGE value="minor changes" />
     <MESSAGE value="suppressed warnings and made code cleaner" />
     <MESSAGE value="feat: added add and remove node" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: added add and remove node" />
+    <MESSAGE value="Bindings: added implementation for edits on the network and creation of new operations" />
+    <option name="LAST_COMMIT_MESSAGE" value="Bindings: added implementation for edits on the network and creation of new operations" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

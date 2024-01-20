@@ -10,8 +10,6 @@ out = dep_graph.py_run(input_arr)
 result = onnx.py_parse_input_tensor("../src/mnist-7/test_data_set_0/output_0.pb")
 print(f"Output: {out.as_vec()}")
 print(f"Result: {result.as_vec()}")
-diff = [a - b for a, b in zip(out.as_vec(), result.as_vec())]
-print(f"Difference: {diff}")
 
 print("Running Googlenet")
 dep_graph = onnx.PyDepGraph("../src/googlenet/model.onnx")
@@ -20,8 +18,6 @@ out = dep_graph.py_run(input_arr)
 result = onnx.py_parse_input_tensor("../src/googlenet/test_data_set_0/output_0.pb")
 print(f"Output: {out.as_vec()}")
 print(f"Result: {result.as_vec()}")
-diff = [a - b for a, b in zip(out.as_vec(), result.as_vec())]
-print(f"Difference: {diff}")
 '''
 
 # print("Running MNIST-7 with custom input")

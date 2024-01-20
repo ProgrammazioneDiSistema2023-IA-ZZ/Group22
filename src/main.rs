@@ -30,9 +30,6 @@ fn main() {
         _ => panic!("Errore output")
     };
     println!("{}", result.clone());
-    println!("Difference: ");
-    let diff = graph_result - result;
-    println!("{}", diff);
 
     //Testing Modified Mnist-7
     println!("\nTesting add node");
@@ -92,8 +89,5 @@ fn main() {
         _ => panic!("Errore output")
     };
     println!("{}", result.clone());
-    println!("Difference: ");
-    let diff = graph_result - result;
-    println!("{}", diff);
 }
 
